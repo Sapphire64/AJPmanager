@@ -20,3 +20,8 @@
     background-color: #ffffff;
 
 }
+
+.pointer {
+    /* Cursor for labels in new_models_templates window */
+    cursor: pointer;
+}
