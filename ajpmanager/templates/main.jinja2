@@ -1,0 +1,410 @@
+
+<!doctype html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!-- Consider adding a manifest.appcache: h5bp.com/d/Offline -->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+
+    <!-- Use the .htaccess and remove these lines to avoid edge case issues.
+ More info: h5bp.com/i/378 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>{{ text }}</title>
+    <meta name="description" content="">
+
+    <!-- Mobile viewport optimized: h5bp.com/viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
+
+    <link rel="stylesheet" href="{{ request.static_url('ajpmanager:static/extras/h5bp/css/style.css') }}">
+    <!-- Or use this one if you run H5BP's build script -->
+    <!--link rel="stylesheet" href="extras/h5bp/publish/css/e68668b.css"-->
+
+    <link rel="stylesheet" href="{{ request.static_url('ajpmanager:static/css/bootstrap.css') }}">
+    <link rel="stylesheet" href="{{ request.static_url('ajpmanager:static/css/admin.css') }}">
+    <!--<link rel="stylesheet/less" href="{{ request.static_url('ajpmanager:static/less/bootstrap.less') }}">
+    <script src="{{ request.static_url('ajpmanager:static/less_js/less-1.3.0.min.js') }}"></script> -->
+
+    <!-- Want to try a different theme?
+          If not using LESS compiler: Uncomment below
+        and change to name of desired theme. (See docs) 	-->
+    <!--link type="text/css" rel="stylesheet" href="extras/css/amelia.css" /-->
+
+    <!-- More ideas for your <head> here: h5bp.com/d/head-Tips -->
+
+    <!-- All JavaScript at the bottom, except this Modernizr build.
+Modernizr enables HTML5 elements & feature detects for optimal performance.
+Create your own custom Modernizr build: www.modernizr.com/download/ -->
+    <script src="{{ request.static_url('ajpmanager:static/extras/h5bp/js/libs/modernizr-2.5.3.min.js') }}"></script>
+    <style type="text/css">
+        body {
+            padding-top: 80px;
+            padding-bottom: 40px;
+        }
+        .sidebar-nav {
+            padding: 9px 0;
+        }
+    </style>
+</head>
+<body>
+<!-- Prompt IE 6 users to install Chrome Frame. Remove this if you support IE 6.
+chromium.org/developers/how-tos/chrome-frame-getting-started -->
+<!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="#">Virtual Machines Monitor</a>
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <p class="navbar-text pull-right">Logged in as <a href="#">{{ username }}</a></p>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+<div class="row-fluid">
+<div class="span2">
+    <div class="well sidebar-nav">
+        <ul class="nav nav-list">
+            <li class="nav-header">Управление магазином</li>
+            <li class="active"><a href="/admin"><i class="icon-white icon-home"></i> Панель управления</a></li>
+            <li><a href="/admin/users"><i class="icon-user"></i> Пользователи</a></li>
+            <li><a href="/admin/pages"><i class="icon-file"></i> Статичные страницы</a></li>
+            <li><a href="/admin/images"><i class="icon-picture"></i> Изображения</a></li>
+            <li><a href="/admin/menu"><i class="icon-th-list"></i> Главное меню</a></li>
+
+            <li class="nav-header">Товары</li>
+            <li><a href="/admin/brands"><i class="icon-star"></i> Бренды</a></li>
+            <li><a href="/admin/categories"><i class="icon-folder-close"></i> Категории</a></li>
+            <li><a href="/admin/catalogs"><i class="icon-folder-open"></i> Каталоги</a></li>
+            <li><a href="/admin/catalogs/properties"><i class="icon-pencil"></i> Свойства</a></li>
+            <li><a href="/admin/items"><i class="icon-gift"></i> Товары</a></li>
+            <li class="nav-header">Другое</li>
+            <li><a href="/admin/settings"><i class="icon-cog"></i> Настройки</a></li>
+            <li><a href="#"><i class="icon-flag"></i> Помощь</a></li>
+
+        </ul>
+    </div><!--/.well -->
+</div><!--/span-->
+<div class="span7 well">
+
+    <h3 align="center">Virtual Machines List</h3>
+
+        <br>
+
+        <table class="table table-striped table-centered" style="background-color: #ffffff;">
+            <thead>
+            <tr>
+                <th style="width: 30px;">#</th>
+                <th style="width: 200px;">Name</th>
+                <th style="width: 150px;">Type</th>
+                <th style="width: 150px;">Load</th>
+                <th style="width: 30px;">Cores</th>
+                <th style="width: 110px;">Memory</th>
+                <th style="width: 30px;">Status</th>
+                <th style="width: 25px;"> <btn class="btn btn-warning"><i class="icon-pencil"></i></btn></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>…</td>
+                <td>…</td>
+                <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                <td><span class="label label-info">2</span></td>
+                <td><span class="label label-info">235M / 768M</span></td>
+                <td><span class="label label-success">Running</span></td>
+                <td><input id="1" type="checkbox" onchange="note_checkboxes(this);"></td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>…</td>
+                <td>…</td>
+                <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                <td><span class="label label-info">2</span></td>
+                <td><span class="label label-info">768M</span></td>
+                <td><span class="label label-success">Running</span></td>
+                <td><input id="1" type="checkbox" onchange="note_checkboxes(this);"></td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>…</td>
+                <td>…</td>
+                <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                <td><span class="label label-info">2</span></td>
+                <td><span class="label label-info">768M</span></td>
+                <td><span class="label label-success">Running</span></td>
+                <td><input id="1" type="checkbox" onchange="note_checkboxes(this);"></td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>…</td>
+                <td>…</td>
+                <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                <td><span class="label label-info">2</span></td>
+                <td><span class="label label-info">768M</span></td>
+                <td><span class="label label-success">Running</span></td>
+                <td><input id="1" type="checkbox" onchange="note_checkboxes(this);"></td>
+            </tr>
+            </tbody>
+        </table>
+
+
+
+
+
+
+
+
+
+</div> <!--span-->
+
+    <div class="span3">
+        <div class="well">
+            <h3 align="center">
+                Manager
+                <a class="btn" data-toggle="modal" href="#myModal" >Launch Modal</a>
+            </h3>
+            <br>
+
+
+
+            <table class="table table-bordered table-centered" style="background-color: #ffffff;">
+                <thead>
+                <tr>
+                    <th style="width: 30px;">#</th>
+                    <th style="width: 200px;">Name</th>
+                    <th style="width: 150px;">Type</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>3</td>
+                    <td>…</td>
+                    <td>…</td>
+                </tr>
+                </tbody>
+            </table>
+            <div align="center">
+                <div class="btn-toolbar">
+                    <div class="btn-group">
+                        <btn class="btn btn-success" title="Run all" style="width: 35px"><i class="icon-play"></i></btn>
+                        <btn class="btn btn-warning" title="Pause all" style="width: 35px"><i class="icon-pause"></i></btn>
+                        <btn class="btn btn-danger" title="Stop all" style="width: 35px"><i class="icon-stop"></i></btn>
+                    </div>
+                    <div class="btn-group">
+                        <btn class="btn btn-info" title="Detailed information about selected VM"><i class="icon-info-sign"></i></btn>
+                    </div>
+
+                <div class="btn-group">
+                    <btn class="btn btn-primary" title="Clone selected virtual machine"><i class="icon-share"></i></btn>
+                </div>
+
+                <div class="btn-group">
+                    <btn class="btn btn-danger" title="Delete selected virtual machine"><i class="icon-remove"></i></btn>
+                </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="well">
+            <h4 align="center">Add new machine from preset</h4>
+
+
+            <div class="framer">
+                <br>
+                <table class="table table-condensed table-centered" style="background-color: #ffffff;">
+
+                    <thead>
+                    <tr>
+                        <th style="width: 30px;">#</th>
+                        <th style="width: 200px;">Preset name</th>
+                        <th style="width: 100px;">Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>3</td>
+                        <td>…</td>
+                        <td><div class="label label-success" onclick="">Read</div></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>…</td>
+                        <td>…</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>…</td>
+                        <td>…</td>
+                    </tr> <tr>
+                        <td>3</td>
+                        <td>…</td>
+                        <td>…</td>
+                    </tr> <tr>
+                        <td>3</td>
+                        <td>…</td>
+                        <td>…</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>…</td>
+                        <td>…</td>
+                    </tr> <tr>
+                        <td>3</td>
+                        <td>…</td>
+                        <td>…</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>…</td>
+                        <td>…</td>
+                    </tr> <tr>
+                        <td>3</td>
+                        <td>…</td>
+                        <td>…</td>
+                    </tr> <tr>
+                        <td>3</td>
+                        <td>…</td>
+                        <td>…</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>…</td>
+                        <td>…</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>…</td>
+                        <td>…</td>
+                    </tr>
+
+
+
+
+
+
+                    </tbody>
+                </table></div>
+
+
+
+
+            <div align="center">
+                <btn class="btn btn-success"><b>Add new </b><i class="icon-plus"></i></btn>
+            </div>
+        </div>
+
+
+        </div>
+</div><!--/row-->
+
+<hr>
+
+<footer>
+    <p><i class="icon-github-sign"></i> Built with <a href="http://ajkochanowicz.github.com/Kickstrap/">Kickstrap</a></p>
+</footer>
+
+
+
+
+
+<div id="myModal" class="modal hide fade">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal" >&times;</a>
+        <h3>Preset description</h3>
+    </div>
+    <div class="modal-body">
+        <h4>Text in a modal</h4>
+        <p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem.</p>
+
+        <h4>Popover in a modal</h4>
+        <p>This <a href="#" class="btn popover-test" title="A Title" data-content="And here's some amazing content. It's very engaging. right?">button</a> should trigger a popover on hover.</p>
+
+        <h4>Tooltips in a modal</h4>
+        <p><a href="#" class="tooltip-test" title="Tooltip">This link</a> and <a href="#" class="tooltip-test" title="Tooltip">that link</a> should have tooltips on hover.</p>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal" >Close</a>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+</div><!--/.fluid-container-->
+
+<!-- JavaScript at the bottom for fast page loading -->
+
+<!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="{{ request.static_url('ajpmanager:static/extras/h5bp/js/libs/jquery-1.7.1.min.js') }}"><\/script>')</script>
+
+<!-- scripts concatenated and minified via build script -->
+<script src="{{ request.static_url('ajpmanager:static/extras/h5bp/js/plugins.js') }}"></script>
+<script src="{{ request.static_url('ajpmanager:static/extras/h5bp/js/script.js') }}"></script>
+<!-- Or use this line if you're using H5BP's build script -->
+<!--script src="extras/h5bp/publish/js/eaf4d2f.js"></script-->
+
+<!-- Full Bootstrap js file. -->
+<script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap.min.js') }}"></script>
+
+<!-- If you'd rather pick and choose, comment the above and uncomment what you need below -->
+<!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-alert.min.js') }}"></script-->
+<!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-button.min.js') }}"></script-->
+<!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-carousel.min.js') }}"></script-->
+<!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-collapse.min.js') }}"></script-->
+<!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-dropdown.min.js') }}"></script-->
+<!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-modal.min.js') }}"></script-->
+<!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-popover.min.js') }}"></script-->
+<!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-scrollspy.min.js') }}"></script-->
+<!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-tab.min.js') }}"></script-->
+<!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-tooltip.min.js') }}"></script-->
+<!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-transition.min.js') }}"></script-->
+<!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-typeahead.min.js') }}"></script-->
+<!--script type="text/javascript" src=""></script-->
+
+<!-- end scripts -->
+
+<!-- Asynchronous Google Analytics snippet. Change UA-XXXXX-X to be your site's ID.
+mathiasbynens.be/notes/async-analytics-snippet -->
+
+<!-- jGrowl -->
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+<script type="text/javascript" src="{{ request.static_url('ajpmanager:static/extras/jgrowl/jquery.jgrowl.min.js') }}"></script>
+<script type="text/javascript">
+    $(document).ready (function() {
+        //$.jGrowl("Welcome to Kickstrap. <a href=\"http://stanlemon.net/pages/jgrowl\"><i class=\"icon-book\"></i> jGrowl Docs</a>", { life: 3000 });
+        $('#gameover').popover(options)
+    });
+</script>
+
+<!-- Chosen -->
+<script type="text/javascript" src="{{ request.static_url('ajpmanager:static/extras/chosen/chosen.jquery.min.js') }}"></script>
+<!-- Activate Chosen js -->
+<script type="text/javascript"> $(".chzn-select").chosen(); $(".chzn-select-deselect").chosen({allow_single_deselect:true}); </script>
+
+</body>
+</html>
