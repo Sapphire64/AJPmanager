@@ -8,16 +8,15 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
     'pyramid',
-    'SQLAlchemy',
     'transaction',
+    'pyramid_jinja2',
     'pyramid_tm',
     'pyramid_debugtoolbar',
-    'zope.sqlalchemy',
     'waitress',
     ]
 
 setup(name='ajpmanager',
-      version='0.0',
+      version='0.1',
       description='ajpmanager',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
