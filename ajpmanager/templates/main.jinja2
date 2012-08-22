@@ -5,7 +5,8 @@
 <!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
 <!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
 <!-- Consider adding a manifest.appcache: h5bp.com/d/Offline -->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="en" xmlns="http://www.w3.org/1999/html"> <!--<![endif]-->
 <head>
     <meta charset="utf-8">
 
@@ -63,14 +64,29 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </a>
-            <a class="brand" href="#">Virtual Machines Monitor</a>
+            <a class="brand" href="#"  onclick="show_default_screen();">AJPmanager</a>
             <div class="nav-collapse">
                 <ul class="nav">
-                    <li class="active"><a href="#">Home</a></li>
                     <li><a href="#about">About</a></li>
                     <li><a href="#contact">Contact</a></li>
                 </ul>
                 <p class="navbar-text pull-right">Logged in as <a href="#">{{ username }}</a></p>
+            </div><!--/.nav-collapse -->
+
+        </div>
+    </div>
+</div>
+
+<div class="navbar navbar-fixed-bottom">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <div align="center">
+                <div class="btn-toolbar">
+                    <input id="stats" type="text" class="span8 disabled"  style="margin-top: 7px;" disabled>
+                    <btn class="btn btn-info" title="Run all"><i class="icon-refresh"></i></btn>
+                </div>
+
+        </div>
             </div><!--/.nav-collapse -->
         </div>
     </div>
@@ -80,105 +96,281 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 <div class="row-fluid">
 <div class="span2">
     <div class="well sidebar-nav">
-        <ul class="nav nav-list">
-            <li class="nav-header">Управление магазином</li>
-            <li class="active"><a href="/admin"><i class="icon-white icon-home"></i> Панель управления</a></li>
-            <li><a href="/admin/users"><i class="icon-user"></i> Пользователи</a></li>
-            <li><a href="/admin/pages"><i class="icon-file"></i> Статичные страницы</a></li>
-            <li><a href="/admin/images"><i class="icon-picture"></i> Изображения</a></li>
-            <li><a href="/admin/menu"><i class="icon-th-list"></i> Главное меню</a></li>
+        <ul class="nav nav-tabs nav-stacked">
+            <li class="nav-header">Models control</li>
+            <li id="main_entry" class="active"><a href="#" onclick="show_default_screen();"><i class="icon-white icon-home"></i> Main screen</a></li>
+            <li id="view_entry" class="hide"><a href="#"><i class="icon-user"></i> View machine</a></li>
+            <li id="edit_entry" class="hide"><a href="#"><i class="icon-pencil"></i>  Edit machine</a></li>
+            <li class="nav-header">Misc</li>
+            <li id="settings_entry"><a href="#" onclick="show_settings();"><i class="icon-cog"></i> Settings</a></li>
+            <li id="help_entry"><a href="#" onclick="show_help();"><i class="icon-flag"></i> Help</a></li>
 
-            <li class="nav-header">Товары</li>
-            <li><a href="/admin/brands"><i class="icon-star"></i> Бренды</a></li>
-            <li><a href="/admin/categories"><i class="icon-folder-close"></i> Категории</a></li>
-            <li><a href="/admin/catalogs"><i class="icon-folder-open"></i> Каталоги</a></li>
-            <li><a href="/admin/catalogs/properties"><i class="icon-pencil"></i> Свойства</a></li>
-            <li><a href="/admin/items"><i class="icon-gift"></i> Товары</a></li>
-            <li class="nav-header">Другое</li>
-            <li><a href="/admin/settings"><i class="icon-cog"></i> Настройки</a></li>
-            <li><a href="#"><i class="icon-flag"></i> Помощь</a></li>
+            <li class="nav-header">Links</li>
+            <li><a href="http://docs.pylonsproject.org/en/latest/docs/pyramid.html"><i class="icon-book"></i> Pyramid Documentation</a></li>
+            <li><a href="http://github.com/Sapphire64/AJPmanager"><i class="icon-github-sign"></i> Project on GitHub</a></li>
+            <li><a href="http://cs.donntu.edu.ua/English/indexEn.php"><i class="icon-home"></i> Computer Science Faculty</a></li>
+
 
         </ul>
     </div><!--/.well -->
+
+    <div class="well">
+        <div class="left_framer">
+            <table class="table table-condensed table-centered" style="background-color: #ffffff;">
+                <thead>
+                <tr>
+                    <th style="width: 160px;">Active operations</th>
+                    <th style="width: 80px;">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Image installation</td>
+                    <td><div class="label label-info pointer" onclick="show_operations_modal(1);">Info</div></td>
+                </tr>
+
+
+
+
+
+                </tbody>
+            </table>
+
+        </div>
+    </div><!--/.well -->
+
+
 </div><!--/span-->
-<div class="span7 well">
+<div class="span7">
 
-    <h3 align="center">Virtual Machines List</h3>
+    <div class="well" id="running_machines_list">
+        <h3 align="center">Virtual Machines List</h3>
+            <br>
 
-        <br>
+            <table class="table table-striped table-centered" style="background-color: #ffffff;">
+                <thead>
+                <tr>
+                    <th style="width: 30px;">#</th>
+                    <th style="width: 200px;">Name</th>
+                    <th style="width: 150px;">Type</th>
+                    <th style="width: 150px;">Load</th>
+                    <th style="width: 30px;">Cores</th>
+                    <th style="width: 110px;">Memory</th>
+                    <th style="width: 30px;">Status</th>
+                    <th style="width: 25px;">
+                        <input id="check0" type="checkbox" onchange="note_checkboxes(this);">
+                        </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>…</td>
+                    <td>Unknown</td>
+                    <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                    <td><span class="label label-info">2</span></td>
+                    <td><span class="label label-info">235M / 768M</span></td>
+                    <td><span class="label label-success">Running</span></td>
+                    <td><input id="check1" type="checkbox" onchange="note_checkboxes(this);"></td>
+                </tr>
 
-        <table class="table table-striped table-centered" style="background-color: #ffffff;">
-            <thead>
-            <tr>
-                <th style="width: 30px;">#</th>
-                <th style="width: 200px;">Name</th>
-                <th style="width: 150px;">Type</th>
-                <th style="width: 150px;">Load</th>
-                <th style="width: 30px;">Cores</th>
-                <th style="width: 110px;">Memory</th>
-                <th style="width: 30px;">Status</th>
-                <th style="width: 25px;"> <btn class="btn btn-warning"><i class="icon-pencil"></i></btn></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>1</td>
-                <td>…</td>
-                <td>…</td>
-                <td><span class="label label-info">0.00 0.00 0.00</span></td>
-                <td><span class="label label-info">2</span></td>
-                <td><span class="label label-info">235M / 768M</span></td>
-                <td><span class="label label-success">Running</span></td>
-                <td><input id="1" type="checkbox" onchange="note_checkboxes(this);"></td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>…</td>
-                <td>…</td>
-                <td><span class="label label-info">0.00 0.00 0.00</span></td>
-                <td><span class="label label-info">2</span></td>
-                <td><span class="label label-info">768M</span></td>
-                <td><span class="label label-success">Running</span></td>
-                <td><input id="1" type="checkbox" onchange="note_checkboxes(this);"></td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td>…</td>
-                <td>…</td>
-                <td><span class="label label-info">0.00 0.00 0.00</span></td>
-                <td><span class="label label-info">2</span></td>
-                <td><span class="label label-info">768M</span></td>
-                <td><span class="label label-success">Running</span></td>
-                <td><input id="1" type="checkbox" onchange="note_checkboxes(this);"></td>
-            </tr>
-            <tr>
-                <td>4</td>
-                <td>…</td>
-                <td>…</td>
-                <td><span class="label label-info">0.00 0.00 0.00</span></td>
-                <td><span class="label label-info">2</span></td>
-                <td><span class="label label-info">768M</span></td>
-                <td><span class="label label-success">Running</span></td>
-                <td><input id="1" type="checkbox" onchange="note_checkboxes(this);"></td>
-            </tr>
-            </tbody>
-        </table>
+                <tr>
+                    <td>2</td>
+                    <td>…</td>
+                    <td>…</td>
+                    <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                    <td><span class="label label-info">2</span></td>
+                    <td><span class="label label-info">768M</span></td>
+                    <td><span class="label label-success">Running</span></td>
+                    <td><input id="check2" type="checkbox" onchange="note_checkboxes(this);"></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>…</td>
+                    <td>…</td>
+                    <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                    <td><span class="label label-info">2</span></td>
+                    <td><span class="label label-info">768M</span></td>
+                    <td><span class="label label-success">Running</span></td>
+                    <td><input id="check3" type="checkbox" onchange="note_checkboxes(this);"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>…</td>
+                    <td>…</td>
+                    <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                    <td><span class="label label-info">2</span></td>
+                    <td><span class="label label-info">768M</span></td>
+                    <td><span class="label label-success">Running</span></td>
+                    <td><input id="check4" type="checkbox" onchange="note_checkboxes(this);"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>…</td>
+                    <td>…</td>
+                    <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                    <td><span class="label label-info">2</span></td>
+                    <td><span class="label label-info">768M</span></td>
+                    <td><span class="label label-success">Running</span></td>
+                    <td><input id="check4" type="checkbox" onchange="note_checkboxes(this);"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>…</td>
+                    <td>…</td>
+                    <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                    <td><span class="label label-info">2</span></td>
+                    <td><span class="label label-info">768M</span></td>
+                    <td><span class="label label-success">Running</span></td>
+                    <td><input id="check4" type="checkbox" onchange="note_checkboxes(this);"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>…</td>
+                    <td>…</td>
+                    <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                    <td><span class="label label-info">2</span></td>
+                    <td><span class="label label-info">768M</span></td>
+                    <td><span class="label label-success">Running</span></td>
+                    <td><input id="check4" type="checkbox" onchange="note_checkboxes(this);"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>…</td>
+                    <td>…</td>
+                    <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                    <td><span class="label label-info">2</span></td>
+                    <td><span class="label label-info">768M</span></td>
+                    <td><span class="label label-success">Running</span></td>
+                    <td><input id="check4" type="checkbox" onchange="note_checkboxes(this);"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>…</td>
+                    <td>…</td>
+                    <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                    <td><span class="label label-info">2</span></td>
+                    <td><span class="label label-info">768M</span></td>
+                    <td><span class="label label-success">Running</span></td>
+                    <td><input id="check4" type="checkbox" onchange="note_checkboxes(this);"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>…</td>
+                    <td>…</td>
+                    <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                    <td><span class="label label-info">2</span></td>
+                    <td><span class="label label-info">768M</span></td>
+                    <td><span class="label label-success">Running</span></td>
+                    <td><input id="check4" type="checkbox" onchange="note_checkboxes(this);"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>…</td>
+                    <td>…</td>
+                    <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                    <td><span class="label label-info">2</span></td>
+                    <td><span class="label label-info">768M</span></td>
+                    <td><span class="label label-success">Running</span></td>
+                    <td><input id="check4" type="checkbox" onchange="note_checkboxes(this);"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>…</td>
+                    <td>…</td>
+                    <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                    <td><span class="label label-info">2</span></td>
+                    <td><span class="label label-info">768M</span></td>
+                    <td><span class="label label-success">Running</span></td>
+                    <td><input id="check4" type="checkbox" onchange="note_checkboxes(this);"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>…</td>
+                    <td>…</td>
+                    <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                    <td><span class="label label-info">2</span></td>
+                    <td><span class="label label-info">768M</span></td>
+                    <td><span class="label label-success">Running</span></td>
+                    <td><input id="check4" type="checkbox" onchange="note_checkboxes(this);"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>…</td>
+                    <td>…</td>
+                    <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                    <td><span class="label label-info">2</span></td>
+                    <td><span class="label label-info">768M</span></td>
+                    <td><span class="label label-success">Running</span></td>
+                    <td><input id="check4" type="checkbox" onchange="note_checkboxes(this);"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>…</td>
+                    <td>…</td>
+                    <td><span class="label label-info">0.00 0.00 0.00</span></td>
+                    <td><span class="label label-info">2</span></td>
+                    <td><span class="label label-info">768M</span></td>
+                    <td><span class="label label-success">Running</span></td>
+                    <td><input id="check4" type="checkbox" onchange="note_checkboxes(this);"></td>
+                </tr>
+
+                </tbody>
+            </table>
+    </div> <!-- Running machines DIV -->
+
+
+
+    <div class="well hide" id="machine_detailed_info">
+
+        <div class="btn-group">
+            <btn class="btn btn-warning btn-large" title="Edit selected virtual machine"><i class="icon-pencil"></i></btn>
+            <btn class="btn btn-primary btn-large" title="Clone selected virtual machine"><i class="icon-share"></i></btn>
+            <btn class="btn btn-danger btn-large" title="Delete selected virtual machine"><i class="icon-remove"></i></btn>
+        </div>
+        detailed info screen
 
 
 
 
+    </div>
 
 
+    <div class="well hide" id="edit_machine_screen">
+
+        edit machine screen
+
+
+
+
+    </div>
+
+    <div class="well hide" id="settings_screen">
+
+        SETTINGS screens
+
+
+
+
+    </div>
+
+    <div class="well hide" id="help_screen">
+
+        help screen
+
+
+
+
+    </div>
 
 
 
 </div> <!--span-->
 
     <div class="span3">
-        <div class="well">
+        <div id="quick_manage_block" class="well">
             <h3 align="center">
                 Manager
-                <a class="btn" data-toggle="modal" href="#myModal" >Launch Modal</a>
             </h3>
             <br>
 
@@ -194,35 +386,47 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
                 </thead>
                 <tbody>
                 <tr>
-                    <td>3</td>
-                    <td>…</td>
-                    <td>…</td>
+                    <td id="selected_id">3</td>
+                    <td id="selected_name"></td>
+                    <td id="selected_type">…</td>
                 </tr>
                 </tbody>
             </table>
+
             <div align="center">
                 <div class="btn-toolbar">
+
                     <div class="btn-group">
-                        <btn class="btn btn-success" title="Run all" style="width: 35px"><i class="icon-play"></i></btn>
-                        <btn class="btn btn-warning" title="Pause all" style="width: 35px"><i class="icon-pause"></i></btn>
-                        <btn class="btn btn-danger" title="Stop all" style="width: 35px"><i class="icon-stop"></i></btn>
-                    </div>
-                    <div class="btn-group">
-                        <btn class="btn btn-info" title="Detailed information about selected VM"><i class="icon-info-sign"></i></btn>
+                        <btn class="btn btn-success btn-large" title="Run all"><i class="icon-play"></i></btn>
+                        <btn class="btn btn-warning btn-large" title="Pause all"><i class="icon-pause"></i></btn>
+                        <btn class="btn btn-danger btn-large" title="Stop all"><i class="icon-stop"></i></btn>
                     </div>
 
-                <div class="btn-group">
-                    <btn class="btn btn-primary" title="Clone selected virtual machine"><i class="icon-share"></i></btn>
-                </div>
+                    <div class="btn-group">
+                        <btn id="edit_button" class="btn btn-warning btn-large disabled" title="Edit selected virtual machine" onclick="edit_selected_item();"><i class="icon-pencil"></i></btn>
+                    </div>
+                    <div class="btn-group">
+                        <btn id="detailed_info_button" class="btn btn-info btn-large disabled" title="Detailed information about selected VM" onclick="show_detailed_info(false);"><i class="icon-info-sign"></i></btn>
+                    </div>
 
-                <div class="btn-group">
-                    <btn class="btn btn-danger" title="Delete selected virtual machine"><i class="icon-remove"></i></btn>
-                </div>
                 </div>
             </div>
 
+        </div>
+
+        <div id="project_info" class="well hide">
+            <h3 align="center">
+                AJPmanager info
+            </h3>
+            <p style="color: #ff0000;" align="center"><b>This project is currently under development, we are looking for contributors!</b></p>
+            <p>You can help if you are familiar with any of this technologies:
+                <ul><li>Python, Pyramid Framework, XenAPI</li><li>HTML5, CSS, JavaScript</li> <li>XenAPI, Xen or any other VM technology</li></ul></p>
+
+            <div align="center"><btn class="btn btn-large btn-primary">Visit us on <b>Github</b> <i class="icon-github-sign"></i></btn></div>
 
         </div>
+
+
 
         <div class="well">
             <h4 align="center">Add new machine from preset</h4>
@@ -235,77 +439,42 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
                     <thead>
                     <tr>
                         <th style="width: 30px;">#</th>
-                        <th style="width: 200px;">Preset name</th>
-                        <th style="width: 100px;">Description</th>
+                        <th style="width: 200px;">Preset</th>
+                        <th style="width: 100px;">Action</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
-                        <td>3</td>
-                        <td>…</td>
-                        <td><div class="label label-success" onclick="">Read</div></td>
+                        <td>1</td>
+                        <td>Nginx web server</td>
+                        <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Apache web server</td>
+                        <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
                     </tr>
                     <tr>
                         <td>3</td>
-                        <td>…</td>
-                        <td>…</td>
+                        <td>Lighttpd web server</td>
+                        <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
                     </tr>
                     <tr>
-                        <td>3</td>
-                        <td>…</td>
-                        <td>…</td>
-                    </tr> <tr>
-                        <td>3</td>
-                        <td>…</td>
-                        <td>…</td>
-                    </tr> <tr>
-                        <td>3</td>
-                        <td>…</td>
-                        <td>…</td>
+                        <td>4</td>
+                        <td>DNS server</td>
+                        <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
                     </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>…</td>
-                        <td>…</td>
-                    </tr> <tr>
-                        <td>3</td>
-                        <td>…</td>
-                        <td>…</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>…</td>
-                        <td>…</td>
-                    </tr> <tr>
-                        <td>3</td>
-                        <td>…</td>
-                        <td>…</td>
-                    </tr> <tr>
-                        <td>3</td>
-                        <td>…</td>
-                        <td>…</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>…</td>
-                        <td>…</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>…</td>
-                        <td>…</td>
-                    </tr>
-
-
 
 
 
 
                     </tbody>
-                </table></div>
+                </table>
+
+            </div>
 
 
-
+<br>
 
             <div align="center">
                 <btn class="btn btn-success"><b>Add new </b><i class="icon-plus"></i></btn>
@@ -316,33 +485,119 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
         </div>
 </div><!--/row-->
 
-<hr>
 
-<footer>
-    <p><i class="icon-github-sign"></i> Built with <a href="http://ajkochanowicz.github.com/Kickstrap/">Kickstrap</a></p>
-</footer>
+    <div class="well">
 
 
+    </div>
 
 
 
-<div id="myModal" class="modal hide fade">
+
+
+
+<div id="myModal" class="modal hide fade" style="width: 670px">
+    <!-- slightly non-centered - FIXME -->
     <div class="modal-header">
         <a class="close" data-dismiss="modal" >&times;</a>
-        <h3>Preset description</h3>
+        <h3 id="model_name">Image installation</h3>
     </div>
     <div class="modal-body">
-        <h4>Text in a modal</h4>
-        <p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem.</p>
 
-        <h4>Popover in a modal</h4>
-        <p>This <a href="#" class="btn popover-test" title="A Title" data-content="And here's some amazing content. It's very engaging. right?">button</a> should trigger a popover on hover.</p>
+        <div id="modal_content">
 
-        <h4>Tooltips in a modal</h4>
-        <p><a href="#" class="tooltip-test" title="Tooltip">This link</a> and <a href="#" class="tooltip-test" title="Tooltip">that link</a> should have tooltips on hover.</p>
+
+        </div>
+
+        <hr>
+
+        <div id="software">
+            Software included with Debian 6.0:
+                - blah
+                - blah2
+                - blah3
+
+        </div>
+
+
+        <hr>
+
+        <form class="form-horizontal">
+            <fieldset>
+                <div class="control-group span8">
+                    <label class="control-label" for="in-name">Machine name</label>
+                    <div class="controls">
+                        <input id="in-name" type="text" class="input-xlarge" maxlength="30">
+                    </div>
+                </div>
+
+
+            </fieldset>
+        </form>
+
+        <p align="center">
+            <b>Available:</b> 251.0 GB <!-- add spaces here TODO -->
+            <b>Required:</b> 4.4 GB
+        </p>
+
+
     </div>
     <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal" >Close</a>
+        <btn type="button" class="btn btn-success btn-large" onclick="install_machine();"><i class="icon-pencil"></i> Install</btn>
+        <a href="#" class="btn btn-large" data-dismiss="modal" >Close</a>
+    </div>
+</div>
+
+
+<div id="opModal" class="modal hide fade" style="width: 670px">
+    <!-- slightly non-centered - FIXME -->
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal" >&times;</a>
+        <h3 id="model_name">Image installation</h3>
+    </div>
+    <div class="modal-body">
+
+        <div id="op_modal_content">
+
+
+        </div>
+
+        <hr>
+
+        <div id="software">
+            Software included with Debian 6.0:
+            - foo
+            - bar
+            - spam
+
+        </div>
+
+
+        <hr>
+
+        <form class="form-horizontal">
+            <fieldset>
+                <div class="control-group span8">
+                    <label class="control-label" for="in-name">Machine name</label>
+                    <div class="controls">
+                        <input id="in-name" type="text" class="input-xlarge" maxlength="30">
+                    </div>
+                </div>
+
+
+            </fieldset>
+        </form>
+
+        <p align="center">
+            <b>Available:</b> 251.0 GB <!-- add spaces here TODO -->
+            <b>Required:</b> 4.4 GB
+        </p>
+
+
+    </div>
+    <div class="modal-footer">
+        <btn type="button" class="btn btn-success btn-large" onclick="install_machine();"><i class="icon-pencil"></i> Install</btn>
+        <a href="#" class="btn btn-large" data-dismiss="modal" >Close</a>
     </div>
 </div>
 
@@ -357,6 +612,18 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 </div><!--/.fluid-container-->
 
 <!-- JavaScript at the bottom for fast page loading -->
+
+
+<!-- AJPmanager scripts -->
+<script type="text/javascript" src="{{ request.static_url('ajpmanager:static/Scripts/machines_presets.js') }}"></script>
+<script type="text/javascript" src="{{ request.static_url('ajpmanager:static/Scripts/generic_rules.js') }}"></script>
+
+
+
+
+
+
+
 
 <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
@@ -373,11 +640,11 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 
 <!-- If you'd rather pick and choose, comment the above and uncomment what you need below -->
 <!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-alert.min.js') }}"></script-->
-<!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-button.min.js') }}"></script-->
+<!--<script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-button.min.js') }}"></script> -->
 <!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-carousel.min.js') }}"></script-->
 <!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-collapse.min.js') }}"></script-->
 <!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-dropdown.min.js') }}"></script-->
-<!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-modal.min.js') }}"></script-->
+<!--<script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-modal.min.js') }}"></script> -->
 <!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-popover.min.js') }}"></script-->
 <!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-scrollspy.min.js') }}"></script-->
 <!--script type="text/javascript" src="{{ request.static_url('ajpmanager:static/js/bootstrap-tab.min.js') }}"></script-->
@@ -396,8 +663,7 @@ mathiasbynens.be/notes/async-analytics-snippet -->
 <script type="text/javascript" src="{{ request.static_url('ajpmanager:static/extras/jgrowl/jquery.jgrowl.min.js') }}"></script>
 <script type="text/javascript">
     $(document).ready (function() {
-        //$.jGrowl("Welcome to Kickstrap. <a href=\"http://stanlemon.net/pages/jgrowl\"><i class=\"icon-book\"></i> jGrowl Docs</a>", { life: 3000 });
-        $('#gameover').popover(options)
+        $.jGrowl("Welcome to AJPmanager, dude.", { life: 3000 });
     });
 </script>
 
