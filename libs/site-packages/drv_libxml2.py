@@ -1,0 +1,1 @@
+../../../share/pyshared/drv_libxml2.py

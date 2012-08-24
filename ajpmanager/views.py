@@ -1,4 +1,5 @@
 from pyramid.view import view_config
+from ajpmanager.core.processors import SuprocessProcessor
 
 class MainPage(object):
     """ Class for loading admin's menu view.
@@ -32,6 +33,7 @@ class JSONprocessor(object):
     def mainline(self):
         # Factory to answer for JSON requests
         # TODO: auth and other things are to be implemented. currently they have low priority.
+        #a = SuprocessProcessor()
         try:
             return self.functions[self.json['query']]()
         except KeyError:
@@ -40,7 +42,7 @@ class JSONprocessor(object):
 
 
     def get_vms_list(self):
-        # Here we are reading all XEN virtual machines and packing them into answer:
+        # Here we are reading all virtual machines and packing them into answer:
         vms = None # <-- TODO
         return {'status': True, 'answer': vms}
 

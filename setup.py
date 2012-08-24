@@ -12,6 +12,7 @@ requires = [
     'pyramid_jinja2',
     'pyramid_tm',
     'pyramid_debugtoolbar',
+    'redis',
     'waitress',
     ]
 
