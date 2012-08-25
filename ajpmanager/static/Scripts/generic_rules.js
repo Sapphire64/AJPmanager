@@ -111,13 +111,14 @@ function show_default_screen(query_server) {
         $.ajax({
             type: "POST",
             url: "/engine.ajax",
-            data: JSON.stringify({'query': 'get_main_screen_information', 'item': $active_objects[0]}),
+            data: JSON.stringify({'query': 'get_main_screen_information'}),
             contentType: 'application/json; charset=utf-8'
         }).done(function ( data ) {
                 if (data.status) {
                     // Set content
                     //
                     // ^^^^^^^^^^
+                    console.log(data.data);
                 }
                 else {
                     jgrowl_error(1, 'Error message from the server during attempt to recieve machines list: <br>' + data.answer);
@@ -128,7 +129,7 @@ function show_default_screen(query_server) {
 
     }
 
-    $('#running_machines_list').removeClass('hide');
+    $('#machines_list').removeClass('hide');
     $('#machine_detailed_info').addClass('hide');
     $('#project_info').addClass('hide');
     $('#edit_machine_screen').addClass('hide');
@@ -156,7 +157,7 @@ function edit_selected_item(){
         return
     }
 
-    $('#running_machines_list').addClass('hide');
+    $('#machines_list').addClass('hide');
     $('#edit_machine_screen').removeClass('hide');
     $('#project_info').removeClass('hide');
     $('#main_entry').removeClass('active');

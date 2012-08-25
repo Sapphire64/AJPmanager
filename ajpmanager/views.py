@@ -1,9 +1,10 @@
 from pyramid.view import view_config
-from ajpmanager.core.processors import SuprocessProcessor
+from ajpmanager.core.Connector import VMConnector
+
+VMC = VMConnector()
 
 class MainPage(object):
     """ Class for loading admin's menu view.
-
     """
 
     def __init__(self, request):
@@ -19,7 +20,8 @@ class MainPage(object):
         # TODO: display username
         # TODO: settings loading
         # TODO: display server IP and maybe some other info which can be loaded only once (will not change during run)
-        return {'text': 'Hi!', 'username': 'Vortex'}
+        VMC.prr()
+        return {'text': 'AJPmanager', 'username': 'Vortex'}
 
 
 
@@ -27,17 +29,18 @@ class JSONprocessor(object):
 
     def __init__(self, request):
         self.request = request
+        self.session = self.request.session.get_csrf_token()
         self.json = request.json_body
 
     @view_config(renderer="json", route_name="engine.ajax") #permission='admin') # << auth tag to implement later
     def mainline(self):
         # Factory to answer for JSON requests
         # TODO: auth and other things are to be implemented. currently they have low priority.
-        #a = SuprocessProcessor()
         try:
-            return self.functions[self.json['query']]()
+            return self.functions[self.json['query']](self)
         except KeyError:
             # If we have wrong JSON request
+            print (self.json['query'])
             return {'status': False, 'answer': 'Wrong query'}
 
 
@@ -60,9 +63,15 @@ class JSONprocessor(object):
         else:
             return {'status': True}
 
+    def get_main_screen_information(self):
+        vms = VMC.get_vms_list()
+        print (vms)
+
+        return {'status': True, 'data': vms}
 
     functions = { # This dictionary is used to implement factory run of the functions
                   'verify_new_vm_name': verify_new_vm_name,
                   'get_vms_list': get_vms_list,
+                  'get_main_screen_information': get_main_screen_information,
                   }
 

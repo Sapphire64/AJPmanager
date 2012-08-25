@@ -83,7 +83,7 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
             <div align="center">
                 <div class="btn-toolbar">
                     <input id="stats" type="text" class="span8 disabled"  style="margin-top: 7px;" disabled>
-                    <btn class="btn btn-info" title="Run all"><i class="icon-refresh"></i></btn>
+                    <btn class="btn btn-info" title="Run all" onclick="refresh();"><i class="icon-refresh"></i></btn>
                 </div>
 
         </div>
@@ -143,7 +143,7 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 </div><!--/span-->
 <div class="span7">
 
-    <div class="well" id="running_machines_list">
+    <div class="well hide" id="machines_list">
         <h3 align="center">Virtual Machines List</h3>
             <br>
 
@@ -664,6 +664,7 @@ mathiasbynens.be/notes/async-analytics-snippet -->
 <script type="text/javascript">
     $(document).ready (function() {
         $.jGrowl("Welcome to AJPmanager, dude.", { life: 3000 });
+        show_default_screen(true);
     });
 </script>
 

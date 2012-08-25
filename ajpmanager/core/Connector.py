@@ -3,45 +3,50 @@ from ajpmanager.core.providers.KVM import KVMProvider
 class VMConnector(object):
     " Interface for VM daemons "
 
-    providers = {'xen': None,
+    providers = {#'xen': None,
                  'kvm': KVMProvider}
 
-    _conn = None
+    conn = None
 
     def __init__(self):
         self.db = DBConnection()
+        self.db.io.set('provider', 'kvm')
         self.__select_vm_provider()
-        assert self._conn, 'No connector found'
-        self.clone()
+        self.conn = self.conn(self.db.io)
+        assert self.conn, 'No connector found'
+
 
     def __select_vm_provider(self):
         " This functino recognizes - which VM provider we must use - Xen or Qemu+KVM (or any else)"
+        if self.conn:
+            return True
 
-        # Part 1
-        try:
-            import XenAPI # If no xen api installed we can't work with Xen
-            # do something, check, TODO and FIXME :)
-            raise Exception
-        except Exception:
-            pass
+        provider = self.db.io.get('provider')
+
+        if self.providers[provider].check_availability():
+                self.conn = self.providers[provider]
+
+        if self.conn:
+            return True
         else:
-            self._conn = self.providers['xen'](self.db.io)
-
-        # Part 2
-        try:
-            import libvirt # for KVM & Qemu
-            # etc etc...
-        except Exception:
-            pass
-        else:
-            self._conn = self.providers['kvm'](self.db.io)
+            return False
 
 
-        # PS: So it means that if we have Xen and KVM available we'll use KVM
+    def clone(self, base, new_name):
+        if not self.__select_vm_provider():
+            return
+        self.conn.clone_machine(base, new_name)
 
 
-    def clone(self):
-        self._conn.clone_machine('base', 'blah')
+    def get_vms_list(self):
+        if not self.__select_vm_provider():
+            return
+        return self.conn.get_machines_list()
+
+
+
+    def prr(self):
+        print ('HI!!!')
 
 
 

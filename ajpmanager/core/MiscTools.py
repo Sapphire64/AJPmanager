@@ -15,6 +15,6 @@ def safe_join(directory, filename):
     for sep in _os_alt_seps:
         if sep in filename:
             return None
-    if os.path.isabs(filename) or filename.startswith('../'):
+    if os.path.isabs(filename) or filename.startswith('.'):
         return None
     return os.path.join(directory, filename)
