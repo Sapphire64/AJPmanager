@@ -225,16 +225,20 @@ class KVMProvider(object):
         #offline = [item for item in offline if item not in presets]
 
         # Caching instruments
-        for item in online:
-            self.db.rpush('online', item)
-        self.db.expire('online', 30)
+        # 10 minutes caching which will be disabled in case of any changes
+        if online:
+            for item in online:
+                self.db.rpush('online', item)
+        else:
+            self.db.rpush('online', 'Empty')
+        self.db.expire('online', 600)
 
-        for item in offline:
-            self.db.rpush('offline', item)
-        self.db.expire('offline', 30)
-
-        # Downside: if there are no online or offline machines it will not use cache
-        # but it is better than have at the same time single machine in online and offline state.
+        if offline:
+            for item in offline:
+                self.db.rpush('offline', item)
+        else:
+            self.db.rpush('offline', 'Empty')
+        self.db.expire('offline', 600)
 
         return {'offline': offline, 'online': online}
 
