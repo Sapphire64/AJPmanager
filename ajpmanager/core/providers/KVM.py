@@ -10,11 +10,14 @@ import random
 import shutil
 
 
-
-KVM_PATH = '/kvm'
-
+KVM_PATH = '/kvm' # This should be get from Redis and setted by config on page
 PRESETS = safe_join(KVM_PATH, 'presets')
 IMAGES = safe_join(KVM_PATH, 'images')
+
+# Also will be read from Redis:
+CONFIG_NAME = 'config.xml'
+VMIMAGE_NAME = 'image.img'
+DESCRIPTION_NAME = 'description.txt'
 
 
 def generate_uuid():
@@ -49,15 +52,17 @@ class KVMProvider(object):
         assert self.connection, 'Failed to open Qemu/KVM connection'
         self.db = dbcon
         self._prepare_database()
+        print ('init')
+        #self.clone_machine('WheezyBasic', 'test_1', 111, force=True)
 
 
-    def _clone(self, id, preset_name, machine_name, session):
+    def _clone(self, id, preset_name, machine_name, session, force=False):
         # PUSH / POP <- redis
         print ('cloning')
-        if self.db.get('copy') == '1':
-            print ('Return!')
-            return {'answer': False, 'message': 'Copying operation already in progress'}
-        self.db.set('copy', '1')
+        if self.db.get('copy'):
+            print ('Copy operation in progress')
+            return {'answer': False, 'message': 'Copy operation already in progress'}
+        self.db.set('copy', session)
 
         # Path preparations
         src = safe_join(PRESETS, preset_name)
@@ -65,39 +70,60 @@ class KVMProvider(object):
 
         if not os.path.exists(dst):
             os.makedirs(dst)
+        else:
+            if not force and os.path.\
+                exists(CONFIG_NAME) or os.path.\
+                exists(VMIMAGE_NAME) or os.path.\
+                exists(DESCRIPTION_NAME):
+                return {'answer': False, 'message': 'Folder exists, use force to rewrite content'}
+
+
 
         # Prepare XML file
-
-        with open(safe_join(src, 'config.xml')) as f:
+        additional_images = [] # File images (as additional partition files)
+        with open(safe_join(src, CONFIG_NAME)) as f:
+            # Now we are updating info in memory copy of preset's config file
             dom = minidom.parse(f)
 
             # <TOTAL_MADNESS>
             dom.getElementsByTagName('name')[0].childNodes[0].data = machine_name
             dom.getElementsByTagName('uuid')[0].childNodes[0].data = generate_uuid()
+
             for num, tag in enumerate(dom.getElementsByTagName('interface')):
                 if tag.attributes.get('type').value == 'network':
                     dom.getElementsByTagName('interface')[num].getElementsByTagName('mac')[0].attributes.get('address').value = generate_mac()
 
+            # Change path of the images in config
+            # Add to list of images additional disks
+            for num, element in enumerate(dom.getElementsByTagName('disk')):
+                if element.attributes.get('device').value == 'disk':
+                    path = element.getElementsByTagName('source')[0].attributes.get('file').value
+                    image_name = os.path.basename(path)
+                    if image_name != 'image.img':
+                        additional_images.append(image_name)
+                    dom.getElementsByTagName('disk')[num].\
+                        getElementsByTagName('source')[0].\
+                        attributes.get('file').value = safe_join(dst, image_name)
+
             # Write to file
-            dom.writexml(open(safe_join(dst, 'config.xml'), 'w'), encoding='utf-8')
+            dom.writexml(open(safe_join(dst, CONFIG_NAME), 'w'), encoding='utf-8')
             # </TOTAL_MADNESS>
 
         # XML ready
 
-        for file in ['description.txt', 'image.img']:
+        for file in [DESCRIPTION_NAME, VMIMAGE_NAME] + additional_images:
             try:
                 shutil.copy2(safe_join(src, file), dst)
             except OSError as exc: # python >2.5
                 print ('Exception')
-                if exc.errno == 17:
-                    return {'answer': False, 'message': 'VM with such name already exists'}
                 if exc.errno == 28:
                     return {'answer': False, 'message': 'No space left on device'}
                 print (exc.errno)
-        print ('I am here')
-        self.db.set('copy', '0')
+
+        self.db.expire('copy', 0)
 
         # Prepare message to client
+        print ('Files copied!')
         message = 'Sucessfully copied'
         return {'answer': True, 'message': message}
 
@@ -105,7 +131,7 @@ class KVMProvider(object):
     def _prepare_database(self, soft=False):
         # Set flags in DB and also prepare list of preset domains
         if not soft:
-            self.db.set('copy', '0')
+            self.db.expire('copy', 0)
             self.db.set('provider', 'kvm')
 
         # Cleaning lists
@@ -117,8 +143,12 @@ class KVMProvider(object):
                             ('images', IMAGES)]:
             for directory in os.listdir(list_):
                 directory_ = safe_join(list_, directory)                          # Building full path
-                with open(safe_join(directory_, 'config.xml')) as f:              # Open config.xml in full path
-                    dom = minidom.parse(f)                                        # Parsing it
+                try:
+                    with open(safe_join(directory_, CONFIG_NAME)) as f:           # Open config.xml in full path
+                        dom = minidom.parse(f)                                    # Parsing it
+                except IOError:
+                    pass                                                          # No config file in folder
+                else:
                     name = dom.getElementsByTagName('name')[0].childNodes[0].data # Get name of the VM
                     self.db.rpush(slug.decode('utf-8'), name)                     # Append list to REDIS
 
@@ -153,38 +183,85 @@ class KVMProvider(object):
 
     def get_machines_list(self):
         # Read from Redis cache:
-        #dbonline = self.db.lrange("online", 0, -1)
-        #dboffline = self.db.lrange("offline", 0, -1)
+        try:
+            online = self.db.lrange("online", 0, -1)
+            offline = self.db.lrange("offline", 0, -1)
+        except Exception:
+            pass
+        else:
+            if online and offline:
+                print ('Cache used') # Leave it for some time
+                return {'offline': offline, 'online': online}
 
 
-        offline = self._get_offline_machines()
-        online_ids = self._get_online_machines()
+        presets = ['DEBUGG'] # Change for debug
+        #presets = self.db.lrange("presets", 0, -1) # IMPORTANT
 
-        presets = self.db.lrange("presets", 0, -1) # IMPORTANT
-
+        # Online
         online = []
+        online_ids = self._get_online_machines()
 
         for id in online_ids:
             machine = self._lookup_by_id(id)
             name = machine.name()
             if name in presets:
                 continue
+            type, memory = self._get_xml_type_memory(name)
             info = machine.info()
-            answer = [id, name] + info
+            answer = [id, name, type, memory] + [info]
             online.append(answer)
 
-        #online = [item for item in online if item not in presets]
-        offline = [item for item in offline if item not in presets]
+        # Offline
+        offline = []
+        offline_names = self._get_offline_machines()
 
-        #online = list(set(presets) - set(online))
+        for machine in offline_names:
+            if machine in presets:
+                continue
+            type, memory = self._get_xml_type_memory(machine)
+            answer = ['-', machine, type, memory]
+            offline.append(answer)
+
+        #offline = [item for item in offline if item not in presets]
 
         # Caching instruments
-        self.db.rpush('online', online)
+        for item in online:
+            self.db.rpush('online', item)
         self.db.expire('online', 30)
-        self.db.rpush('offline', offline)
+
+        for item in offline:
+            self.db.rpush('offline', item)
         self.db.expire('offline', 30)
 
+        # Downside: if there are no online or offline machines it will not use cache
+        # but it is better than have at the same time single machine in online and offline state.
+
         return {'offline': offline, 'online': online}
+
+
+    def _get_xml_type_memory(self, machine_name, presets=False):
+        source = IMAGES if not presets else PRESETS
+        path = safe_join(source, machine_name)
+        # Maybe this code is too indian-styled
+        try:
+            with open(safe_join(path, CONFIG_NAME)) as f:
+
+                dom = minidom.parse(f)
+        except IOError:
+            type = 'unknown'
+            memory = -1
+        else:
+            type = dom.getElementsByTagName('ajptype')[0].childNodes[0].data
+            memory = int(dom.getElementsByTagName('memory')[0].
+                         childNodes[0].data)/1024 # In MB
+        finally:
+            if not type:
+                type = 'not specified'
+            if not memory:
+                memory = 0
+        return (type, memory)
+
+
 
     def _get_offline_machines(self):
         return self.connection.listDefinedDomains()
@@ -195,15 +272,15 @@ class KVMProvider(object):
 
     def run_machine(self, machine_name):
         path = safe_join(IMAGES, machine_name)
-        f = open(safe_join(path, 'config.xml')).read()
+        f = open(safe_join(path, CONFIG_NAME)).read()
         self.connection.createXML(f, 0)
 
 
-    def clone_machine(self, preset_name, machine_name, session):
+    def clone_machine(self, preset_name, machine_name, session, force=False):
         id = 1
-        p = Process(target=self._clone, args=(id, preset_name, machine_name, session)) # In different process
+        p = Process(target=self._clone, args=(id, preset_name, machine_name, session, force)) # In different process
         p.start()
-        print ('Cloned!')
+        #self._clone(id, preset_name, machine_name, session, force) # for debugging
 
 
 

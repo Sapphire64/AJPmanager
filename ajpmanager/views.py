@@ -69,7 +69,7 @@ class JSONprocessor(object):
 
         return {'status': True, 'data': vms}
 
-    functions = { # This dictionary is used to implement factory run of the functions
+    functions = { # This dictionary is used to implement factory run of the requested functions
                   'verify_new_vm_name': verify_new_vm_name,
                   'get_vms_list': get_vms_list,
                   'get_main_screen_information': get_main_screen_information,
