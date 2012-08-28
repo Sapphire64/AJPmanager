@@ -54,7 +54,7 @@ class JSONprocessor(object):
             return self.functions[self.json['query']](self)
         except KeyError:
             # If we have wrong JSON request
-            print (self.json['query'])
+            print ('Wrong JSON request: ' + str(self.json['query']))
             return {'status': False, 'answer': 'Wrong query'}
 
 
@@ -79,8 +79,6 @@ class JSONprocessor(object):
 
     def get_main_screen_information(self):
         vms = VMC.get_vms_list()
-        print (vms)
-
         return {'status': True, 'data': vms}
 
     functions = { # This dictionary is used to implement factory run of the requested functions
