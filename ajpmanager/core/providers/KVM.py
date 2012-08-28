@@ -52,7 +52,6 @@ class KVMProvider(object):
         assert self.connection, 'Failed to open Qemu/KVM connection'
         self.db = dbcon
         self._prepare_database()
-        print ('init')
         #self.clone_machine('WheezyBasic', 'test_1', 111, force=True)
 
 
@@ -121,6 +120,8 @@ class KVMProvider(object):
                 print (exc.errno)
 
         self.db.expire('copy', 0)
+        # Drop cache:
+        self._prepare_database(soft=True)
 
         # Prepare message to client
         print ('Files copied!')
@@ -134,25 +135,10 @@ class KVMProvider(object):
             self.db.expire('copy', 0)
             self.db.set('provider', 'kvm')
 
-        # Cleaning lists
-        self.db.expire('images', 0)
-        self.db.expire('presets', 0)
+        # Cleaning cache lists
+        self.db.expire('online', 0)
+        self.db.expire('offline', 0)
 
-        # Find presets & images names
-        for slug, list_ in [('presets', PRESETS),
-                            ('images', IMAGES)]:
-            for directory in os.listdir(list_):
-                directory_ = safe_join(list_, directory)                          # Building full path
-                try:
-                    with open(safe_join(directory_, CONFIG_NAME)) as f:           # Open config.xml in full path
-                        dom = minidom.parse(f)                                    # Parsing it
-                except IOError:
-                    pass                                                          # No config file in folder
-                else:
-                    name = dom.getElementsByTagName('name')[0].childNodes[0].data # Get name of the VM
-                    self.db.rpush(slug.decode('utf-8'), name)                     # Append list to REDIS
-
-        self.get_machines_list()
 
     def _list_domains(self):
         return self.connection.listDomainsID()
@@ -206,20 +192,27 @@ class KVMProvider(object):
             name = machine.name()
             if name in presets:
                 continue
-            type, memory = self._get_xml_type_memory(name)
+            type, cpu, memory = self._get_xml_info(name)
             info = machine.info()
-            answer = [id, name, type, memory] + [info]
+            answer = [id, name, type, cpu, memory] + [info]
             online.append(answer)
 
         # Offline
         offline = []
-        offline_names = self._get_offline_machines()
 
-        for machine in offline_names:
+        # Getting VMs by libvirt
+        offline_names = self._get_offline_machines()
+        # Getting VMs by scanning folders *
+        offline_in_folders = self._get_machines_from_folders()
+        # Merge results
+        offline_merged = list(set(offline_names + offline_in_folders)) # Getting only UNIQUE names from both lists
+        # * this is necessary if machines were copied (read _get_machines_from_folders())
+
+        for machine in offline_merged:
             if machine in presets:
                 continue
-            type, memory = self._get_xml_type_memory(machine)
-            answer = ['-', machine, type, memory]
+            type, cpu, memory = self._get_xml_info(machine)
+            answer = ['-', machine, type, cpu, memory]
             offline.append(answer)
 
         #offline = [item for item in offline if item not in presets]
@@ -243,7 +236,7 @@ class KVMProvider(object):
         return {'offline': offline, 'online': online}
 
 
-    def _get_xml_type_memory(self, machine_name, presets=False):
+    def _get_xml_info(self, machine_name, presets=False):
         source = IMAGES if not presets else PRESETS
         path = safe_join(source, machine_name)
         # Maybe this code is too indian-styled
@@ -254,7 +247,9 @@ class KVMProvider(object):
         except IOError:
             type = 'unknown'
             memory = -1
+            cpu = '?'
         else:
+            cpu = dom.getElementsByTagName('vcpu')[0].childNodes[0].data
             type = dom.getElementsByTagName('ajptype')[0].childNodes[0].data
             memory = int(dom.getElementsByTagName('memory')[0].
                          childNodes[0].data)/1024 # In MB
@@ -263,8 +258,9 @@ class KVMProvider(object):
                 type = 'not specified'
             if not memory:
                 memory = 0
-        return (type, memory)
-
+            if not cpu:
+                cpu = '?'
+        return (type, cpu, memory)
 
 
     def _get_offline_machines(self):
@@ -272,6 +268,30 @@ class KVMProvider(object):
 
     def _get_online_machines(self):
         return self.connection.listDomainsID()
+
+    def _get_machines_from_folders(self):
+        # If machine are in folder but not listed in VM - they are offline for sure.
+        # It is possible that they were cloned/copied manually or by our program :)
+        # FIXME: maybe newly added machines can be added to KVM by some libvirt API transaction
+        machines = []
+        # Find presets & images names
+        for directory in os.listdir(IMAGES):
+            directory_ = safe_join(IMAGES, directory)                          # Building full path
+            if not os.path.isdir(directory_):
+                continue
+            try:
+                with open(safe_join(directory_, CONFIG_NAME)) as f:           # Open config.xml in full path
+                    dom = minidom.parse(f)                                    # Parsing it
+            except IOError:
+                continue
+            else:
+                print ('Iter:')
+                name = dom.getElementsByTagName('name')[0].childNodes[0].data # Get name of the VM
+                machines.append(name)
+
+        return machines
+
+
 
 
     def run_machine(self, machine_name):
