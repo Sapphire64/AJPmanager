@@ -7,6 +7,7 @@ from xml.dom import minidom
 import os
 import libvirt
 import random
+import json
 import shutil
 
 
@@ -169,15 +170,37 @@ class KVMProvider(object):
 
     def get_machines_list(self):
         # Read from Redis cache:
+        from time import time
+        t1 = time()
         try:
             online = self.db.lrange("online", 0, -1)
             offline = self.db.lrange("offline", 0, -1)
         except Exception:
             pass
         else:
+            # Caching provides more than 30x faster processing
             if online and offline:
-                print ('Cache used') # Leave it for some time
-                return {'offline': offline, 'online': online}
+                online_lst = []
+                for element in online:
+                    try:
+                        element = json.loads(element) # Load from JSON
+                    except ValueError: # in case of 'Empty' elemenet or anything else
+                        continue
+                    else:
+                        online_lst.append(element)
+
+                offline_lst = []
+                for element in offline:
+                    try:
+                        element = json.loads(element)
+                    except ValueError:
+                        continue
+                    else:
+                        offline_lst.append(element)
+
+                print ('Cache used: ' + str(time()-t1)) # Leave it for some time
+                return {'offline': offline_lst, 'online': online_lst}
+
 
 
         presets = ['DEBUGG'] # Change for debug
@@ -194,7 +217,7 @@ class KVMProvider(object):
                 continue
             type, cpu, memory = self._get_xml_info(name)
             info = machine.info()
-            answer = [id, name, type, cpu, memory] + [info]
+            answer = {'id':id, 'name':name, 'type':type, 'cpu':cpu, 'memory':memory, 'info':info}
             online.append(answer)
 
         # Offline
@@ -212,7 +235,7 @@ class KVMProvider(object):
             if machine in presets:
                 continue
             type, cpu, memory = self._get_xml_info(machine)
-            answer = ['-', machine, type, cpu, memory]
+            answer = {'id': '-', 'name': machine, 'type': type, 'cpu': cpu, 'memory': memory, 'info': None}
             offline.append(answer)
 
         #offline = [item for item in offline if item not in presets]
@@ -221,17 +244,23 @@ class KVMProvider(object):
         # 10 minutes caching which will be disabled in case of any changes
         if online:
             for item in online:
+                item = json.dumps(item)
                 self.db.rpush('online', item)
         else:
             self.db.rpush('online', 'Empty')
+
         self.db.expire('online', 600)
 
         if offline:
             for item in offline:
+                item = json.dumps(item)
                 self.db.rpush('offline', item)
         else:
             self.db.rpush('offline', 'Empty')
+
         self.db.expire('offline', 600)
+
+        print ('Cache not used: '  + str(time()-t1)) # Temp mini-bench
 
         return {'offline': offline, 'online': online}
 
