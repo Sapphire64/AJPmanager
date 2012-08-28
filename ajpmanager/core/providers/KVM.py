@@ -139,6 +139,7 @@ class KVMProvider(object):
         # Cleaning cache lists
         self.db.expire('online', 0)
         self.db.expire('offline', 0)
+        self.db.expire('presets', 0)
 
 
     def _list_domains(self):
@@ -203,8 +204,9 @@ class KVMProvider(object):
 
 
 
-        presets = ['DEBUGG'] # Change for debug
-        #presets = self.db.lrange("presets", 0, -1) # IMPORTANT
+        presets = ['DEBUGG'] # Changed for debug
+        #presets = self.get_presets_list()
+        #presets = [preset['name'] for preset in json.loads(presets)]
 
         # Online
         online = []
@@ -213,7 +215,7 @@ class KVMProvider(object):
         for id in online_ids:
             machine = self._lookup_by_id(id)
             name = machine.name()
-            if name in presets:
+            if name in presets: # Hiding presets from actual machines
                 continue
             type, cpu, memory = self._get_xml_info(name)
             info = machine.info()
@@ -264,6 +266,16 @@ class KVMProvider(object):
 
         return {'offline': offline, 'online': online}
 
+    def get_presets_list(self):
+        " To be written "
+        return []
+        try:
+            presets = self.db.lrange("presets", 0, -1)
+        except Exception:
+            pass
+        else:
+            pass
+
 
     def _get_xml_info(self, machine_name, presets=False):
         source = IMAGES if not presets else PRESETS
@@ -303,7 +315,7 @@ class KVMProvider(object):
         # It is possible that they were cloned/copied manually or by our program :)
         # FIXME: maybe newly added machines can be added to KVM by some libvirt API transaction
         machines = []
-        # Find presets & images names
+        # Find preset's name & image name of the machine
         for directory in os.listdir(IMAGES):
             directory_ = safe_join(IMAGES, directory)                          # Building full path
             if not os.path.isdir(directory_):

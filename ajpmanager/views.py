@@ -1,7 +1,10 @@
+from pyramid.httpexceptions import HTTPForbidden
 from pyramid.view import view_config
 from ajpmanager.core.Connector import VMConnector
 
 VMC = VMConnector()
+dbcon = VMC.dbcon # Wrong way? Maybe this can lead to more slow work with DB
+
 
 class MainPage(object):
     """ Class for loading admin's menu view.
@@ -20,7 +23,12 @@ class MainPage(object):
         # TODO: display username
         # TODO: settings loading
         # TODO: display server IP and maybe some other info which can be loaded only once (will not change during run)
-        VMC.prr()
+
+        allowed_ips = dbcon.lrange("allowed_ips", 0, -1)
+
+        if self.request['REMOTE_ADDR'] not in allowed_ips and '*' not in allowed_ips:
+            return HTTPForbidden()
+
         return {'text': 'AJPmanager', 'username': 'Vortex'}
 
 
@@ -34,6 +42,12 @@ class JSONprocessor(object):
 
     @view_config(renderer="json", route_name="engine.ajax") #permission='admin') # << auth tag to implement later
     def mainline(self):
+
+        allowed_ips = dbcon.lrange("allowed_ips", 0, -1)
+
+        if self.request['REMOTE_ADDR'] not in allowed_ips and '*' not in allowed_ips:
+            return HTTPForbidden()
+
         # Factory to answer for JSON requests
         # TODO: auth and other things are to be implemented. currently they have low priority.
         try:
