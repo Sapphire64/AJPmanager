@@ -204,9 +204,9 @@ class KVMProvider(object):
 
 
 
-        presets = ['DEBUGG'] # Changed for debug
-        #presets = self.get_presets_list()
-        #presets = [preset['name'] for preset in json.loads(presets)]
+        #presets = ['DEBUGG'] # Changed for debug
+        presets = self.get_presets_list()
+        presets = [preset['name'] for preset in presets]
 
         # Online
         online = []
@@ -219,7 +219,7 @@ class KVMProvider(object):
                 continue
             type, cpu, memory = self._get_xml_info(name)
             info = machine.info()
-            answer = {'id':id, 'name':name, 'type':type, 'cpu':cpu, 'memory':memory, 'info':info}
+            answer = {'id': id, 'name': name, 'type': type, 'cpu': cpu, 'memory': memory, 'info': info}
             online.append(answer)
 
         # Offline
@@ -266,15 +266,55 @@ class KVMProvider(object):
 
         return {'offline': offline, 'online': online}
 
+
     def get_presets_list(self):
-        " To be written "
-        return []
+        presets = []
         try:
-            presets = self.db.lrange("presets", 0, -1)
+            presets_list = self.db.lrange("presets", 0, -1)
         except Exception:
             pass
         else:
-            pass
+            if presets_list:
+                for element in presets_list:
+                    try:
+                        element = json.loads(element)
+                    except ValueError:
+                        continue
+                    else:
+                        presets.append(element)
+
+                return presets
+
+        # If not cache
+        for directory in os.listdir(PRESETS):
+            path = safe_join(PRESETS, directory)
+            try:
+                with open(safe_join(path, CONFIG_NAME)) as f:
+                    dom = minidom.parse(f)
+                #import pdb; pdb.set_trace()
+            except IOError:
+                continue
+            else:
+                name = dom.getElementsByTagName('name')[0].childNodes[0].data # Get name of the VM
+                try:
+                    with open(safe_join(path, DESCRIPTION_NAME)) as f:
+                        description = f.read()
+                except IOError:
+                    continue
+                else:
+                    presets.append({'name': name, 'description': description})
+
+
+        if presets:
+            for preset in presets:
+                item = json.dumps(preset)
+                self.db.rpush('presets', preset)
+        else:
+            self.db.rpush('presets', 'Empty')
+
+        print ('presets: ' + str(presets))
+        return presets
+
 
 
     def _get_xml_info(self, machine_name, presets=False):
@@ -307,8 +347,10 @@ class KVMProvider(object):
     def _get_offline_machines(self):
         return self.connection.listDefinedDomains()
 
+
     def _get_online_machines(self):
         return self.connection.listDomainsID()
+
 
     def _get_machines_from_folders(self):
         # If machine are in folder but not listed in VM - they are offline for sure.
@@ -326,13 +368,10 @@ class KVMProvider(object):
             except IOError:
                 continue
             else:
-                print ('Iter:')
                 name = dom.getElementsByTagName('name')[0].childNodes[0].data # Get name of the VM
                 machines.append(name)
 
         return machines
-
-
 
 
     def run_machine(self, machine_name):
