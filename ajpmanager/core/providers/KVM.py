@@ -313,6 +313,7 @@ class KVMProvider(object):
         else:
             self.db.rpush('presets', 'Empty')
 
+        self.db.expire('presets', 600)
         print ('presets: ' + str(presets))
         return presets
 
