@@ -20,6 +20,8 @@ CONFIG_NAME = 'config.xml'
 VMIMAGE_NAME = 'image.img'
 DESCRIPTION_NAME = 'description.txt'
 
+VIRT_PATH = 'qemu:///system'
+
 
 def generate_uuid():
     return str(uuid4())
@@ -48,8 +50,8 @@ class KVMProvider(object):
             return True
 
     def __init__(self, dbcon):
-        print ('Using KVM as a virtual machines server and libvirt for virtualization')
-        self.connection = libvirt.open('qemu:///system')
+        print ('Using KVM as a virtual machines server and libvirt as frontend')
+        self.connection = libvirt.open(VIRT_PATH)
         assert self.connection, 'Failed to open Qemu/KVM connection'
         self.db = dbcon
         self._prepare_database()
@@ -57,7 +59,6 @@ class KVMProvider(object):
 
 
     def _clone(self, id, preset_name, machine_name, session, force=False):
-        # PUSH / POP <- redis
         print ('cloning')
         if self.db.get('copy'):
             print ('Copy operation in progress')
@@ -390,6 +391,8 @@ class KVMProvider(object):
 
 
     """
+    Some 'docs' :)
+
     f = open('/etc/libvirt/qemu/Web-apache.xml')
     f = f.read()
     conn.createXML(f, 0)

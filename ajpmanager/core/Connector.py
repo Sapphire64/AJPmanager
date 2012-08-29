@@ -19,7 +19,8 @@ class VMConnector(object):
 
 
     def __select_vm_provider(self):
-        " This functino recognizes - which VM provider we must use - Xen or Qemu+KVM (or any else)"
+        """ This function recognizes - which VM provider we must
+        use - Xen or Qemu+KVM (or any else) """
         if self.conn:
             return True
 
@@ -28,7 +29,7 @@ class VMConnector(object):
         if self.providers[provider].check_availability():
                 return self.providers[provider]
 
-        return None
+        return False
 
     def clone(self, base, new_name):
         if not self.__select_vm_provider():
@@ -40,6 +41,11 @@ class VMConnector(object):
         if not self.__select_vm_provider():
             return
         return self.conn.get_machines_list()
+
+    def get_presets_list(self):
+        if not self.__select_vm_provider():
+            return
+        return self.conn.get_presets_list()
 
 
 class DBConnection(object):

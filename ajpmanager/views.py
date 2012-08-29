@@ -60,8 +60,12 @@ class JSONprocessor(object):
 
     def get_vms_list(self):
         # Here we are reading all virtual machines and packing them into answer:
-        vms = None # <-- TODO
-        return {'status': True, 'answer': vms}
+        vms = VMC.get_vms_list()
+        return {'status': True, 'data': vms}
+
+    def get_presets_list(self):
+        presets = VMC.get_presets_list()
+        return {'status': True, 'data': presets}
 
     def get_active_operations(self):
         # Connect to redis and get list
@@ -77,13 +81,10 @@ class JSONprocessor(object):
         else:
             return {'status': True}
 
-    def get_main_screen_information(self):
-        vms = VMC.get_vms_list()
-        return {'status': True, 'data': vms}
 
     functions = { # This dictionary is used to implement factory run of the requested functions
                   'verify_new_vm_name': verify_new_vm_name,
                   'get_vms_list': get_vms_list,
-                  'get_main_screen_information': get_main_screen_information,
+                  'get_presets_list': get_presets_list,
                   }
 
