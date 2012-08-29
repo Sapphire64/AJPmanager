@@ -1,3 +1,9 @@
+var $online = new Array();
+var $offline = new Array();
+var $presets = new Array();
+var $processed = false;
+
+
 function query_all(){
     // TODO: Also this function should query for running processes
     $.ajax({
@@ -6,11 +12,12 @@ function query_all(){
         data: JSON.stringify({'query': 'get_vms_list'}),
         contentType: 'application/json; charset=utf-8'
     }).done(function ( data ) {
+            console.log(data);
             if (data.status) {
-                // Set content
-                //
-                // ^^^^^^^^^^
-                console.log(data.data);
+                $online = data.data.online;
+                $offline = data.data.offline;
+                $processed = false;
+                generate_machines_list(0);
             }
             else {
                 jgrowl_error(1, 'Error message from the server during attempt to recieve machines list: <br>' + data.answer);
@@ -23,14 +30,15 @@ function query_all(){
         data: JSON.stringify({'query': 'get_presets_list'}),
         contentType: 'application/json; charset=utf-8'
     }).done(function ( data ) {
+            console.log(data);
             if (data.status) {
-                // Set content
-                //
-                // ^^^^^^^^^^
-                console.log(data.data);
+                $presets = data.presets;
+                //console.log(data.data);
             }
             else {
                 jgrowl_error(1, 'Error message from the server during attempt to recieve presets list: <br>' + data.answer);
             }
         });
+
+
 }
