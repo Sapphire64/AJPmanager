@@ -1,30 +1,4 @@
 
-
-function jgrowl_error($type, $err) {
-
-    var header;
-
-    if ($type == 1) {
-        header = 'Server error';
-    }
-    else if ($type == 2) {
-        header = 'Connection error';
-    }
-
-    else {
-        header = 'Error';
-    }
-
-    $.jGrowl($err , {
-        //theme:  'danger',
-        header: header,
-        closer: false
-        // Should set up timeout (increase)
-    });
-    
-}
-
-
 function show_detailed_info($edit) {
 
     var $result = false;
@@ -108,25 +82,7 @@ function show_help() {
 function show_default_screen(query_server) {
 
     if (query_server) {
-        $.ajax({
-            type: "POST",
-            url: "/engine.ajax",
-            data: JSON.stringify({'query': 'get_main_screen_information'}),
-            contentType: 'application/json; charset=utf-8'
-        }).done(function ( data ) {
-                if (data.status) {
-                    // Set content
-                    //
-                    // ^^^^^^^^^^
-                    console.log(data.data);
-                }
-                else {
-                    jgrowl_error(1, 'Error message from the server during attempt to recieve machines list: <br>' + data.answer);
-                }
-            });
-
-
-
+       query_all();
     }
 
     $('#machines_list').removeClass('hide');
