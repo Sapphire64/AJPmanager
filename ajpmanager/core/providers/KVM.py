@@ -201,7 +201,7 @@ class KVMProvider(object):
                         offline_lst.append(element)
 
                 print ('Cache used: ' + str(time()-t1)) # Leave it for some time
-                return {'offline': offline_lst, 'online': online_lst}
+                return {'offline': sorted(offline_lst), 'online': online_lst}
 
 
 
@@ -265,7 +265,7 @@ class KVMProvider(object):
 
         print ('Cache not used: '  + str(time()-t1)) # Temp mini-bench
 
-        return {'offline': offline, 'online': online}
+        return {'offline': offline, 'online': sorted(online)}
 
 
     def get_presets_list(self):
