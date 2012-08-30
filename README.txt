@@ -11,12 +11,12 @@ Software:
   - Pyramid framework
   - Kickstrap HTML/CSS framework
   - JQuery AJAX
-  - Optional: Redis for storing settings and users
+  - Redis as storage and caching utility
 
 
 Difficulties (Help needed!)
 ---------------
-1) Integration with Xen via XenAPI. Or maybe it can be integrated via libvirt - we need people who will test it.
+1) Integration with Xen (via xenapi or via libvirt). We need people who will test it.
 2) Development of package manager with optimal architecture:
     - usage of special config files with autosetup (like autoanswer in debian installation)
     - automatical installation and configuration of the optional packages
@@ -32,9 +32,9 @@ Structure:
 /kvm/presets/base:
   - image.img
   - config.xml
-  - description.txt
+  - description.txt << this going to be converted to .html
 
-New images will be moved to /kvm/images/ also in unique folder. 
+New images are moving into unique folder in /kvm/images/.
 
 Each machine in preset folder have autoupdater script for boot time, 
 so for keeping machines up to date server will launch them from time to time.
@@ -48,7 +48,7 @@ Requirements
 ---------------
   - Python 2.7 (not tested with earlied versions)
   - virtualenv
-  - Redis DB (optional)
+  - Redis DB
   - Anything other will be installed into virtualenv automatically (except libvirt)
 
 
