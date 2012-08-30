@@ -26,7 +26,7 @@ class MainPage(object):
 
         allowed_ips = dbcon.lrange("allowed_ips", 0, -1)
 
-        if self.request['REMOTE_ADDR'] not in allowed_ips and '*' not in allowed_ips:
+        if '*' not in allowed_ips and self.request['REMOTE_ADDR'] not in allowed_ips:
             return HTTPForbidden()
 
         return {'text': 'AJPmanager', 'username': 'Vortex'}
@@ -45,7 +45,7 @@ class JSONprocessor(object):
 
         allowed_ips = dbcon.lrange("allowed_ips", 0, -1)
 
-        if self.request['REMOTE_ADDR'] not in allowed_ips and '*' not in allowed_ips:
+        if '*' not in allowed_ips and self.request['REMOTE_ADDR'] not in allowed_ips:
             return HTTPForbidden()
 
         # Factory to answer for JSON requests
