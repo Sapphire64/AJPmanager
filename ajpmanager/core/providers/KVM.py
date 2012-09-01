@@ -1,5 +1,6 @@
 # coding: utf-8
 from multiprocessing.process import Process
+from time import sleep
 from uuid import uuid4
 from ajpmanager.core.MiscTools import safe_join
 from xml.dom import minidom
@@ -131,7 +132,7 @@ class KVMProvider(object):
         return {'answer': True, 'message': message}
 
 
-    def _prepare_database(self, soft=False):
+    def _prepare_database(self, soft=False): # aka drop cache
         # Set flags in DB and also prepare list of preset domains
         if not soft:
             self.db.expire('copy', 0)
@@ -376,10 +377,24 @@ class KVMProvider(object):
         return machines
 
 
-    def run_machine(self, machine_name):
-        path = safe_join(IMAGES, machine_name)
-        f = open(safe_join(path, CONFIG_NAME)).read()
-        self.connection.createXML(f, 0)
+    def run_machine(self, machine_name, preset=False):
+        folder = PRESETS if preset else IMAGES
+        path = safe_join(folder, machine_name)
+        try:
+            f = open(safe_join(path, CONFIG_NAME)).read()
+        except IOError:
+            return (False, 'Cannot open config name for %s machine' % machine_name)
+        machines = self._get_online_machines()
+        try:
+            self.connection.createXML(f, 0)
+        except Exception:
+            return (False, 'Cannot run machine, but config file was found')
+        else:
+            # TODO: improve this algorithm
+            while machines == self._get_online_machines():
+                sleep(2)
+            self._prepare_database()
+            return (True, 'Machine started')
 
 
     def clone_machine(self, preset_name, machine_name, session, force=False):

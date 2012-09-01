@@ -3,54 +3,49 @@
 <!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
 <!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
 <!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
-<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
-<!-- Consider adding a manifest.appcache: h5bp.com/d/Offline -->
-<!--[if gt IE 8]><!-->
-<html class="no-js" lang="en" xmlns="http://www.w3.org/1999/html"> <!--<![endif]-->
-<head>
-    <meta charset="utf-8">
+<meta charset="utf-8">
 
-    <!-- Use the .htaccess and remove these lines to avoid edge case issues.
- More info: h5bp.com/i/378 -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<!-- Use the .htaccess and remove these lines to avoid edge case issues.
+More info: h5bp.com/i/378 -->
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-    <title>{{ text }}</title>
-    <meta name="description" content="">
+<title>{{ text }}</title>
+<meta name="description" content="">
 
-    <!-- Mobile viewport optimized: h5bp.com/viewport -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<!-- Mobile viewport optimized: h5bp.com/viewport -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 
-    <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
+<!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
 
-    <link rel="stylesheet" href="{{ request.static_url('ajpmanager:static/extras/h5bp/css/style.css') }}">
-    <!-- Or use this one if you run H5BP's build script -->
-    <!--link rel="stylesheet" href="extras/h5bp/publish/css/e68668b.css"-->
+<link rel="stylesheet" href="{{ request.static_url('ajpmanager:static/extras/h5bp/css/style.css') }}">
+<!-- Or use this one if you run H5BP's build script -->
+<!--link rel="stylesheet" href="extras/h5bp/publish/css/e68668b.css"-->
 
-    <link rel="stylesheet" href="{{ request.static_url('ajpmanager:static/css/bootstrap.css') }}">
-    <link rel="stylesheet" href="{{ request.static_url('ajpmanager:static/css/admin.css') }}">
-    <!--<link rel="stylesheet/less" href="{{ request.static_url('ajpmanager:static/less/bootstrap.less') }}">
-    <script src="{{ request.static_url('ajpmanager:static/less_js/less-1.3.0.min.js') }}"></script> -->
+<link rel="stylesheet" href="{{ request.static_url('ajpmanager:static/css/bootstrap.css') }}">
+<link rel="stylesheet" href="{{ request.static_url('ajpmanager:static/css/admin.css') }}">
+<!--<link rel="stylesheet/less" href="{{ request.static_url('ajpmanager:static/less/bootstrap.less') }}"-->
+<!--script src="{{ request.static_url('ajpmanager:static/less_js/less-1.3.0.min.js') }}"></script> -->
 
-    <!-- Want to try a different theme?
+<!-- Want to try a different theme?
           If not using LESS compiler: Uncomment below
         and change to name of desired theme. (See docs) 	-->
-    <!--link type="text/css" rel="stylesheet" href="extras/css/amelia.css" /-->
+<!--link type="text/css" rel="stylesheet" href="extras/css/amelia.css" /-->
 
-    <!-- More ideas for your <head> here: h5bp.com/d/head-Tips -->
+<!-- More ideas for your <head> here: h5bp.com/d/head-Tips -->
 
-    <!-- All JavaScript at the bottom, except this Modernizr build.
+<!-- All JavaScript at the bottom, except this Modernizr build.
 Modernizr enables HTML5 elements & feature detects for optimal performance.
 Create your own custom Modernizr build: www.modernizr.com/download/ -->
-    <script src="{{ request.static_url('ajpmanager:static/extras/h5bp/js/libs/modernizr-2.5.3.min.js') }}"></script>
-    <style type="text/css">
-        body {
-            padding-top: 80px;
-            padding-bottom: 40px;
-        }
-        .sidebar-nav {
-            padding: 9px 0;
-        }
-    </style>
+<script src="{{ request.static_url('ajpmanager:static/extras/h5bp/js/libs/modernizr-2.5.3.min.js') }}"></script>
+<style type="text/css">
+    body {
+        padding-top: 80px;
+        padding-bottom: 40px;
+    }
+    .sidebar-nav {
+        padding: 9px 0;
+    }
+</style>
 </head>
 <body>
 <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you support IE 6.
@@ -81,15 +76,18 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
     <div class="navbar-inner">
         <div class="container-fluid">
             <div align="center">
+                <!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+                <!-- Consider adding a manifest.appcache: h5bp.com/d/Offline -->
+                <!--[if gt IE 8]><!-->
                 <div class="btn-toolbar">
                     <input id="stats" type="text" class="span8 disabled"  style="margin-top: 7px;" disabled>
-                    <btn class="btn btn-info" title="Run all" onclick="refresh();"><i class="icon-refresh"></i></btn>
+                    <btn class="btn btn-info" onclick="query_all();"><i class="icon-refresh"></i></btn>
                 </div>
 
-        </div>
-            </div><!--/.nav-collapse -->
-        </div>
+            </div>
+        </div><!--/.nav-collapse -->
     </div>
+</div>
 </div>
 
 <div class="container-fluid">
@@ -145,26 +143,26 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 
     <div class="well hide" id="machines_list">
         <h3 align="center">Virtual Machines List</h3>
-            <br>
+        <br>
 
-            <table id="machines_table" class="table table-striped table-centered" style="background-color: #ffffff;">
-                <thead>
-                <tr>
-                    <th style="width: 30px;">#</th>
-                    <th style="width: 200px;">Name</th>
-                    <th style="width: 150px;">Type</th>
-                    <th style="width: 150px;">Load</th>
-                    <th style="width: 30px;">Cores</th>
-                    <th style="width: 110px;">Memory</th>
-                    <th style="width: 30px;">Status</th>
-                    <th style="width: 25px;">
-                        <input id="check0" type="checkbox" onchange="note_checkboxes(this);">
-                        </th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+        <table id="machines_table" class="table table-striped table-centered" style="background-color: #ffffff;">
+            <thead>
+            <tr>
+                <th style="width: 30px;">#</th>
+                <th style="width: 200px;">Name</th>
+                <th style="width: 150px;">Type</th>
+                <th style="width: 150px;">Load</th>
+                <th style="width: 30px;">Cores</th>
+                <th style="width: 110px;">Memory</th>
+                <th style="width: 30px;">Status</th>
+                <th style="width: 25px;">
+                    <input id="check0" type="checkbox" onchange="note_checkboxes(this);">
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
     </div> <!-- Running machines DIV -->
 
 
@@ -215,129 +213,129 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 
 </div> <!--span-->
 
-    <div class="span3">
-        <div id="quick_manage_block" class="well">
-            <h3 align="center">
-                Manager
-            </h3>
+<div class="span3">
+    <div id="quick_manage_block" class="well">
+        <h3 align="center">
+            Manager
+        </h3>
+        <br>
+
+
+
+        <table class="table table-bordered table-centered" style="background-color: #ffffff;">
+            <thead>
+            <tr>
+                <th style="width: 30px;">#</th>
+                <th style="width: 200px;">Name</th>
+                <th style="width: 150px;">Type</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td id="selected_id">3</td>
+                <td id="selected_name"></td>
+                <td id="selected_type">…</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div align="center">
+            <div class="btn-toolbar">
+
+                <div class="btn-group">
+                    <btn id="run_button" class="btn btn-success btn-large disabled" title="Run all" onclick="run_machine()"><i class="icon-play"></i></btn>
+                    <btn id="pause_button" class="btn btn-warning btn-large disabled" title="Pause all" onclick="pause_machine()"><i class="icon-pause"></i></btn>
+                    <btn id="stop_button" class="btn btn-danger btn-large disabled" title="Stop all" onclick="stop_machine()"><i class="icon-stop"></i></btn>
+                </div>
+
+                <div class="btn-group">
+                    <btn id="edit_button" class="btn btn-warning btn-large disabled" title="Edit selected virtual machine" onclick="edit_selected_item();"><i class="icon-pencil"></i></btn>
+                </div>
+                <div class="btn-group">
+                    <btn id="detailed_info_button" class="btn btn-info btn-large disabled" title="Detailed information about selected VM" onclick="show_detailed_info(false);"><i class="icon-info-sign"></i></btn>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div id="project_info" class="well hide">
+        <h3 align="center">
+            AJPmanager info
+        </h3>
+        <p style="color: #ff0000;" align="center"><b>This project is currently under development, we are looking for contributors!</b></p>
+        <p>You can help if you are familiar with any of this technologies:
+        <ul><li>Python, Pyramid Framework, libvirt</li><li>HTML5, CSS, JavaScript</li> <li>XenAPI, Libvirt or any other VM technology</li></ul></p>
+
+        <div align="center"><btn class="btn btn-large btn-primary">Visit us on <b>Github</b> <i class="icon-github-sign"></i></btn></div>
+
+    </div>
+
+
+
+    <div class="well">
+        <h4 align="center">Add new machine from preset</h4>
+
+
+        <div class="framer">
             <br>
+            <table class="table table-condensed table-centered" style="background-color: #ffffff;">
 
-
-
-            <table class="table table-bordered table-centered" style="background-color: #ffffff;">
                 <thead>
                 <tr>
                     <th style="width: 30px;">#</th>
-                    <th style="width: 200px;">Name</th>
-                    <th style="width: 150px;">Type</th>
+                    <th style="width: 200px;">Preset</th>
+                    <th style="width: 100px;">Action</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
-                    <td id="selected_id">3</td>
-                    <td id="selected_name"></td>
-                    <td id="selected_type">…</td>
+                    <td>1</td>
+                    <td>Nginx web server</td>
+                    <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
                 </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Apache web server</td>
+                    <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Lighttpd web server</td>
+                    <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>DNS server</td>
+                    <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
+                </tr>
+
+
+
+
                 </tbody>
             </table>
 
-            <div align="center">
-                <div class="btn-toolbar">
-
-                    <div class="btn-group">
-                        <btn class="btn btn-success btn-large" title="Run all"><i class="icon-play"></i></btn>
-                        <btn class="btn btn-warning btn-large" title="Pause all"><i class="icon-pause"></i></btn>
-                        <btn class="btn btn-danger btn-large" title="Stop all"><i class="icon-stop"></i></btn>
-                    </div>
-
-                    <div class="btn-group">
-                        <btn id="edit_button" class="btn btn-warning btn-large disabled" title="Edit selected virtual machine" onclick="edit_selected_item();"><i class="icon-pencil"></i></btn>
-                    </div>
-                    <div class="btn-group">
-                        <btn id="detailed_info_button" class="btn btn-info btn-large disabled" title="Detailed information about selected VM" onclick="show_detailed_info(false);"><i class="icon-info-sign"></i></btn>
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
-
-        <div id="project_info" class="well hide">
-            <h3 align="center">
-                AJPmanager info
-            </h3>
-            <p style="color: #ff0000;" align="center"><b>This project is currently under development, we are looking for contributors!</b></p>
-            <p>You can help if you are familiar with any of this technologies:
-                <ul><li>Python, Pyramid Framework, XenAPI</li><li>HTML5, CSS, JavaScript</li> <li>XenAPI, Xen or any other VM technology</li></ul></p>
-
-            <div align="center"><btn class="btn btn-large btn-primary">Visit us on <b>Github</b> <i class="icon-github-sign"></i></btn></div>
-
         </div>
 
 
+        <br>
 
-        <div class="well">
-            <h4 align="center">Add new machine from preset</h4>
-
-
-            <div class="framer">
-                <br>
-                <table class="table table-condensed table-centered" style="background-color: #ffffff;">
-
-                    <thead>
-                    <tr>
-                        <th style="width: 30px;">#</th>
-                        <th style="width: 200px;">Preset</th>
-                        <th style="width: 100px;">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Nginx web server</td>
-                        <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Apache web server</td>
-                        <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Lighttpd web server</td>
-                        <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>DNS server</td>
-                        <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
-                    </tr>
-
-
-
-
-                    </tbody>
-                </table>
-
-            </div>
-
-
-<br>
-
-            <div align="center">
-                <btn class="btn btn-success"><b>Add new </b><i class="icon-plus"></i></btn>
-            </div>
+        <div align="center">
+            <btn class="btn btn-success"><b>Add new </b><i class="icon-plus"></i></btn>
         </div>
+    </div>
 
 
-        </div>
+</div>
 </div><!--/row-->
 
 
-    <div class="well">
+<div class="well">
 
 
-    </div>
+</div>
 
 
 
@@ -361,9 +359,9 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 
         <div id="software">
             Software included with Debian 6.0:
-                - blah
-                - blah2
-                - blah3
+            - blah
+            - blah2
+            - blah3
 
         </div>
 
@@ -520,5 +518,7 @@ mathiasbynens.be/notes/async-analytics-snippet -->
 <!-- Activate Chosen js -->
 <script type="text/javascript"> $(".chzn-select").chosen(); $(".chzn-select-deselect").chosen({allow_single_deselect:true}); </script>
 
+<html class="no-js" lang="en" xmlns="http://www.w3.org/1999/html"> <!--<![endif]-->
+<head>
 </body>
 </html>

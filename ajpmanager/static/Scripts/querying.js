@@ -40,5 +40,34 @@ function query_all(){
             }
         });
 
+}
+
+
+function run_machine() {
+
+    if ($active_objects.length == 1) {
+        name = $active_objects[0];
+    }
+    else {
+        return
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "/engine.ajax",
+        data: JSON.stringify({'query': 'run_machine', 'data': name}),
+        contentType: 'application/json; charset=utf-8'
+    }).done(function ( data ) {
+            console.log(data);
+            if (data.status) {
+                $presets = data.presets;
+                //console.log(data.data);
+            }
+            else {
+                jgrowl_error(1, 'Error message from the server during attempt to recieve presets list: <br>' + data.answer);
+            }
+        });
+
 
 }
+

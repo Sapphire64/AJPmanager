@@ -36,6 +36,9 @@ class VMConnector(object):
             return
         self.conn.clone_machine(base, new_name)
 
+    def run_machine(self, name):
+        return self.conn.run_machine(name)
+
 
     def get_vms_list(self):
         if not self.__select_vm_provider():

@@ -81,10 +81,18 @@ class JSONprocessor(object):
         else:
             return {'status': True}
 
+    def run_machine(self):
+        name = self.json.get('data')
+        if not name:
+            return {'status': False, 'answer': 'No name provided'}
+        answer = VMC.run_machine(name)
+        return {'status': answer[0], 'answer': answer[1]}
+
 
     functions = { # This dictionary is used to implement factory run of the requested functions
                   'verify_new_vm_name': verify_new_vm_name,
                   'get_vms_list': get_vms_list,
                   'get_presets_list': get_presets_list,
+                  'run_machine': run_machine,
                   }
 

@@ -124,26 +124,37 @@ function edit_selected_item(){
 }
 
 
-function note_checkboxes(object){
-    var $id = object.id[object.id.length-1];
+function note_checkboxes(id, name, type, status, object){
+    console.log(id, name, type);
+
     if (object.checked) {
-        $active_objects.push($id);
+        $active_objects.push(name);
     }
     else {
-        $active_objects.pop($id);
+        $active_objects.pop(name);
     }
     check_multiple_select();
 
     if ($active_objects.length == 1) {
-        $('#selected_id').text($active_objects[0]);
+        $('#selected_id').text(id);
+        $('#selected_name').text(name);
+        $('#selected_type').text(type);
         // Query to the server for object's information (also with detailed info);
+        if (status == 'Stopped'){
+            $('#run_button').removeClass('disabled');
+            $('#pause_button').addClass('disabled');
+            $('#stop_button').addClass('disabled');
+        }
+        else if (status == 'Running') {
+            $('#run_button').addClass('disabled');
+            $('#pause_button').removeClass('disabled');
+            $('#stop_button').removeClass('disabled');
+        }
     }
     else{
-        $('#selected_id').text('-');
+        clear_select_menu();
         return
     }
-
-
 
 }
 
@@ -159,4 +170,16 @@ function check_multiple_select(){
         $('#detailed_info_button').addClass('disabled');
         $('#edit_button').addClass('disabled');
     }
+}
+
+function clear_select_menu() {
+    $active_objects = new Array();
+    $('#selected_id').text('-');
+    $('#selected_name').text('');
+    $('#selected_type').text('');
+    $('#run_button').addClass('disabled');
+    $('#pause_button').addClass('disabled');
+    $('#stop_button').addClass('disabled');
+    $('#edit_button').addClass('disabled');
+    $('#detailed_info_button').addClass('disabled');
 }
