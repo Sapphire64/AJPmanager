@@ -309,7 +309,7 @@ class KVMProvider(object):
         if presets:
             for preset in presets:
                 item = json.dumps(preset)
-                self.db.rpush('presets', preset)
+                self.db.rpush('presets', item)
         else:
             self.db.rpush('presets', 'Empty')
 
