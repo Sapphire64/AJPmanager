@@ -212,6 +212,7 @@ class KVMProvider(object):
 
         # Online
         online = []
+        online_names = []
         online_ids = self._get_online_machines()
 
         for id in online_ids:
@@ -219,6 +220,7 @@ class KVMProvider(object):
             name = machine.name()
             if name in presets: # Hiding presets from actual machines
                 continue
+            online_names.append(name)
             type, cpu, memory = self._get_xml_info(name)
             info = machine.info()
             answer = {'id': id, 'name': name, 'type': type, 'cpu': cpu, 'memory': memory, 'info': info}
@@ -236,7 +238,7 @@ class KVMProvider(object):
         # * this is necessary if machines were copied (read _get_machines_from_folders())
 
         for machine in offline_merged:
-            if machine in presets:
+            if machine in presets or machine in online_names: # excluding presets and already started machines
                 continue
             type, cpu, memory = self._get_xml_info(machine)
             answer = {'id': '-', 'name': machine, 'type': type, 'cpu': cpu, 'memory': memory, 'info': None}
