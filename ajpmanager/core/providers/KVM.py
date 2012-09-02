@@ -205,6 +205,7 @@ class KVMProvider(object):
                 return {'offline': sorted(offline_lst), 'online': online_lst}
 
 
+        self._define_machines() # Add all machines from folders into libvirt
 
         #presets = ['DEBUGG'] # Changed for debug
         presets = self.get_presets_list()
@@ -231,13 +232,8 @@ class KVMProvider(object):
 
         # Getting VMs by libvirt
         offline_names = self._get_offline_machines()
-        # Getting VMs by scanning folders *
-        offline_in_folders = self._get_machines_from_folders()
-        # Merge results
-        offline_merged = list(set(offline_names + offline_in_folders)) # Getting only UNIQUE names from both lists
-        # * this is necessary if machines were copied (read _get_machines_from_folders())
 
-        for machine in offline_merged:
+        for machine in offline_names:
             if machine in presets or machine in online_names: # excluding presets and already started machines
                 continue
             type, cpu, memory = self._get_xml_info(machine)
@@ -267,6 +263,7 @@ class KVMProvider(object):
         self.db.expire('offline', 600)
 
         print ('Cache not used: '  + str(time()-t1)) # Temp mini-bench
+        print ('Results: %s and Online: %s and Presets: %s' % (offline_names, online, presets))
 
         return {'offline': offline, 'online': sorted(online)}
 
@@ -286,7 +283,7 @@ class KVMProvider(object):
                         continue
                     else:
                         presets.append(element)
-
+                print ('Cached presets: %s' % presets)
                 return presets
 
         # If not cache
@@ -357,33 +354,42 @@ class KVMProvider(object):
         return self.connection.listDomainsID()
 
 
-    def _get_machines_from_folders(self):
-        # If machine are in folder but not listed in VM - they are offline for sure.
-        # It is possible that they were cloned/copied manually or by our program :)
-        # FIXME: maybe newly added machines can be added to KVM by some libvirt API transaction
-        machines = []
-        # Find preset's name & image name of the machine
-        for directory in os.listdir(IMAGES):
-            directory_ = safe_join(IMAGES, directory)                          # Building full path
-            if not os.path.isdir(directory_):
-                continue
-            try:
-                with open(safe_join(directory_, CONFIG_NAME)) as f:           # Open config.xml in full path
-                    dom = minidom.parse(f)                                    # Parsing it
-            except IOError:
-                continue
-            else:
-                name = dom.getElementsByTagName('name')[0].childNodes[0].data # Get name of the VM
-                machines.append(name)
-
-        return machines
+    def _define_machines(self):
+        """ Adding VM into Libvirt. Also refreshing changed config files.
+        """
+        # Find preset's name & image name of the machine and add it into libvirt
+        for category in [IMAGES, PRESETS]: # Scanning both images and presets
+            for directory in os.listdir(category):
+                directory_ = safe_join(category, directory)                          # Building full path
+                if not os.path.isdir(directory_):
+                    continue
+                try:
+                    with open(safe_join(directory_, CONFIG_NAME)) as f:
+                        f = f.read()
+                    self.connection.defineXML(f)
+                    # vice versa -> undefine_XML
+                except Exception:
+                    continue
 
 
     def run_machine(self, machine_name, preset=False):
+        if isinstance(machine_name, libvirt.virDomain): # Processing domain object itself
+            try:
+                self.machine_name.create()
+            except Exception as e:
+                error =  'Unknown error while trying to start machine by domain object: %s' % e
+                print (error)
+                return (False, error)
+            else:
+                self._prepare_database()
+                return (True, 'Machine started')
+
+        # Simple approach -> start by reading configuration file
         folder = PRESETS if preset else IMAGES
         path = safe_join(folder, machine_name)
         try:
-            f = open(safe_join(path, CONFIG_NAME)).read()
+            with open(safe_join(path, CONFIG_NAME)) as f:
+                f = f.read()
         except IOError:
             return (False, 'Cannot open config name for %s machine' % machine_name)
         machines = self._get_online_machines()
@@ -393,7 +399,9 @@ class KVMProvider(object):
             return (False, 'Cannot run machine, but config file was found')
         else:
             # TODO: improve this algorithm
-            while machines == self._get_online_machines():
+            cnt = 0
+            while machines == self._get_online_machines() and cnt < 5:
+                cnt += 1
                 sleep(2)
             self._prepare_database()
             return (True, 'Machine started')
