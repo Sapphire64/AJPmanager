@@ -43,7 +43,7 @@ function query_all(){
 }
 
 
-function run_machine() {
+function operate_machine(query) {
 
     if ($active_objects.length == 1) {
         name = $active_objects[0];
@@ -55,12 +55,14 @@ function run_machine() {
     $.ajax({
         type: "POST",
         url: "/engine.ajax",
-        data: JSON.stringify({'query': 'run_machine', 'data': name}),
+        data: JSON.stringify({'query': 'machines_control', 'data': name, 'operation': query}),
         contentType: 'application/json; charset=utf-8'
     }).done(function ( data ) {
+            console.log ('Answered!')
             console.log(data);
             if (data.status) {
                 $presets = data.presets;
+                query_all();
                 //console.log(data.data);
             }
             else {
