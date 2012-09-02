@@ -8,6 +8,9 @@ from pyramid_beaker import set_cache_regions_from_settings
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
+
+    prepare_database(settings)
+
     config = Configurator(settings=settings)
 
     config.include('pyramid_jinja2')
@@ -22,7 +25,6 @@ def main(global_config, **settings):
     config.scan()
 
 
-    prepare_database(settings)
 
     return config.make_wsgi_app()
 
@@ -32,3 +34,28 @@ def prepare_database(settings):
     db.io.expire('allowed_ips', 0)
     for ip in allowed_ips:
         db.io.rpush('allowed_ips', ip.strip())
+
+    # Applying default settings
+    if not db.io.get('XEN_PATH'):
+        db.io.set('XEN_PATH', '/xen')
+
+    if not db.io.get('KVM_PATH'):
+        db.io.set('KVM_PATH', '/kvm')
+
+    if not db.io.get('PRESETS'):
+        db.io.set('PRESETS','presets')
+
+    if not db.io.get('IMAGES'):
+        db.io.set('IMAGES', 'images')
+
+    if not db.io.get('CONFIG_NAME'):
+        db.io.set('CONFIG_NAME', 'config.xml')
+
+    if not db.io.get('VMIMAGE_NAME'):
+        db.io.set('VMIMAGE_NAME', 'image.img')
+
+    if not db.io.get('DESCRIPTION_NAME'):
+        db.io.set('DESCRIPTION_NAME', 'description.txt')
+
+    if not db.io.get('QEMU_PATH'):
+        db.io.set('QEMU_PATH', 'qemu:///system')

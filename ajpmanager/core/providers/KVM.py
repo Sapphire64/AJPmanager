@@ -12,20 +12,10 @@ import json
 import shutil
 
 
-KVM_PATH = '/kvm' # This should be get from Redis and setted by config on page
-PRESETS = safe_join(KVM_PATH, 'presets')
-IMAGES = safe_join(KVM_PATH, 'images')
-
-# Also will be read from Redis:
-CONFIG_NAME = 'config.xml'
-VMIMAGE_NAME = 'image.img'
-DESCRIPTION_NAME = 'description.txt'
-
-VIRT_PATH = 'qemu:///system'
-
 
 def generate_uuid():
     return str(uuid4())
+
 
 def generate_mac():
     mac = [ 0x00, 0x33,
@@ -50,12 +40,16 @@ class KVMProvider(object):
         else:
             return True
 
-    def __init__(self, dbcon):
+    def __init__(self, dbcon, pathgetter):
         print ('Using KVM as a virtual machines server and libvirt as frontend')
-        self.connection = libvirt.open(VIRT_PATH)
-        assert self.connection, 'Failed to open Qemu/KVM connection'
         self.db = dbcon
+        self.pg = pathgetter
+
         self._prepare_database()
+
+        self.connection = libvirt.open(self.QEMU_PATH)
+        assert self.connection, 'Failed to open Qemu/KVM connection'
+
         #self.clone_machine('WheezyBasic', 'test_1', 111, force=True)
 
 
@@ -67,8 +61,8 @@ class KVMProvider(object):
         self.db.set('copy', session)
 
         # Path preparations
-        src = safe_join(PRESETS, preset_name)
-        dst = safe_join(IMAGES, machine_name)
+        src = safe_join(self.PRESETS, preset_name)
+        dst = safe_join(self.IMAGES, machine_name)
 
         if not os.path.exists(dst):
             os.makedirs(dst)
@@ -137,6 +131,16 @@ class KVMProvider(object):
         if not soft:
             self.db.expire('copy', 0)
             self.db.set('provider', 'kvm')
+
+        self.KVM_PATH = self.pg.KVM_PATH
+        self.PRESETS = safe_join(self.KVM_PATH, self.pg.PRESETS)
+        self.IMAGES = safe_join(self.KVM_PATH, self.pg.IMAGES)
+
+        self.CONFIG_NAME = self.pg.CONFIG_NAME
+        self.VMIMAGE_NAME = self.pg.VMIMAGE_NAME
+        self.DESCRIPTION_NAME = self.pg.DESCRIPTION_NAME
+
+        self.QEMU_PATH = self.pg.QEMU_PATH
 
         # Cleaning cache lists
         self.db.expire('online', 0)
@@ -287,10 +291,10 @@ class KVMProvider(object):
                 return presets
 
         # If not cache
-        for directory in os.listdir(PRESETS):
-            path = safe_join(PRESETS, directory)
+        for directory in os.listdir(self.PRESETS):
+            path = safe_join(self.PRESETS, directory)
             try:
-                with open(safe_join(path, CONFIG_NAME)) as f:
+                with open(safe_join(path, self.CONFIG_NAME)) as f:
                     dom = minidom.parse(f)
                 #import pdb; pdb.set_trace()
             except IOError:
@@ -298,7 +302,7 @@ class KVMProvider(object):
             else:
                 name = dom.getElementsByTagName('name')[0].childNodes[0].data # Get name of the VM
                 try:
-                    with open(safe_join(path, DESCRIPTION_NAME)) as f:
+                    with open(safe_join(path, self.DESCRIPTION_NAME)) as f:
                         description = f.read()
                 except IOError:
                     continue
@@ -320,11 +324,11 @@ class KVMProvider(object):
 
 
     def _get_xml_info(self, machine_name, presets=False):
-        source = IMAGES if not presets else PRESETS
+        source = self.IMAGES if not presets else self.PRESETS
         path = safe_join(source, machine_name)
         # Maybe this code is too indian-styled
         try:
-            with open(safe_join(path, CONFIG_NAME)) as f:
+            with open(safe_join(path, self.CONFIG_NAME)) as f:
 
                 dom = minidom.parse(f)
         except IOError:
@@ -358,7 +362,7 @@ class KVMProvider(object):
         """ Adding VM into Libvirt. Also refreshing changed config files.
         """
         # Find preset's name & image name of the machine and add it into libvirt
-        for category in [IMAGES, PRESETS]: # Scanning both images and presets
+        for category in [self.IMAGES, self.PRESETS]: # Scanning both images and presets
             for directory in os.listdir(category):
                 directory_ = safe_join(category, directory)                          # Building full path
                 if not os.path.isdir(directory_):
@@ -385,7 +389,7 @@ class KVMProvider(object):
                 return (True, 'Machine started')
 
         # Simple approach -> start by reading configuration file
-        folder = PRESETS if preset else IMAGES
+        folder = self.PRESETS if preset else self.IMAGES
         path = safe_join(folder, machine_name)
         try:
             with open(safe_join(path, CONFIG_NAME)) as f:

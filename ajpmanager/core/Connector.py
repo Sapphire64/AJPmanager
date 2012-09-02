@@ -1,3 +1,4 @@
+from ajpmanager.core.MiscTools import PathGetter
 from ajpmanager.core.providers.KVM import KVMProvider
 
 class VMConnector(object):
@@ -11,7 +12,8 @@ class VMConnector(object):
     def __init__(self):
         self.db = DBConnection()
         self.db.io.set('provider', 'kvm')
-        self.conn = self.__select_vm_provider()(self.db.io) # Raise if not found
+        self.pg = PathGetter(self.db.io)
+        self.conn = self.__select_vm_provider()(self.db.io, self.pg) # Raise if not found
 
     @property
     def dbcon(self):
