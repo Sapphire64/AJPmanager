@@ -39,6 +39,12 @@ class VMConnector(object):
     def run_machine(self, name):
         return self.conn.run_machine(name)
 
+    def stop_machine(self, name):
+        return self.conn.stop_machine(name)
+
+    def pause_machine(self, name):
+        return self.conn.pause_machine(name)
+
 
     def get_vms_list(self):
         if not self.__select_vm_provider():

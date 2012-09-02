@@ -395,6 +395,8 @@ class KVMProvider(object):
         machines = self._get_online_machines()
         try:
             self.connection.createXML(f, 0)
+        except libvirt.libvirtError as e:
+            return (False, str(e))
         except Exception:
             return (False, 'Cannot run machine, but config file was found')
         else:
@@ -405,6 +407,23 @@ class KVMProvider(object):
                 sleep(2)
             self._prepare_database()
             return (True, 'Machine started')
+
+    def stop_machine(self, machine_name):
+        machine = self.connection.lookupByName(machine_name)
+        if not machine:
+            return (False, 'No machine found with such name')
+        try:
+            machine.destroy() # check exception
+        except libvirt.libvirtError as e:
+            return (False, str(e))
+        except Exception as e:
+            return (False, 'Cannot stop machine: %s' % e)
+        else:
+            return (True, 'Machine stopped')
+
+    def pause_machine(self, machine_name):
+        return (False, 'Not implemented yet')
+
 
 
     def clone_machine(self, preset_name, machine_name, session, force=False):

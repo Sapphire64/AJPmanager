@@ -81,18 +81,31 @@ class JSONprocessor(object):
         else:
             return {'status': True}
 
-    def run_machine(self):
+    def machines_control(self):
         name = self.json.get('data')
+        operation = self.json.get('operation')
+
+        operations = {
+                     'run': VMC.run_machine,
+                     'stop': VMC.stop_machine,
+                     'pause': VMC.pause_machine,
+                     }
         if not name:
             return {'status': False, 'answer': 'No name provided'}
-        answer = VMC.run_machine(name)
-        return {'status': answer[0], 'answer': answer[1]}
+        if not operation:
+            return {'status': False, 'answer': 'No operation provided'}
+        function = operations.get(operation)
+        if not function:
+            return {'status': False, 'answer': 'No function found for "%s" request' % operation}
+        else:
+            answer = function(name)
+            return {'status': answer[0], 'answer': answer[1]}
 
 
-    functions = { # This dictionary is used to implement factory run of the requested functions
+    functions = { # This dictionary is used to implement main factory run for JS requests
                   'verify_new_vm_name': verify_new_vm_name,
                   'get_vms_list': get_vms_list,
                   'get_presets_list': get_presets_list,
-                  'run_machine': run_machine,
+                  'machines_control': machines_control,
                   }
 
