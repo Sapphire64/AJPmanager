@@ -11,6 +11,10 @@ function generate_machines_list(page) {
             machine.status = 'Stopped';
             machine.memory = machine.memory + 'M';
             $displayed_list.push(machine);
+
+            if ($stopping_machines.indexOf(machine.name) != -1) { // Is in array?
+                $stopping_machines.pop(machine.name);
+            }
         }
 
         // This must be rewritten :)
@@ -20,6 +24,9 @@ function generate_machines_list(page) {
             machine.status = 'Running';
             machine.memory = machine.memory + 'M';
             $displayed_list.push(machine);
+            if ($stopping_machines.indexOf(machine.name) != -1) { // Is in array?
+                machine.status = 'Stopping';
+            }
         }
         $processed = true;
         $displayed_list.sort();
@@ -43,6 +50,9 @@ function append_vms() {
     for (var i=0; i<$displayed_list.length; i++){
         if ($displayed_list[i].status == 'Running') {
             label_ = 'success';
+        }
+        else if ($displayed_list[i].status == 'Stopped') {
+            label_ = 'important';
         }
         else {
             label_ = 'warning';

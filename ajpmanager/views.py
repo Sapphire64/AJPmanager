@@ -61,7 +61,8 @@ class JSONprocessor(object):
 
     def get_vms_list(self):
         # Here we are reading all virtual machines and packing them into answer:
-        vms = VMC.get_vms_list()
+        no_cache = self.json.get('no_cache')
+        vms = VMC.get_vms_list(no_cache=no_cache)
         return {'status': True, 'data': vms}
 
     def get_presets_list(self):
@@ -89,19 +90,33 @@ class JSONprocessor(object):
         total, used, free, preset_size = VMC.get_storage_info(machine)
         return {'status': True, 'data': {'free': free, 'used': used, 'total': total, 'preset_size': preset_size}}
 
-    def run_machine(self):
+    def machines_control(self):
         name = self.json.get('data')
+        operation = self.json.get('operation')
+
+        operations = {
+            'run': VMC.run_machine,
+            'stop': VMC.stop_machine,
+            'pause': VMC.pause_machine,
+            'destroy': VMC.destroy_machine,
+            }
         if not name:
             return {'status': False, 'answer': 'No name provided'}
-        answer = VMC.run_machine(name)
-        return {'status': answer[0], 'answer': answer[1]}
+        if not operation:
+            return {'status': False, 'answer': 'No operation provided'}
+        function = operations.get(operation)
+        if not function:
+            return {'status': False, 'answer': 'No function found for "%s" request' % operation}
+        else:
+            answer = function(name)
+            return {'status': answer[0], 'answer': answer[1]}
 
 
     functions = { # This dictionary is used to implement factory run of the requested functions
                   'verify_new_vm_name': verify_new_vm_name,
                   'get_vms_list': get_vms_list,
                   'get_presets_list': get_presets_list,
-                  'run_machine': run_machine,
+                  'machines_control': machines_control,
                   'get_storage_info': get_storage_info,
                   }
 

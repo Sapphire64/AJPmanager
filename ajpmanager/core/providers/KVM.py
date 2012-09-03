@@ -175,39 +175,42 @@ class KVMProvider(object):
             return 'Unknown'
 
 
-    def get_machines_list(self):
+    def get_machines_list(self, no_cache=False):
         # Read from Redis cache:
         from time import time
         t1 = time()
-        try:
-            online = self.db.lrange("online", 0, -1)
-            offline = self.db.lrange("offline", 0, -1)
-        except Exception:
-            pass
+
+        if no_cache:
+            self._prepare_database()
         else:
-            # Caching provides more than 30x faster processing
-            if online and offline:
-                online_lst = []
-                for element in online:
-                    try:
-                        element = json.loads(element) # Load from JSON
-                    except ValueError: # in case of 'Empty' elemenet or anything else
-                        continue
-                    else:
-                        online_lst.append(element)
+            try:
+                online = self.db.lrange("online", 0, -1)
+                offline = self.db.lrange("offline", 0, -1)
+            except Exception:
+                pass
+            else:
+                # Caching provides more than 30x faster processing
+                if online and offline:
+                    online_lst = []
+                    for element in online:
+                        try:
+                            element = json.loads(element) # Load from JSON
+                        except ValueError: # in case of 'Empty' elemenet or anything else
+                            continue
+                        else:
+                            online_lst.append(element)
 
-                offline_lst = []
-                for element in offline:
-                    try:
-                        element = json.loads(element)
-                    except ValueError:
-                        continue
-                    else:
-                        offline_lst.append(element)
+                    offline_lst = []
+                    for element in offline:
+                        try:
+                            element = json.loads(element)
+                        except ValueError:
+                            continue
+                        else:
+                            offline_lst.append(element)
 
-                print ('Cache used: ' + str(time()-t1)) # Leave it for some time
-                return {'offline': sorted(offline_lst), 'online': online_lst}
-
+                    print ('Cache used: ' + str(time()-t1)) # Leave it for some time
+                    return {'offline': sorted(offline_lst), 'online': online_lst}
 
         self._define_machines() # Add all machines from folders into libvirt
 
@@ -392,13 +395,15 @@ class KVMProvider(object):
         folder = self.PRESETS if preset else self.IMAGES
         path = safe_join(folder, machine_name)
         try:
-            with open(safe_join(path, CONFIG_NAME)) as f:
+            with open(safe_join(path, self.CONFIG_NAME)) as f:
                 f = f.read()
         except IOError:
             return (False, 'Cannot open config name for %s machine' % machine_name)
         machines = self._get_online_machines()
         try:
             self.connection.createXML(f, 0)
+        except libvirt.libvirtError as e:
+            return (False, str(e))
         except Exception:
             return (False, 'Cannot run machine, but config file was found')
         else:
@@ -409,6 +414,43 @@ class KVMProvider(object):
                 sleep(2)
             self._prepare_database()
             return (True, 'Machine started')
+
+    def stop_machine(self, machine_name):
+        machine = self.connection.lookupByName(machine_name)
+        if not machine:
+            return (False, 'No machine found with such name')
+        try:
+            machine.shutdown() # check exception
+        except libvirt.libvirtError as e:
+            return (False, str(e))
+        except Exception as e:
+            return (False, 'Cannot stop machine: %s' % e)
+        else:
+            cnt = 0
+            while machine.isActive():
+                if cnt > 10:
+                    return (False, 'Machine is still running, please try to stop it again')
+                cnt += 1
+                sleep (1)
+            return (True, 'Machine stopped')
+
+    def destroy_machine(self, machine_name):
+        machine = self.connection.lookupByName(machine_name)
+        if not machine:
+            return (False, 'No machine found with such name')
+        try:
+            machine.destroy() # check exception
+        except libvirt.libvirtError as e:
+            return (False, str(e))
+        except Exception as e:
+            return (False, 'Cannot stop machine: %s' % e)
+        else:
+            self._prepare_database()
+            return (True, 'Machine destroyed')
+
+    def pause_machine(self, machine_name):
+        return (False, 'Not implemented yet')
+
 
 
     def clone_machine(self, preset_name, machine_name, session, force=False):

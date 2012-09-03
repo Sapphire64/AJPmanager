@@ -140,15 +140,23 @@ function note_checkboxes(id, name, type, status, object){
         $('#selected_name').text(name);
         $('#selected_type').text(type);
         // Query to the server for object's information (also with detailed info);
-        if (status == 'Stopped'){
+        if ($stopping_machines.indexOf($active_objects[0]) != -1) { // Is in array?
+            $('#run_button').addClass('disabled');
+            $('#pause_button').addClass('disabled');
+            $('#stop_button').removeClass('disabled');
+            $('#destroy_button').removeClass('hide');
+        }
+        else if (status == 'Stopped'){
             $('#run_button').removeClass('disabled');
             $('#pause_button').addClass('disabled');
             $('#stop_button').addClass('disabled');
+            $('#destroy_button').addClass('hide');
         }
         else if (status == 'Running') {
             $('#run_button').addClass('disabled');
             $('#pause_button').removeClass('disabled');
             $('#stop_button').removeClass('disabled');
+            $('#destroy_button').addClass('hide');
         }
     }
     else{
@@ -181,5 +189,6 @@ function clear_select_menu() {
     $('#pause_button').addClass('disabled');
     $('#stop_button').addClass('disabled');
     $('#edit_button').addClass('disabled');
+    $('#destroy_button').addClass('hide');
     $('#detailed_info_button').addClass('disabled');
 }

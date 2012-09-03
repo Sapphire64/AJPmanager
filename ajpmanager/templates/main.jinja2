@@ -243,9 +243,10 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
             <div class="btn-toolbar">
 
                 <div class="btn-group">
-                    <btn id="run_button" class="btn btn-success btn-large disabled" title="Run all" onclick="run_machine()"><i class="icon-play"></i></btn>
-                    <btn id="pause_button" class="btn btn-warning btn-large disabled" title="Pause all" onclick="pause_machine()"><i class="icon-pause"></i></btn>
-                    <btn id="stop_button" class="btn btn-danger btn-large disabled" title="Stop all" onclick="stop_machine()"><i class="icon-stop"></i></btn>
+                    <btn id="run_button" class="btn btn-success btn-large disabled" title="Run all" onclick="operate_machine('run')"><i class="icon-play"></i></btn>
+                    <btn id="pause_button" class="btn btn-warning btn-large disabled" title="Pause all" onclick="operate_machine('pause')"><i class="icon-pause"></i></btn>
+                    <btn id="stop_button" class="btn btn-danger btn-large disabled" title="Stop all" onclick="operate_machine('stop')"><i class="icon-stop"></i></btn>
+                    <btn id="destroy_button" class="btn btn-danger btn-large hide" title="Stop all" onclick="operate_machine('destroy')"><i class="icon-remove"></i></btn>
                 </div>
 
                 <div class="btn-group">
