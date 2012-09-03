@@ -17,6 +17,7 @@ function jgrowl_error($type, $err) {
     $.jGrowl($err , {
         //theme:  'danger',
         header: header,
+        life: 10000,
         closer: false
         // Should set up timeout (increase)
     });

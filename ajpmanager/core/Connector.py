@@ -37,19 +37,29 @@ class VMConnector(object):
         self.conn.clone_machine(base, new_name)
 
     def run_machine(self, name):
+        if not self.__select_vm_provider():
+            return
         return self.conn.run_machine(name)
 
     def stop_machine(self, name):
+        if not self.__select_vm_provider():
+            return
         return self.conn.stop_machine(name)
 
     def pause_machine(self, name):
-        return self.conn.pause_machine(name)
-
-
-    def get_vms_list(self):
         if not self.__select_vm_provider():
             return
-        return self.conn.get_machines_list()
+        return self.conn.pause_machine(name)
+
+    def destroy_machine(self, name):
+        if not self.__select_vm_provider():
+            return
+        return self.conn.destroy_machine(name)
+
+    def get_vms_list(self, no_cache):
+        if not self.__select_vm_provider():
+            return
+        return self.conn.get_machines_list(no_cache)
 
     def get_presets_list(self):
         if not self.__select_vm_provider():
