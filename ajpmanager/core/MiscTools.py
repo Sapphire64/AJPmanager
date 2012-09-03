@@ -1,5 +1,8 @@
+from ajpmanager.core.utils.DiskUsage import disk_usage
+
 import os
 import posixpath
+import shutil
 
 _os_alt_seps = list(sep for sep in [os.path.sep, os.path.altsep]
     if sep not in (None, '/'))
@@ -20,6 +23,24 @@ def safe_join(directory, filename):
     return os.path.join(directory, filename)
 
 
+def get_storage_info(path):
+    total, used, free = disk_usage(path)
+    return (total, used, free)
+
+def calculate_flat_folder_size(path):
+    # sum([os.path.getsize(f) for f in os.listdir(path) if os.path.isfile(f)]) # Short but doesn't work w/o safe_join
+    sum = 0
+    for f in os.listdir(path):
+        fpath = safe_join(path, f)
+        if os.path.isfile(fpath):
+            sum += os.path.getsize(fpath)
+    return sum
+
+
+
+
+    
+    
 class PathGetter(object):
 
     def __init__(self, dbcon):

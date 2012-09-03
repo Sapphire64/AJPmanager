@@ -280,7 +280,7 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 
         <div class="framer">
             <br>
-            <table class="table table-condensed table-centered" style="background-color: #ffffff;">
+            <table id="presets_table" class="table table-condensed table-centered" style="background-color: #ffffff;">
 
                 <thead>
                 <tr>
@@ -290,28 +290,6 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Nginx web server</td>
-                    <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Apache web server</td>
-                    <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>Lighttpd web server</td>
-                    <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td>DNS server</td>
-                    <td><div class="label label-success pointer" onclick="show_description_modal(1);">Install</div></td>
-                </tr>
-
-
 
 
                 </tbody>
@@ -342,11 +320,11 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 
 
 
-<div id="myModal" class="modal hide fade" style="width: 670px">
+<div id="descModal" class="modal hide fade" style="width: 670px">
     <!-- slightly non-centered - FIXME -->
     <div class="modal-header">
         <a class="close" data-dismiss="modal" >&times;</a>
-        <h3 id="model_name">Image installation</h3>
+        <h3>Image installation</h3>
     </div>
     <div class="modal-body">
 
@@ -358,18 +336,16 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
         <hr>
 
         <div id="software">
-            Software included with Debian 6.0:
-            - blah
-            - blah2
-            - blah3
-
+            <!-- THIS BLOCK IS TODO:
+                SHOW OS ver,
         </div>
 
 
-        <hr>
+        <!--hr-->
 
         <form class="form-horizontal">
             <fieldset>
+
                 <div class="control-group span8">
                     <label class="control-label" for="in-name">Machine name</label>
                     <div class="controls">
@@ -381,7 +357,7 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
             </fieldset>
         </form>
 
-        <p align="center">
+        <p id="storage_info" align="center">
             <b>Available:</b> 251.0 GB <!-- add spaces here TODO -->
             <b>Required:</b> 4.4 GB
         </p>
@@ -410,16 +386,6 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 
         <hr>
 
-        <div id="software">
-            Software included with Debian 6.0:
-            - foo
-            - bar
-            - spam
-
-        </div>
-
-
-        <hr>
 
         <form class="form-horizontal">
             <fieldset>
@@ -433,12 +399,6 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 
             </fieldset>
         </form>
-
-        <p align="center">
-            <b>Available:</b> 251.0 GB <!-- add spaces here TODO -->
-            <b>Required:</b> 4.4 GB
-        </p>
-
 
     </div>
     <div class="modal-footer">

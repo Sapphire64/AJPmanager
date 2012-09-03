@@ -1,4 +1,4 @@
-from ajpmanager.core.MiscTools import PathGetter
+from ajpmanager.core.MiscTools import PathGetter, get_storage_info, safe_join, calculate_flat_folder_size
 from ajpmanager.core.providers.KVM import KVMProvider
 
 class VMConnector(object):
@@ -18,7 +18,6 @@ class VMConnector(object):
     @property
     def dbcon(self):
         return self.db.io
-
 
     def __select_vm_provider(self):
         """ This function recognizes - which VM provider we must
@@ -51,6 +50,23 @@ class VMConnector(object):
         if not self.__select_vm_provider():
             return
         return self.conn.get_presets_list()
+
+    def get_storage_info(self, machine):
+        provider = self.db.io.get('provider')
+        if provider == 'kvm':
+            root = self.pg.KVM_PATH
+        elif provider == 'xen':
+            root = self.pg.XEN_PATH
+        else:
+            raise NotImplementedError
+
+        path = safe_join(root, self.pg.IMAGES)
+        preset_path = safe_join(root, self.pg.PRESETS)
+
+        total, used, free = get_storage_info(path)
+        preset_storage = calculate_flat_folder_size(safe_join(preset_path, machine))
+        return (total, used, free, preset_storage)
+
 
 
 class DBConnection(object):

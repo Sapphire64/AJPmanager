@@ -1,6 +1,7 @@
 from pyramid.httpexceptions import HTTPForbidden
 from pyramid.view import view_config
 from ajpmanager.core.Connector import VMConnector
+from ajpmanager.core.MiscTools import get_storage_info
 
 VMC = VMConnector()
 dbcon = VMC.dbcon # Wrong way? Maybe this can lead to more slow work with DB
@@ -81,6 +82,13 @@ class JSONprocessor(object):
         else:
             return {'status': True}
 
+    def get_storage_info(self):
+        machine = self.json.get('machine')
+        if not machine:
+            return {'status': False, 'answer': 'No machine name provided to calculate allocated storage'}
+        total, used, free, preset_size = VMC.get_storage_info(machine)
+        return {'status': True, 'data': {'free': free, 'used': used, 'total': total, 'preset_size': preset_size}}
+
     def run_machine(self):
         name = self.json.get('data')
         if not name:
@@ -94,5 +102,6 @@ class JSONprocessor(object):
                   'get_vms_list': get_vms_list,
                   'get_presets_list': get_presets_list,
                   'run_machine': run_machine,
+                  'get_storage_info': get_storage_info,
                   }
 

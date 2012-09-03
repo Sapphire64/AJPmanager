@@ -64,3 +64,28 @@ function append_vms() {
     $("#machines_table > tbody").append(row);
     clear_select_menu();
 }
+
+
+
+function append_presets() {
+    $('#presets_table tbody').empty();
+
+    var row = new Array();
+    var label_;
+
+    for (var i=0; i<$presets.length; i++){
+        row.push('<tr>');
+        row.push('<td>1</td>');
+        row.push('<td>'+ $presets[i].name + '</td>');
+        row.push('<td><div class="label label-success pointer" onclick="show_description_modal(\'' + $presets[i].name + '\');">Install</div></td>');
+        row.push('</tr>');
+    }
+    row = row.join('\n');
+    $("#presets_table > tbody").append(row);
+}
+
+function append_storage_info(free, preset_size) {
+    $('#storage_info').empty();
+    var $storage =  'Required:<b> ' + preset_size + '</b><br>' + 'Available:<b> ' + free + ' </b>';
+    $('#storage_info').append($storage);
+}
