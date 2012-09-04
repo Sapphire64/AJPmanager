@@ -71,5 +71,5 @@ class PathGetter(object):
         return self.db.get('DESCRIPTION_NAME')
 
     @property
-    def QEMU_PATH(self):
-        return self.db.get('QEMU_PATH')
+    def VMMANAGER_PATH(self):
+        return self.db.get('VMMANAGER_PATH')

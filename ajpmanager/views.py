@@ -30,7 +30,9 @@ class MainPage(object):
         if '*' not in allowed_ips and self.request['REMOTE_ADDR'] not in allowed_ips:
             return HTTPForbidden()
 
-        return {'text': 'AJPmanager', 'username': 'Vortex'}
+        show_settings = False
+
+        return {'text': 'AJPmanager', 'username': 'Vortex', 'show_settings': show_settings}
 
 
 
@@ -90,6 +92,29 @@ class JSONprocessor(object):
         total, used, free, preset_size = VMC.get_storage_info(machine)
         return {'status': True, 'data': {'free': free, 'used': used, 'total': total, 'preset_size': preset_size}}
 
+    def get_settings(self):
+        settings = VMC.get_settings()
+        return {'status': True, 'data': settings}
+
+
+    def apply_settings(self):
+        data = self.json.get('data')
+        if not data:
+            return {'status': False, 'answer': 'No settings data provided'}
+        try:
+            VMC.apply_settings(data)
+        #except ValueError:
+            #return {'status': False, 'answer': 'Wrong values provided'}
+        except NotImplementedError:
+            pass
+        else:
+            return {'status': True}
+
+    def restore_default_settings(self):
+        VMC.restore_default_settings()
+        return {'status': True}
+
+
     def machines_control(self):
         name = self.json.get('data')
         operation = self.json.get('operation')
@@ -100,6 +125,7 @@ class JSONprocessor(object):
             'pause': VMC.pause_machine,
             'destroy': VMC.destroy_machine,
             }
+
         if not name:
             return {'status': False, 'answer': 'No name provided'}
         if not operation:
@@ -112,11 +138,15 @@ class JSONprocessor(object):
             return {'status': answer[0], 'answer': answer[1]}
 
 
+
     functions = { # This dictionary is used to implement factory run of the requested functions
                   'verify_new_vm_name': verify_new_vm_name,
                   'get_vms_list': get_vms_list,
                   'get_presets_list': get_presets_list,
                   'machines_control': machines_control,
                   'get_storage_info': get_storage_info,
+                  'get_settings': get_settings,
+                  'apply_settings': apply_settings,
+                  'restore_default_settings': restore_default_settings,
                   }
 

@@ -15,11 +15,24 @@ function jgrowl_error($type, $err) {
     }
 
     $.jGrowl($err , {
-        //theme:  'danger',
+        theme:  'danger',
         header: header,
         life: 10000,
         closer: false
-        // Should set up timeout (increase)
+    });
+
+}
+
+
+function jgrowl_success($msg) {
+
+    var header = 'Success';
+
+    $.jGrowl($msg , {
+        theme:  'success',
+        header: header,
+        life: 10000,
+        closer: false
     });
 
 }

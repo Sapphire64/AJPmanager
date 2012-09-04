@@ -47,7 +47,7 @@ class KVMProvider(object):
 
         self._prepare_database()
 
-        self.connection = libvirt.open(self.QEMU_PATH)
+        self.connection = libvirt.open(self.VMMANAGER_PATH)
         assert self.connection, 'Failed to open Qemu/KVM connection'
 
         #self.clone_machine('WheezyBasic', 'test_1', 111, force=True)
@@ -126,6 +126,10 @@ class KVMProvider(object):
         return {'answer': True, 'message': message}
 
 
+    def drop_cache(self):
+        self._prepare_database()
+
+
     def _prepare_database(self, soft=False): # aka drop cache
         # Set flags in DB and also prepare list of preset domains
         if not soft:
@@ -140,7 +144,7 @@ class KVMProvider(object):
         self.VMIMAGE_NAME = self.pg.VMIMAGE_NAME
         self.DESCRIPTION_NAME = self.pg.DESCRIPTION_NAME
 
-        self.QEMU_PATH = self.pg.QEMU_PATH
+        self.VMMANAGER_PATH = self.pg.VMMANAGER_PATH
 
         # Cleaning cache lists
         self.db.expire('online', 0)
