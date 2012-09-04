@@ -30,12 +30,17 @@ def main(global_config, **settings):
 
 def prepare_database(settings):
     db = DBConnection()
+
+    db.io.set('provider', settings['ajp.vm_provider'])
+
     allowed_ips = settings['ajp.allowed_ips'].split(',')
     db.io.expire('allowed_ips', 0)
     for ip in allowed_ips:
         db.io.rpush('allowed_ips', ip.strip())
 
     # Applying default settings
+    # Warning! FIXME: we have same functionality in VMConnector class
+    # Any changes here must by applied there
     if not db.io.get('XEN_PATH'):
         db.io.set('XEN_PATH', '/xen')
 
@@ -57,5 +62,5 @@ def prepare_database(settings):
     if not db.io.get('DESCRIPTION_NAME'):
         db.io.set('DESCRIPTION_NAME', 'description.txt')
 
-    if not db.io.get('QEMU_PATH'):
-        db.io.set('QEMU_PATH', 'qemu:///system')
+    if not db.io.get('VMMANAGER_PATH'):
+        db.io.set('VMMANAGER_PATH', 'qemu:///system')

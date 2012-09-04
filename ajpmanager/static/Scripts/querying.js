@@ -121,3 +121,96 @@ function get_storage_info(machine) {
 
 }
 
+
+function query_settings() {
+    $.ajax({
+        type: "POST",
+        url: "/engine.ajax",
+        data: JSON.stringify({'query': 'get_settings'}),
+        contentType: 'application/json; charset=utf-8'
+    }).done(function ( data ) {
+            console.log(data);
+            if (data.status) {
+                // Set content
+                document.getElementById('vmprovider_settings').value = data.data.provider;
+                document.getElementById('vmmanager_settings').value = data.data.vmmanager;
+                document.getElementById('path_settings').value = data.data.path;
+                document.getElementById('images_settings').value = data.data.images;
+                document.getElementById('presets_settings').value = data.data.presets;
+                document.getElementById('image_settings').value = data.data.vmimage;
+                document.getElementById('config_settings').value = data.data.config;
+                document.getElementById('description_settings').value = data.data.description;
+
+
+                // ^^^^^^^^^^
+                $('#machines_list').addClass('hide');
+                $('#settings_screen').removeClass('hide');
+                $('#project_info').removeClass('hide');
+                $('#main_entry').removeClass('active');
+                $('#settings_entry').addClass('active').removeClass('hide');
+                $('#quick_manage_block').addClass('hide');
+            }
+            else {
+                jgrowl_error(1, 'Error message from the server during attempt to recieve settings: <br>' + data.answer);
+            }
+        });
+
+
+}
+
+
+function restore_default_settings() {
+    $.ajax({
+        type: "POST",
+        url: "/engine.ajax",
+        data: JSON.stringify({'query': 'restore_default_settings'}),
+        contentType: 'application/json; charset=utf-8'
+    }).done(function ( data ) {
+            console.log(data);
+            if (data.status) {
+                // Set content
+                jgrowl_success('Default settings were restored');
+                query_settings();
+
+            }
+            else {
+                jgrowl_error(1, 'Error message from the server during attempt to recieve settings: <br>' + data.answer);
+            }
+        });
+
+}
+
+
+
+
+function apply_settings() {
+
+    answer = new Object();
+
+    answer.provider = document.getElementById('vmprovider_settings').value;
+    answer.vmmanager = document.getElementById('vmmanager_settings').value;
+    answer.path = document.getElementById('path_settings').value;
+    answer.images = document.getElementById('images_settings').value;
+    answer.presets = document.getElementById('presets_settings').value;;
+    answer.vmimage = document.getElementById('image_settings').value;
+    answer.config = document.getElementById('config_settings').value;
+    answer.description = document.getElementById('description_settings').value;
+
+
+    $.ajax({
+        type: "POST",
+        url: "/engine.ajax",
+        data: JSON.stringify({'query': 'apply_settings', 'data': answer}),
+        contentType: 'application/json; charset=utf-8'
+    }).done(function ( data ) {
+            console.log(data);
+            if (data.status) {
+                jgrowl_success('Settings were applied');
+                query_settings();
+            }
+            else {
+                jgrowl_error(1, 'Error message from the server during attempt to apply new settings: <br>' + data.answer);
+            }
+        });
+
+}

@@ -41,29 +41,20 @@ function show_detailed_info($edit) {
 
 function show_settings() {
     show_default_screen(false);
+    query_settings();
+}
 
-    $.ajax({
-        type: "POST",
-        url: "/engine.ajax",
-        data: JSON.stringify({'query': 'get_settings'}),
-        contentType: 'application/json; charset=utf-8'
-    }).done(function ( data ) {
-            console.log(data);
-            if (data.status) {
-                // Set content
-                //
-                // ^^^^^^^^^^
-                $('#running_machines_list').addClass('hide');
-                $('#settings_screen').removeClass('hide');
-                $('#project_info').removeClass('hide');
-                $('#main_entry').removeClass('active');
-                $('#settings_entry').addClass('active').removeClass('hide');
-                $('#quick_manage_block').addClass('hide');
-            }
-            else {
-                jgrowl_error(1, 'Error message from the server during attempt to recieve settings: <br>' + data.answer);
-            }
-        });
+function restore_settings() {
+    query_settings();
+}
+
+function restore_default_settings_ask() {
+        var agree=confirm("Are you sure you want to restore default settings?");
+        if (agree)
+            restore_default_settings();
+        else
+            return false ;
+
 
 }
 
