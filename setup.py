@@ -14,6 +14,8 @@ requires = [
     'pyramid_tm',
     'pyramid_debugtoolbar',
     'redis',
+    'passlib',
+    'py-bcrypt'
     'waitress',
     ]
 
