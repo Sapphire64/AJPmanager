@@ -50,17 +50,20 @@ def initialize_vm_settings():
 def initialize_users():
     global db
     global force
-    if force or not db.io.get('global:nextUserId') or not db.oi.get('uid:1:username'):
+    if force or not db.get('global:nextUserId') or not db.get('uid:1:username'):
         db.set('global:nextUserId', 1)
         db.set('uid:1:username', 'admin')
         db.set('uid:1:password', bcrypt.encrypt('admin'))
+        db.set('username:admin:uid', 1)
+        db.rpush('users:list', 1)
         print ("Super user record was added, use next data to log in:\n - username: 'admin' \n - password: 'admin'\n")
     else:
         print ('Super user exists, change force to True to rewrite super user\'s password')
 
 
 
-if __name__ == '__main___':
+if __name__ == "__main__":
+    print ('Starting AJPmanager init script...\n')
     initialize_vm_settings()
     initialize_users()
     print ('All done.')
