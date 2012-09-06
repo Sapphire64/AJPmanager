@@ -10,15 +10,8 @@ from pyramid.security import (
     authenticated_userid,
     )
 
-
-USERS = {'admin':'admin'}
-GROUPS = {'admin':['group:admins']}
-
-def groupfinder(userid, request):
-    if userid in USERS:
-        return GROUPS.get(userid, [])
-
-
+from ajpmanager.core.Connector import DBConnection
+from ajpmanager.core.RedisAuth import User
 
 
 @view_config(route_name='login', renderer='templates/login.jinja2')
@@ -30,13 +23,13 @@ def login(request):
         referrer = '/' # never use the login form itself as came_from
     came_from = request.params.get('came_from', referrer)
     message = ''
-    login = ''
+    username = ''
     password = ''
     if 'form.submitted' in request.params:
-        login = request.params['login']
+        username = request.params['login']
         password = request.params['password']
-        if USERS.get(login) == password:
-            headers = remember(request, login)
+        if User.authenticate(username, password):
+            headers = remember(request, username)
             return HTTPFound(location = '/',
                 headers = headers)
         message = 'Failed login'
@@ -45,7 +38,7 @@ def login(request):
         message = message,
         url = request.application_url + '/login',
         came_from = came_from,
-        login = login,
+        login = username,
         password = password,
     )
 

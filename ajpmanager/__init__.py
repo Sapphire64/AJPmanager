@@ -62,4 +62,4 @@ def prepare_database(settings):
     elif not db.io.get('uid:1:password'):
         raise SystemError ('Super user entry exists but has blank password, launch aborted. Check scripts/initialize_redis.py to restore default or any given password to super user')
     else:
-        raise SystemError ('No superuser entry found! Please run scripts/initialize_redis.py script inside of project!')
+        pass

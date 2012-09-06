@@ -171,20 +171,3 @@ class VMConnector(object):
         self.db.io.set('VMMANAGER_PATH', 'qemu:///system')
 
         self._prepare_hypervisor_connection(reload=True)
-
-
-
-
-
-class DBConnection(object):
-
-    def __init__(self, host='localhost', port=6379, db=0):
-        from time import time
-        t1 = time()
-        import redis
-        self._connection = redis.StrictRedis(host=host, port=port, db=db)
-        print ('Redis: ' + str(time() - t1))
-
-    @property
-    def io(self):
-        return self._connection
