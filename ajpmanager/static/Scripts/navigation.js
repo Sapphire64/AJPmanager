@@ -183,3 +183,4 @@ function clear_select_menu() {
     $('#destroy_button').addClass('hide');
     $('#detailed_info_button').addClass('disabled');
 }
+

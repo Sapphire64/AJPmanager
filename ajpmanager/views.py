@@ -1,7 +1,9 @@
 from pyramid.httpexceptions import HTTPForbidden
 from pyramid.view import view_config
+from pyramid.security import authenticated_userid
+
+
 from ajpmanager.core.Connector import VMConnector
-from ajpmanager.core.MiscTools import get_storage_info
 
 VMC = VMConnector()
 dbcon = VMC.dbcon # Wrong way? Maybe this can lead to more slow work with DB
@@ -16,7 +18,7 @@ class MainPage(object):
         # This part is required
         self.request = request
 
-    @view_config(route_name='main', renderer='templates/main.jinja2')
+    @view_config(route_name='main', renderer='templates/main.jinja2', permission='admin')
     def __call__(self):
         # Actual function to run by framework (CBV)
         # Here we return only user's name and user's settings
@@ -31,8 +33,9 @@ class MainPage(object):
             return HTTPForbidden()
 
         show_settings = False
+        username = authenticated_userid(self.request)
 
-        return {'text': 'AJPmanager', 'username': 'Vortex', 'show_settings': show_settings}
+        return {'username': username, 'show_settings': show_settings}
 
 
 
@@ -43,7 +46,7 @@ class JSONprocessor(object):
         self.session = self.request.session.get_csrf_token()
         self.json = request.json_body
 
-    @view_config(renderer="json", route_name="engine.ajax") #permission='admin') # << auth tag to implement later
+    @view_config(renderer="json", route_name="engine.ajax", permission='admin')
     def mainline(self):
 
         allowed_ips = dbcon.lrange("allowed_ips", 0, -1)

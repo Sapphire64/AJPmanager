@@ -1,0 +1,66 @@
+{% extends "templates/base.jinja2" %}
+
+{% block all_body_styles %}
+/* Override some defaults */
+body {
+    padding-top: 160px;
+    background-image: url("{{ request.static_url('ajpmanager:static/img/subtle_carbon.png') }}"); background-repeat: repeat;
+}
+.container {
+
+    width: 300px;
+}
+
+/* The white background content wrapper */
+.container > .content {
+background-color: #fff;
+    background-image: url("{{ request.static_url('ajpmanager:static/img/black_twill.png') }}"); background-repeat: repeat;
+    padding: 20px;
+margin: 0 -20px;
+-webkit-border-radius: 10px 10px 10px 10px;
+-moz-border-radius: 10px 10px 10px 10px;
+border-radius: 10px 10px 10px 10px;
+-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+-moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+
+.login-form {
+margin-left: 65px;
+}
+
+legend {
+margin-right: -50px;
+font-weight: bold;
+color: #404040;
+}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="content">
+            <div align="center"><img src="{{ request.static_url('ajpmanager:static/img/logo.png') }}"></div>
+            <div class="row">
+                <div class="login-form">
+                    <form action="">
+                        <br>
+
+                        <fieldset>
+                            <div class="control-group">
+                                <input style="text-align: center;" type="hidden" name="came_from" value="{{ came_from }}"/>
+                                <input style="text-align: center;" type="text" name="login" value="{{ login }}" placeholder="Username">
+                            </div>
+                            <div class="control-group">
+                                <input style="text-align: center;" type="password" name="password"
+                                       value="{{ password }}" placeholder="Password">
+                            </div>
+                            <button class="btn" name="form.submitted" type="submit">Log in</button>       {% if message %} <span style="color: white;">{{ message }}</span> {% endif %}
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div> <!-- /container -->
+    </body>
+
+{% endblock %}
