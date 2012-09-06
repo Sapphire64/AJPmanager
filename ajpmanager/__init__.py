@@ -2,10 +2,11 @@ from pyramid import session
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
-from ajpmanager.core.Connector import VMConnector, DBConnection
+from ajpmanager.core.Connector import VMConnector
 from ajpmanager.core.VMdaemon import VMDaemon
 from pyramid_beaker import set_cache_regions_from_settings
-from ajpmanager.security import groupfinder
+from ajpmanager.core.DBConnector import DBConnection
+from ajpmanager.core.RedisAuth import groupfinder
 
 
 def main(global_config, **settings):
@@ -54,29 +55,11 @@ def prepare_database(settings):
     for ip in allowed_ips:
         db.io.rpush('allowed_ips', ip.strip())
 
-    # Applying default settings
-    # Warning! FIXME: we have same functionality in VMConnector class
-    # Any changes here must by applied there
-    if not db.io.get('XEN_PATH'):
-        db.io.set('XEN_PATH', '/xen')
-
-    if not db.io.get('KVM_PATH'):
-        db.io.set('KVM_PATH', '/kvm')
-
-    if not db.io.get('PRESETS'):
-        db.io.set('PRESETS','presets')
-
-    if not db.io.get('IMAGES'):
-        db.io.set('IMAGES', 'images')
-
-    if not db.io.get('CONFIG_NAME'):
-        db.io.set('CONFIG_NAME', 'config.xml')
-
-    if not db.io.get('VMIMAGE_NAME'):
-        db.io.set('VMIMAGE_NAME', 'image.img')
-
-    if not db.io.get('DESCRIPTION_NAME'):
-        db.io.set('DESCRIPTION_NAME', 'description.txt')
-
-    if not db.io.get('VMMANAGER_PATH'):
-        db.io.set('VMMANAGER_PATH', 'qemu:///system')
+    if not db.io.get('global:nextUserId'):
+        raise SystemError ('No users data found, to start you must run scripts/initialize_redis.py script inside of project')
+    elif not db.io.get('uid:1:username'):
+        raise SystemError ('Super user entry not found. Run scripts/initialize_redis.py to set up default super user account')
+    elif not db.io.get('uid:1:password'):
+        raise SystemError ('Super user entry exists but has blank password, launch aborted. Check scripts/initialize_redis.py to restore default or any given password to super user')
+    else:
+        raise SystemError ('No superuser entry found! Please run scripts/initialize_redis.py script inside of project!')
