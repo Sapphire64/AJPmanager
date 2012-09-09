@@ -14,6 +14,7 @@ requires = [
     'pyramid_tm',
     'pyramid_debugtoolbar',
     'redis',
+    'beaker_extensions',
     'waitress',
     ]
 
@@ -30,7 +31,7 @@ setup(name='ajpmanager',
       author='',
       author_email='',
       url='',
-      keywords='web wsgi bfg pylons pyramid',
+      keywords='web wsgi pylons pyramid libvirt',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
