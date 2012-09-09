@@ -52,6 +52,7 @@
                 <li class="nav-header">Models control</li>
                 <li id="main_entry" class="active"><a href="#" onclick="show_default_screen();"><i class="icon-white icon-home"></i> Main screen</a></li>
                 <li id="view_entry" class="hide"><a href="#"><i class="icon-user"></i> View machine</a></li>
+                <li id="vnc_entry" class="hide"><a href="#" onclick="show_vnc_screen();"><i class="icon-eye-open"></i> Machine console</a></li>
                 <li id="edit_entry" class="hide"><a href="#"><i class="icon-pencil"></i>  Edit machine</a></li>
                 <li class="nav-header">Misc</li>
                 <li id="settings_entry"><a href="#" onclick="show_settings();"><i class="icon-cog"></i> Settings</a></li>
@@ -93,6 +94,7 @@
 
 
     </div><!--/span-->
+
     <div class="span7">
 
         <div class="well hide" id="machines_list">
@@ -119,6 +121,21 @@
             </table>
         </div> <!-- Running machines DIV -->
 
+
+        <div id="noVNC_screen" class="hide well" align="center">
+            <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
+                <table border=0 width="100%"><tr>
+                    <td><div id="noVNC_status">Loading</div></td>
+                    <td width="1%"><div id="noVNC_buttons">
+                        <input type=button value="Send CtrlAltDel"
+                               id="sendCtrlAltDelButton">
+                    </div></td>
+                </tr></table>
+            </div>
+            <canvas id="noVNC_canvas" width="640px" height="20px">
+                Canvas not supported.
+            </canvas>
+        </div>
 
 
         <div class="well hide" id="machine_detailed_info">
@@ -233,20 +250,6 @@
                 </div>
                 <div class="tab-pane fade" id="users">
                     Users list
-                    <div id="noVNC_screen">
-                        <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
-                            <table border=0 width="100%"><tr>
-                                <td><div id="noVNC_status">Loading</div></td>
-                                <td width="1%"><div id="noVNC_buttons">
-                                    <input type=button value="Send CtrlAltDel"
-                                           id="sendCtrlAltDelButton">
-                                </div></td>
-                            </tr></table>
-                        </div>
-                        <canvas id="noVNC_canvas" width="640px" height="20px">
-                            Canvas not supported.
-                        </canvas>
-                    </div>
                 </div>
                 </div>
             </div>
@@ -304,8 +307,10 @@
                     </div>
 
                     <div class="btn-group">
-                        <btn id="edit_button" class="btn btn-warning btn-large disabled" title="Edit selected virtual machine" onclick="edit_selected_item();"><i class="icon-pencil"></i></btn>
+                        <btn id="vnc_button" class="btn btn-large disabled" title="View selected virtual machine" onclick="show_vnc_screen();"><i class="icon-eye-open"></i></btn>
+                        <btn id="unvnc_button" class="btn btn-danger btn-large" title="Unview selected virtual machine" onclick="unshow_vnc_screen();"><i class="icon-eye-close"></i></btn>
                     </div>
+
                     <div class="btn-group">
                         <btn id="detailed_info_button" class="btn btn-info btn-large disabled" title="Detailed information about selected VM" onclick="show_detailed_info(false);"><i class="icon-info-sign"></i></btn>
                     </div>
@@ -558,7 +563,7 @@
         $D('sendCtrlAltDelButton').style.display = "inline";
         $D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
 
-        document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
+        //document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
         // By default, use the host and port of server that served this file
         //host = WebUtil.getQueryVar('host', window.location.hostname);
         //port = WebUtil.getQueryVar('port', window.location.port);

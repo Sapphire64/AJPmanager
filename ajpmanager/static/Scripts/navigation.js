@@ -78,13 +78,18 @@ function show_default_screen(query_server) {
 
     $('#machines_list').removeClass('hide');
     $('#machine_detailed_info').addClass('hide');
+    $('#noVNC_screen').addClass('hide');
     $('#project_info').addClass('hide');
     $('#edit_machine_screen').addClass('hide');
     $('#settings_screen').addClass('hide');
     $('#help_screen').addClass('hide');
     $('#main_entry').addClass('active');
+    $('#vnc_entry').removeClass('active').addClass('hide');
     $('#view_entry').removeClass('active').addClass('hide');
     $('#edit_entry').removeClass('active').addClass('hide');
+
+    $('#unvnc_button').addClass('hide');
+    $('#vnc_button').removeClass('hide');
 
     $('#settings_entry').removeClass('active');
     $('#help_entry').removeClass('active');
@@ -162,12 +167,12 @@ function check_multiple_select(){
     if ($active_objects.length == 1) {
         $multiple = false;
         $('#detailed_info_button').removeClass('disabled');
-        $('#edit_button').removeClass('disabled');
+        $('#vnc_button').removeClass('disabled');
     }
     else {
         $multiple = true;
         $('#detailed_info_button').addClass('disabled');
-        $('#edit_button').addClass('disabled');
+        $('#vnc_button').addClass('disabled');
     }
 }
 
@@ -179,8 +184,26 @@ function clear_select_menu() {
     $('#run_button').addClass('disabled');
     $('#pause_button').addClass('disabled');
     $('#stop_button').addClass('disabled');
-    $('#edit_button').addClass('disabled');
+    $('#vnc_button').addClass('disabled');
     $('#destroy_button').addClass('hide');
     $('#detailed_info_button').addClass('disabled');
 }
 
+function show_vnc_screen() {
+    if ($active_objects.length == 1) {
+        show_default_screen(false);
+        $('#machines_list').addClass('hide');
+        $('#noVNC_screen').removeClass('hide');
+        $('#main_entry').removeClass('active');
+        $('#vnc_entry').addClass('active');
+        $('#vnc_entry').removeClass('hide');
+
+        $('#vnc_button').addClass('hide');
+        $('#unvnc_button').removeClass('hide');
+    }
+}
+
+
+function unshow_vnc_screen() {
+    show_default_screen(false);
+}
