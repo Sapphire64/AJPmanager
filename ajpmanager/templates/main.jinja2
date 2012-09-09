@@ -600,6 +600,9 @@
 
     $(document).ready (function() {
         show_default_screen(true);
+        if (screen.width<1281) {
+            $('#noVNC_screen').removeClass('well');
+        }
     });
 {% endblock %}
 
