@@ -197,6 +197,24 @@ class VMConnector(object):
         # Step 4: Pack answer to client
         return answer
 
+    def release_vnc_connection(self, username, hash):
+
+        # Step 1: getting machine name with security cookie
+        machine_name = self.conn.get_machine_name_by_hash(hash)
+
+        if not machine_name:
+            return (False, 'No machine found for such hash')
+
+        # Step 2: can user control this machine at all?
+        if username != 'admin' and machine_name not in self.db.io.get(username + ':machines'):
+            return (False, 'Access denied')
+
+        # Step 3: Processing by VM manager
+        answer = self.conn.disable_vnc_connection(machine_name=machine_name, session = hash)
+
+        # Step 4: Pack answer to client
+        return answer
+
 
 
 class DBConnection(object):

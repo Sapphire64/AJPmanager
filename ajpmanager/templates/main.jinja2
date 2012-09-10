@@ -1,6 +1,9 @@
 {% extends "templates/base.jinja2" %}
 
-{% block body_styles %}{% endblock %}
+{% block styles %}
+{% endblock %}
+{% block body_styles %}
+{% endblock %}
 
 <link rel="stylesheet" href="{{ request.static_url('ajpmanager:static/noVNC/base.css') }}">
 {% block content %}
@@ -52,7 +55,7 @@
                 <li class="nav-header">Models control</li>
                 <li id="main_entry" class="active"><a href="#" onclick="show_default_screen();"><i class="icon-white icon-home"></i> Main screen</a></li>
                 <li id="view_entry" class="hide"><a href="#"><i class="icon-user"></i> View machine</a></li>
-                <li id="vnc_entry" class="hide"><a href="#" onclick="show_vnc_screen();"><i class="icon-eye-open"></i> Machine console</a></li>
+                <li id="vnc_entry" class="hide"><a href="#" onclick="activate_vnc_screen();"><i class="icon-eye-open"></i> Machine console</a></li>
                 <li id="edit_entry" class="hide"><a href="#"><i class="icon-pencil"></i>  Edit machine</a></li>
                 <li class="nav-header">Misc</li>
                 <li id="settings_entry"><a href="#" onclick="show_settings();"><i class="icon-cog"></i> Settings</a></li>
@@ -307,7 +310,7 @@
                     </div>
 
                     <div class="btn-group">
-                        <btn id="vnc_button" class="btn btn-large disabled" title="View selected virtual machine" onclick="show_vnc_screen();"><i class="icon-eye-open"></i></btn>
+                        <btn id="vnc_button" class="btn btn-large disabled" title="View selected virtual machine" onclick="activate_vnc_screen();"><i class="icon-eye-open"></i></btn>
                         <btn id="unvnc_button" class="btn btn-danger btn-large" title="Unview selected virtual machine" onclick="unshow_vnc_screen();"><i class="icon-eye-close"></i></btn>
                     </div>
 

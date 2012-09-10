@@ -120,3 +120,19 @@ function noVNC_connect (machine_name) {
     return true;
 
 }
+
+
+function noVNC_release (machine_name) {
+    //console.log(rfb);
+
+    rfb.disconnect();
+
+    $.ajax({
+        type: "POST",
+        url: "/engine.ajax",
+        data: JSON.stringify({'query': 'release_vnc_connection'}), // Rest data will be taken from cookies
+        contentType: 'application/json; charset=utf-8'
+    }).done(function ( data ) {
+        console.log(data);
+    });
+}

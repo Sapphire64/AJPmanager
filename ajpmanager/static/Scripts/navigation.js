@@ -1,4 +1,7 @@
 
+var $current_vnc = '';
+
+
 function show_detailed_info($edit) {
 
     var $result = false;
@@ -74,6 +77,11 @@ function show_default_screen(query_server) {
 
     if (query_server) {
        query_all();
+    }
+
+    if ($current_vnc) {
+        noVNC_release();
+        $current_vnc = '';
     }
 
     $('#machines_list').removeClass('hide');
@@ -189,24 +197,30 @@ function clear_select_menu() {
     $('#detailed_info_button').addClass('disabled');
 }
 
-function show_vnc_screen() {
+function activate_vnc_screen() {
     if ($active_objects.length == 1) {
 
         if (noVNC_connect($active_objects[0])) {
-            console.log('show it!')
-
-            show_default_screen(false);
-            $('#machines_list').addClass('hide');
-            $('#noVNC_screen').removeClass('hide');
-            $('#main_entry').removeClass('active');
-            $('#vnc_entry').addClass('active');
-            $('#vnc_entry').removeClass('hide');
-
-            $('#vnc_button').addClass('hide');
-            $('#unvnc_button').removeClass('hide');
+            setTimeout('show_vnc_screen()', 100);
         }
     }
 }
+
+function show_vnc_screen() {
+    show_default_screen(false)
+
+    $current_vnc = $active_objects[0];
+    $('#machines_list').addClass('hide');
+    $('#noVNC_screen').removeClass('hide');
+    $('#main_entry').removeClass('active');
+    $('#vnc_entry').addClass('active');
+    $('#vnc_entry').removeClass('hide');
+
+    $('#vnc_button').addClass('hide');
+    $('#unvnc_button').removeClass('hide');
+}
+
+
 
 
 function unshow_vnc_screen() {

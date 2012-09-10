@@ -332,6 +332,12 @@ class KVMProvider(object):
         print ('presets: ' + str(presets))
         return presets
 
+    def get_machine_name_by_hash(self, hash):
+        for key in self.vnc_proxies.keys():
+            obj = self.vnc_proxies.get(key)
+            if obj and obj[0] == hash:
+                return str(key)
+        return None
 
 
     def _get_xml_info(self, machine_name, presets=False):
@@ -469,10 +475,28 @@ class KVMProvider(object):
 
 
     def vnc_connection(self, machine_name, target_host,listen_host, listen_port, ssl_only=None, ssl_cert=None):
-        " Wow... "
-        
+        """
+        ================================================! WARNING !===================================================
+        FIXME: If user will close browser tab, function 'disconnect' will not be run and we will have zombie connection
+        with no chance for anybody else to connect. <- this gonna be fixed soon.
+
+        TODO: loop to check unused and timeout socket listeners and close them.
+
+        Edit this code with cautions. Non-closed connection can give access to VNC terminal even if it shouldn't,
+            so some user can spy for another one:
+
+        ----> Oh, exploitable! User can avoid our JS algorithms and by appending cookie and port from previous
+            successful connection he can spy for another user connected right now. All he need to do - just avoid our
+            "disconnect()" function, but send disconnect query to our server AJAX server. This will lead to release
+            possibility to create new connection for another user BUT WILL NOT CLOSE ACTIVE PROXY TO VNC SERVER.
+             <---- will be fixed by good or bad (probably) way.
+         ================================================! WARNING !===================================================
+        """
+
+
         if self.vnc_proxies.get(machine_name): # check if vnc session is running already
             return (False, "VNC connection is already established")
+            print ('failed!')
 
         if ssl_only and not os.path.exists(ssl_cert):
             raise Exception ("SSL only and %s not found" % ssl_cert)
@@ -511,13 +535,24 @@ class KVMProvider(object):
         if self.vnc_proxies.get(machine_name): # check if vnc session is running already - yes, again
             return (False, "Machine is currently running")
         else:
-            self.vnc_proxies[machine_name] = p
+            self.vnc_proxies[machine_name] = (hash, p)
             #import pdb; pdb.set_trace()
-            self.vnc_proxies[machine_name].start()
+            self.vnc_proxies[machine_name][1].start()
 
         data = {'cookie': hash, 'host': listen_host, 'port': listen_port}
-
         return (True, data)
+
+    def disable_vnc_connection(self, machine_name, session):
+        " Wow... "
+        obj = self.vnc_proxies.get(machine_name)
+        if obj and obj[0] == session and obj[1]:
+            #import pdb; pdb.set_trace()
+            #obj[1].active_children()
+            obj[1].terminate()
+            del(self.vnc_proxies[machine_name])
+
+        return (True, '')
+
 
 
 
