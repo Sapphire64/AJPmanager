@@ -499,7 +499,7 @@ class KVMProvider(object):
             return (False, "Can't find VNC port for given machine")
 
 
-        hash = os.urandom(16).encode('hex') + ':::' + machine_name # Generating random hash
+        hash = os.urandom(16).encode('hex') + '00000' + machine_name # Generating random hash
 
         opts = dict(listen_host=listen_host, listen_port=listen_port, target_host=target_host, target_port=target_port,
                     session_id = hash, wrap_cmd = False, wrap_mode = False) # Dunno what this two do
