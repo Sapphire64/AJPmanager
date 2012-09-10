@@ -629,7 +629,7 @@ Sec-WebSocket-Accept: %s\r
             scheme = "ws"
             stype = "Plain non-SSL (ws://)"
 
-        wsh = WSRequestHandler(retsock, address, not self.web, self.session_id)
+        wsh = WSRequestHandler(req=retsock, addr=address, only_upgrade=not self.web, session=self.session_id)
         if wsh.last_code == 101:
             # Continue on to handle WebSocket upgrade
             pass
@@ -902,16 +902,17 @@ Sec-WebSocket-Accept: %s\r
 # HTTP handler with WebSocket upgrade support
 class WSRequestHandler(SimpleHTTPRequestHandler):
     def __init__(self, req, addr, session, only_upgrade=False):
+        self.session = session
         self.only_upgrade = only_upgrade # only allow upgrades
         SimpleHTTPRequestHandler.__init__(self, req, addr, object())
 
     def do_GET(self):
-        #print ('Headers %s' % self.headers)
-        #print (type(self.headers['Cookie']))
-        #print (self.headers['Cookie'])
-        #self.last_code = 403
-        #self.last_message = "403 Forbidden"
-        #return None
+        key = re.search('ajpvnc_key=' + str(self.session) + r'[\s|$]', str(self.headers))
+        if not key: # Wrong security cookie
+            print ('No key!')
+            self.last_code = 403
+            self.last_message = "403 Forbidden"
+            return None
         if (self.headers.get('upgrade') and
                 self.headers.get('upgrade').lower() == 'websocket'):
 
