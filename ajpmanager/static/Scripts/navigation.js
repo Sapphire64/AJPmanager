@@ -191,15 +191,20 @@ function clear_select_menu() {
 
 function show_vnc_screen() {
     if ($active_objects.length == 1) {
-        show_default_screen(false);
-        $('#machines_list').addClass('hide');
-        $('#noVNC_screen').removeClass('hide');
-        $('#main_entry').removeClass('active');
-        $('#vnc_entry').addClass('active');
-        $('#vnc_entry').removeClass('hide');
 
-        $('#vnc_button').addClass('hide');
-        $('#unvnc_button').removeClass('hide');
+        if (noVNC_connect($active_objects[0])) {
+            console.log('show it!')
+
+            show_default_screen(false);
+            $('#machines_list').addClass('hide');
+            $('#noVNC_screen').removeClass('hide');
+            $('#main_entry').removeClass('active');
+            $('#vnc_entry').addClass('active');
+            $('#vnc_entry').removeClass('hide');
+
+            $('#vnc_button').addClass('hide');
+            $('#unvnc_button').removeClass('hide');
+        }
     }
 }
 

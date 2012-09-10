@@ -10,7 +10,7 @@ import libvirt
 import random
 import json
 import shutil
-
+from scripts.websockify import WebSocketProxy
 
 
 def generate_uuid():
@@ -30,6 +30,7 @@ def generate_mac():
 class KVMProvider(object):
 
     db = None
+    vnc_proxies = dict()
 
     @staticmethod
     def check_availability():
@@ -168,6 +169,9 @@ class KVMProvider(object):
                 return answer.info()
             else:
                 return answer
+
+    def _lookup_by_name(self, name):
+        return self.connection.lookupByName(name)
 
     def _transform_state_to_text(self, info):
         state = info[0]
@@ -462,6 +466,58 @@ class KVMProvider(object):
         p = Process(target=self._clone, args=(id, preset_name, machine_name, session, force)) # In different process
         p.start()
         #self._clone(id, preset_name, machine_name, session, force) # for debugging
+
+
+    def vnc_connection(self, machine_name, target_host,listen_host, listen_port, ssl_only=None, ssl_cert=None):
+        " Wow... "
+        
+        if self.vnc_proxies.get(machine_name): # check if vnc session is running already
+            return (False, "VNC connection is already established")
+
+        if ssl_only and not os.path.exists(ssl_cert):
+            raise Exception ("SSL only and %s not found" % ssl_cert)
+        else:
+            # TODO: SSL support
+            pass
+
+        # Finding target machine VNC port
+        try:
+            domain = self.connection.lookupByName(machine_name)
+        except libvirt.libvirtError as e:
+             return (False, "LibvirtError: %s" % e)
+
+        xml = domain.XMLDesc(0) # Getting XML description to find machine's VNC port
+        dom = minidom.parseString(xml)
+        graphics = dom.getElementsByTagName('graphics')
+
+        for item in graphics:
+            if item.attributes.get('type').value == 'vnc':
+                target_port = int(item.attributes.get('port').value)
+                break
+
+        if not target_port:
+            return (False, "Can't find VNC port for given machine")
+
+
+        hash = os.urandom(16).encode('hex') + ':::' + machine_name # Generating random hash
+
+        opts = dict(listen_host=listen_host, listen_port=listen_port, target_host=target_host, target_port=target_port,
+                    session_id = hash, wrap_cmd = False, wrap_mode = False) # Dunno what this two do
+
+        # Create and start the WebSockets proxy
+        server = WebSocketProxy(**opts)
+        p = Process(target=server.start_server, args=())
+        # This operation should block other server starts or it could cause problems
+        if self.vnc_proxies.get(machine_name): # check if vnc session is running already - yes, again
+            return (False, "Machine is currently running")
+        else:
+            self.vnc_proxies[machine_name] = p
+            #import pdb; pdb.set_trace()
+            self.vnc_proxies[machine_name].start()
+
+        data = {'cookie': hash, 'host': listen_host, 'port': listen_port}
+
+        return (True, data)
 
 
 

@@ -140,6 +140,11 @@ class JSONprocessor(object):
             answer = function(name)
             return {'status': answer[0], 'answer': answer[1]}
 
+    def create_vnc_connection(self):
+        username = authenticated_userid(self.request)
+        answer = VMC.vnc_connection(username=username, machine_name=self.json.get('machine'))
+        return {'status': answer[0], 'data': answer[1]}
+
 
 
     functions = { # This dictionary is used to implement factory run of the requested functions
@@ -151,5 +156,6 @@ class JSONprocessor(object):
                   'get_settings': get_settings,
                   'apply_settings': apply_settings,
                   'restore_default_settings': restore_default_settings,
+                  'create_vnc_connection': create_vnc_connection,
                   }
 

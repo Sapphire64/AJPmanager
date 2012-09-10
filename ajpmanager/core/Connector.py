@@ -1,8 +1,13 @@
 from ajpmanager.core.MiscTools import PathGetter, get_storage_info, safe_join, calculate_flat_folder_size
 from ajpmanager.core.providers.KVM import KVMProvider
 
-import re
 import libvirt
+import socket
+import re
+
+
+
+localhost = '127.0.0.1' # Hardcoding localhost
 
 FOLDERS_RE = re.compile(r'^[a-zA-Z0-9_-]+$')
 FILES_RE = re.compile(r'^[a-zA-Z0-9_.-]+$')
@@ -172,7 +177,25 @@ class VMConnector(object):
 
         self._prepare_hypervisor_connection(reload=True)
 
+    def vnc_connection(self, username, machine_name):
+        global localhost # FIXME: for network connections we need other solution
 
+        # Step 1: can user view this machine at all?
+        if username != 'admin' and machine_name not in self.db.io.get(username + ':machines'):
+            return (False, 'Access denied')
+
+        # Step 2: Binding free port to run
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind(('', 0)) # Asking OS to bind free port
+        listen_port = sock.getsockname()[1] # << Here it is
+        del(sock)
+
+        # Step 3: Processing by VM manager
+        answer = self.conn.vnc_connection(machine_name=machine_name, listen_port=listen_port,
+            listen_host=localhost, target_host=localhost)
+
+        # Step 4: Pack answer to client
+        return answer
 
 
 
