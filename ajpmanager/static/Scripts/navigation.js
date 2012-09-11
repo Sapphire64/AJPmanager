@@ -194,10 +194,7 @@ function clear_select_menu() {
 
 function activate_vnc_screen() {
     if ($active_objects.length == 1) {
-
-        if (noVNC_connect($active_objects[0])) {
-            setTimeout('show_vnc_screen()', 100);
-        }
+        noVNC_connect($active_objects[0]);
     }
 }
 

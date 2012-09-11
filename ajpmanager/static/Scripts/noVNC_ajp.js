@@ -51,75 +51,82 @@ function noVNC_connect (machine_name) {
     Step 1: Ask server to create new TCP-server for `machine_name`
      */
 
+    $.ajax({
+    type: "POST",
+    url: "/engine.ajax",
+    data: JSON.stringify({'query': 'create_vnc_connection', 'machine': machine_name}),
+    contentType: 'application/json; charset=utf-8'
+    }).done(function ( data ) {
+        check_vnc_response(data);
+    });
+
+}
+
+
+function check_vnc_response(data){
+
     //var host = '127.0.0.1';
     //var port = '6080';
     var password = '';
     var token;
     var path;
 
-    $.ajax({
-        type: "POST",
-        url: "/engine.ajax",
-        data: JSON.stringify({'query': 'create_vnc_connection', 'machine': machine_name}),
-        contentType: 'application/json; charset=utf-8'
-    }).done(function ( data ) {
-            if (data.status) {
+    if (data.status) {
 
-                console.log(data);
+        console.log(data);
 
-                setCookie('ajpvnc_key', data.data.cookie);
+        setCookie('ajpvnc_key', data.data.cookie);
 
-                var host = data.data.host;
-                var port = data.data.port;
+        var host = data.data.host;
+        var port = data.data.port;
 
-//              var host, port, password, path, token;
+    //              var host, port, password, path, token;
 
-                $D('sendCtrlAltDelButton').style.display = "inline";
-                $D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
+        $D('sendCtrlAltDelButton').style.display = "inline";
+        $D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
 
-                //document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
-                // By default, use the host and port of server that served this file
-                //host = WebUtil.getQueryVar('host', window.location.hostname);
-                //port = WebUtil.getQueryVar('port', window.location.port);
+        //document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
+        // By default, use the host and port of server that served this file
+        //host = WebUtil.getQueryVar('host', window.location.hostname);
+        //port = WebUtil.getQueryVar('port', window.location.port);
 
-                // If a token variable is passed in, set the parameter in a cookie.
-                // This is used by nova-novncproxy.
-                token = WebUtil.getQueryVar('token', null);
-                if (token) {
-                    WebUtil.createCookie('token', token, 1)
-                }
+        // If a token variable is passed in, set the parameter in a cookie.
+        // This is used by nova-novncproxy.
+        token = WebUtil.getQueryVar('token', null);
+        if (token) {
+            WebUtil.createCookie('token', token, 1)
+        }
 
-                //password = WebUtil.getQueryVar('password', '');
-                path = WebUtil.getQueryVar('path', 'websockify');
+        //password = WebUtil.getQueryVar('password', '');
+        path = WebUtil.getQueryVar('path', 'websockify');
 
-                if ((!host) || (!port)) {
-                    updateState('failed',
-                        "Must specify host and port in URL");
-                    return;
-                }
+        if ((!host) || (!port)) {
+            updateState('failed',
+                "Must specify host and port in URL");
+            return;
+        }
 
 
-                rfb = new RFB({'target':       $D('noVNC_canvas'),
-                    'encrypt':      WebUtil.getQueryVar('encrypt',
-                        (window.location.protocol === "https:")),
-                    'repeaterID':   WebUtil.getQueryVar('repeaterID', ''),
-                    'true_color':   WebUtil.getQueryVar('true_color', true),
-                    'local_cursor': WebUtil.getQueryVar('cursor', true),
-                    'shared':       WebUtil.getQueryVar('shared', true),
-                    'view_only':    WebUtil.getQueryVar('view_only', false),
-                    'updateState':  updateState,
-                    'onPasswordRequired':  passwordRequired});
-                rfb.connect(host, port, password, path);
+        rfb = new RFB({'target':       $D('noVNC_canvas'),
+            'encrypt':      WebUtil.getQueryVar('encrypt',
+                (window.location.protocol === "https:")),
+            'repeaterID':   WebUtil.getQueryVar('repeaterID', ''),
+            'true_color':   WebUtil.getQueryVar('true_color', true),
+            'local_cursor': WebUtil.getQueryVar('cursor', true),
+            'shared':       WebUtil.getQueryVar('shared', true),
+            'view_only':    WebUtil.getQueryVar('view_only', false),
+            'updateState':  updateState,
+            'onPasswordRequired':  passwordRequired});
+        rfb.connect(host, port, password, path);
 
-            }
-            else {
-                jgrowl_error(1, 'Error message from the server during attempt to create new VNC connection: <br>' + data.data);
-            }
-        });
+        setTimeout('show_vnc_screen()', 100);
 
-    return true;
-
+    }
+    else {
+        jgrowl_error(1, 'Error message from the server during attempt to create new VNC connection: <br>' + data.data);
+    }
 }
+
 
 
 function noVNC_release (machine_name) {
