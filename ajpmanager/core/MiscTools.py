@@ -1,3 +1,4 @@
+import socket
 from ajpmanager.core.utils.DiskUsage import disk_usage
 
 import os
@@ -27,6 +28,7 @@ def get_storage_info(path):
     total, used, free = disk_usage(path)
     return (total, used, free)
 
+
 def calculate_flat_folder_size(path):
     # sum([os.path.getsize(f) for f in os.listdir(path) if os.path.isfile(f)]) # Short but doesn't work w/o safe_join
     sum = 0
@@ -37,7 +39,14 @@ def calculate_flat_folder_size(path):
     return sum
 
 
-
+def isOpen(ip,port):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.connect((ip, int(port)))
+        s.shutdown(2)
+        return True
+    except Exception:
+        return False
 
     
     

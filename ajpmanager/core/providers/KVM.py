@@ -2,7 +2,7 @@
 from multiprocessing.process import Process
 from time import sleep
 from uuid import uuid4
-from ajpmanager.core.MiscTools import safe_join
+from ajpmanager.core.MiscTools import safe_join, isOpen
 from xml.dom import minidom
 
 import os
@@ -535,7 +535,7 @@ class KVMProvider(object):
         if self.vnc_proxies.get(machine_name): # check if vnc session is running already - yes, again
             return (False, "Machine is currently running")
         else:
-            self.vnc_proxies[machine_name] = (hash, p)
+            self.vnc_proxies[machine_name] = (hash, p, listen_host, listen_port)
             #import pdb; pdb.set_trace()
             self.vnc_proxies[machine_name][1].start()
 
@@ -549,7 +549,13 @@ class KVMProvider(object):
             #import pdb; pdb.set_trace()
             #obj[1].active_children()
             obj[1].terminate()
-            del(self.vnc_proxies[machine_name])
+            sleep(0.5)
+            if isOpen(obj[2], obj[3]):
+                return (False,
+                        'Error - connection to the server is not closed.'
+                        ' Must be used "rfb.disconnect()" method in JavaScript.')
+            else:
+                del(self.vnc_proxies[machine_name])
 
         return (True, '')
 

@@ -79,11 +79,6 @@ function show_default_screen(query_server) {
        query_all();
     }
 
-    if ($current_vnc) {
-        noVNC_release();
-        $current_vnc = '';
-    }
-
     $('#machines_list').removeClass('hide');
     $('#machine_detailed_info').addClass('hide');
     $('#noVNC_screen').addClass('hide');
@@ -224,5 +219,6 @@ function show_vnc_screen() {
 
 
 function unshow_vnc_screen() {
-    show_default_screen(false);
+    noVNC_release();
+    //show_default_screen(false);
 }

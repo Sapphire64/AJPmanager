@@ -133,6 +133,12 @@ function noVNC_release (machine_name) {
         data: JSON.stringify({'query': 'release_vnc_connection'}), // Rest data will be taken from cookies
         contentType: 'application/json; charset=utf-8'
     }).done(function ( data ) {
-        console.log(data);
+        if (data.status){
+            $current_vnc = '';
+            show_default_screen(false);
+        }
+        else {
+            ;
+        }
     });
 }
