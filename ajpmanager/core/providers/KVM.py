@@ -492,6 +492,17 @@ class KVMProvider(object):
              <---- will be fixed by good or bad (probably) way.
          ================================================! WARNING !===================================================
         """
+        # Finding target domain
+        try:
+            domain = self.connection.lookupByName(machine_name)
+        except libvirt.libvirtError as e:
+            return (False, "LibvirtError: %s" % e)
+
+        if not domain:
+            return (False, 'No machine found') # but I assume that previous try:except will catch such state
+
+        if not domain.isActive():
+            return (False, 'Run machine first')
 
 
         if self.vnc_proxies.get(machine_name): # check if vnc session is running already
@@ -504,12 +515,7 @@ class KVMProvider(object):
             # TODO: SSL support
             pass
 
-        # Finding target machine VNC port
-        try:
-            domain = self.connection.lookupByName(machine_name)
-        except libvirt.libvirtError as e:
-             return (False, "LibvirtError: %s" % e)
-
+        # Finding target machine's VNC port
         xml = domain.XMLDesc(0) # Getting XML description to find machine's VNC port
         dom = minidom.parseString(xml)
         graphics = dom.getElementsByTagName('graphics')
