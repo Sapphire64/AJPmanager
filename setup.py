@@ -16,8 +16,9 @@ requires = [
     'redis',
     'beaker_extensions',
     'passlib',
-    'py-bcrypt'
+    'py-bcrypt',
     'waitress',
+    'webtest',
     ]
 
 setup(name='ajpmanager',
