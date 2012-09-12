@@ -1,4 +1,4 @@
-from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import HTTPFound, HTTPForbidden
 from pyramid.view import (
     view_config,
     forbidden_view_config,
@@ -12,11 +12,19 @@ from pyramid.security import (
 
 from ajpmanager.core.Connector import DBConnection
 from ajpmanager.core.RedisAuth import User
+from ajpmanager.views import dbcon
 
 
 @view_config(route_name='login', renderer='templates/login.jinja2')
 @forbidden_view_config(renderer='templates/login.jinja2')
 def login(request):
+    global dbcon
+
+    allowed_ips = dbcon.lrange("allowed_ips", 0, -1)
+
+    if '*' not in allowed_ips and request['REMOTE_ADDR'] not in allowed_ips:
+        return HTTPForbidden()
+
     login_url = request.route_url('login')
     referrer = request.url
     if referrer == login_url:
@@ -45,6 +53,13 @@ def login(request):
 
 @view_config(route_name='logout')
 def logout(request):
+    global dbcon
+
+    allowed_ips = dbcon.lrange("allowed_ips", 0, -1)
+
+    if '*' not in allowed_ips and request['REMOTE_ADDR'] not in allowed_ips:
+        return HTTPForbidden()
+
     headers = forget(request)
     return HTTPFound(location = request.route_url('main'),
         headers = headers)
