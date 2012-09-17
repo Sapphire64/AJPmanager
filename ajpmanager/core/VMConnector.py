@@ -1,3 +1,4 @@
+from ajpmanager.core.DBConnector import DBConnection
 from ajpmanager.core.MiscTools import PathGetter, get_storage_info, safe_join, calculate_flat_folder_size
 from ajpmanager.core.providers.KVM import KVMProvider
 
@@ -46,7 +47,7 @@ class VMConnector(object):
         provider = self.db.io.get('provider')
 
         if self.providers[provider].check_availability():
-                return self.providers[provider]
+            return self.providers[provider]
 
         return False
 
@@ -176,3 +177,42 @@ class VMConnector(object):
         self.db.io.set('VMMANAGER_PATH', 'qemu:///system')
 
         self._prepare_hypervisor_connection(reload=True)
+
+    def vnc_connection(self, username, machine_name):
+        global localhost # FIXME: for network connections we need other solution
+
+        # Step 1: can user view this machine at all?
+        if username != 'admin' and machine_name not in self.db.io.get(username + ':machines'):
+            return (False, 'Access denied')
+
+        # Step 2: Binding free port to run
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind(('', 0)) # Asking OS to bind free port
+        listen_port = sock.getsockname()[1] # << Here it is
+        del(sock)
+
+        # Step 3: Processing by VM manager
+        answer = self.conn.vnc_connection(machine_name=machine_name, listen_port=listen_port,
+            listen_host=localhost, target_host=localhost)
+
+        # Step 4: Pack answer to client
+        return answer
+
+    def release_vnc_connection(self, username, hash):
+
+        # Step 1: getting machine name with security cookie
+        machine_name = self.conn.get_machine_name_by_hash(hash)
+
+        if not machine_name:
+            return (False, 'No machine found for such hash')
+
+        # Step 2: can user control this machine at all?
+        if username != 'admin' and machine_name not in self.db.io.get(username + ':machines'):
+            return (False, 'Access denied')
+
+        # Step 3: Processing by VM manager
+        answer = self.conn.disable_vnc_connection(machine_name=machine_name, session = hash)
+
+        # Step 4: Pack answer to client
+        return answer
+
