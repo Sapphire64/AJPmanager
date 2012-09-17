@@ -2,6 +2,8 @@ from passlib.hash import bcrypt
 import redis
 
 # TODO: READ FROM COMMAND LINE OPTIONS
+# Settings
+admin_email = 'root@localhost'
 
 # Presets
 host='localhost'
@@ -19,7 +21,7 @@ def initialize_vm_settings():
     global force
     # WARNING! We have same functionality in VMConnector class
     # Any changes here should by applied there
-    # o you can always reset this values via admin interface
+    # or you can always reset this values via admin interface
     if force or not db.get('XEN_PATH'):
         db.set('XEN_PATH', '/xen')
 
@@ -50,13 +52,23 @@ def initialize_vm_settings():
 def initialize_users():
     global db
     global force
+    global admin_email
+
     if force or not db.get('global:nextUserId') or not db.get('uid:1:username'):
+        # Setting global users counter
         db.set('global:nextUserId', 1)
+        # Please don't change default admin's name!
         db.set('uid:1:username', 'admin')
+        # To make things more secure please change default password inside of admin UI.
         db.set('uid:1:password', bcrypt.encrypt('admin'))
-        db.set('username:admin:uid', 1)
+        # You can change email to yours above
+        db.set('uid:1:email', admin_email)
+        # Connection your username with UID
+        db.set('username:' + db.get('uid:1:username') + ':uid', 1)
+        # Adding your user into global users list
         db.rpush('users:list', 1)
-        print ("Super user record was added, use next data to log in:\n - username: 'admin' \n - password: 'admin'\n")
+        print ("Super user record was added, use next data to log in:\n"
+               " - username: '%s' \n - password: 'admin'\n" % db.get('uid:1:username'))
     else:
         print ('Super user exists, change force to True to rewrite super user\'s password')
 
