@@ -159,6 +159,29 @@ function query_settings() {
 }
 
 
+function query_users_list() {
+    $.ajax({
+        type: "POST",
+        url: "/engine.ajax",
+        data: JSON.stringify({'query': 'get_users_list'}),
+        contentType: 'application/json; charset=utf-8'
+    }).done(function ( data ) {
+            console.log(data);
+
+            $('#machines_list').addClass('hide');
+            $('#users_screen').removeClass('hide');
+            $('#project_info').removeClass('hide');
+            $('#main_entry').removeClass('active');
+            $('#users_entry').addClass('active').removeClass('hide');
+            $('#quick_manage_block').addClass('hide');
+            generate_users_list(data.data);
+        });
+}
+
+
+
+
+
 function restore_default_settings() {
     $.ajax({
         type: "POST",

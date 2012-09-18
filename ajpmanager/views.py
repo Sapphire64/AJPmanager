@@ -3,7 +3,7 @@ from pyramid.view import view_config
 from pyramid.security import authenticated_userid
 
 
-from ajpmanager.core.Connector import VMConnector
+from ajpmanager.core.VMConnector import VMConnector
 
 VMC = VMConnector()
 dbcon = VMC.dbcon # Wrong way? Maybe this can lead to more slow work with DB
@@ -54,8 +54,10 @@ class JSONprocessor(object):
         if '*' not in allowed_ips and self.request['REMOTE_ADDR'] not in allowed_ips:
             return HTTPForbidden()
 
+        # Add to redis info that user is online
+        VMC.log_active(authenticated_userid(self.request))
+
         # Factory to answer for JSON requests
-        # TODO: auth and other things are to be implemented. currently they have low priority.
         try:
             return self.functions[self.json['query']](self)
         except KeyError:
@@ -69,6 +71,10 @@ class JSONprocessor(object):
         no_cache = self.json.get('no_cache')
         vms = VMC.get_vms_list(no_cache=no_cache)
         return {'status': True, 'data': vms}
+
+    def get_users_list(self):
+        users = VMC.get_users_list()
+        return {'status': True, 'data': users}
 
     def get_presets_list(self):
         presets = VMC.get_presets_list()
@@ -158,6 +164,7 @@ class JSONprocessor(object):
                   'verify_new_vm_name': verify_new_vm_name,
                   'get_vms_list': get_vms_list,
                   'get_presets_list': get_presets_list,
+                  'get_users_list': get_users_list,
                   'machines_control': machines_control,
                   'get_storage_info': get_storage_info,
                   'get_settings': get_settings,

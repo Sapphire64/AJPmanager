@@ -1,5 +1,6 @@
 from ajpmanager.core.DBConnector import DBConnection
 from ajpmanager.core.MiscTools import PathGetter, get_storage_info, safe_join, calculate_flat_folder_size
+from ajpmanager.core.RedisAuth import User
 from ajpmanager.core.providers.KVM import KVMProvider
 
 import libvirt
@@ -123,6 +124,9 @@ class VMConnector(object):
 
         return answer
 
+    def get_users_list(self):
+        return User.get_all_users()
+
     def apply_settings(self, data):
         provider = self.db.io.get('provider')
 
@@ -215,4 +219,14 @@ class VMConnector(object):
 
         # Step 4: Pack answer to client
         return answer
+
+    def log_active(self, username):
+        """
+        Add info to redis that user is online
+        """
+        self.db.io.set('uid:' + username + ':online', True)
+        # 5 minutes w/o activity will say that user is offline
+        # This is not accurate (vnc session for example can much longer)
+        # but anyway ... ;)
+        self.db.io.expire('uid:' + username + ':online', 300)
 

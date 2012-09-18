@@ -264,31 +264,27 @@
 
         <div class="well hide" id="users_screen">
             <h3 align="center">Users</h3>
+            <br>
 
-
-
-            <div class="controls">
-                <input style="height: 27px;" class="input-small" id="newmeasure" type="text" maxlength="12">
-                <button type="button" onclick="add_measure();" class="btn btn-success" style="height: 27px;"><i class="icon-plus-sign"></i></button>
-                <button type="button" onclick="get_measures();" class="btn btn-primary"style="height: 27px;"><i class="icon-refresh"></i></button>
-            </div>
-
-
-
-
-
-
+            <table id="users_table" class="table table-striped table-centered" style="background-color: #ffffff;">
+                <thead>
+                <tr>
+                    <th style="width: 30px;">UID</th>
+                    <th style="width: 150px;">Username</th>
+                    <th style="width: 150px;">First name</th>
+                    <th style="width: 150px;">Last name</th>
+                    <th style="width: 30px;">Group</th>
+                    <th style="width: 30px;">Status</th>
+                    <th style="width: 25px;">
+                        <input id="ucheck0" type="checkbox" onchange="users_note_checkboxes(this);">
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
 
         </div>
-
-
-
-
-
-
-
-
-
 
 
 
@@ -475,6 +471,73 @@
             </div>
 
         </div>
+
+        <!--
+                                        _   _                           _ _ _
+                                       | | | |___  ___ _ __     ___  __| (_) |_
+                                       | | | / __|/ _ \ '__|   / _ \/ _` | | __|
+                                       | |_| \__ \  __/ |     |  __/ (_| | | |_
+                                        \___/|___/\___|_|      \___|\__,_|_|\__|
+
+        -->
+
+
+
+
+
+        <div id="users_settings" class="well">
+            <h3 align="center">
+                User edit
+            </h3>
+            <br>
+
+
+
+            <table class="table table-bordered table-centered" style="background-color: #ffffff;">
+                <thead>
+                <tr>
+                    <th style="width: 30px;">#</th>
+                    <th style="width: 200px;">Name</th>
+                    <th style="width: 150px;">Type</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td id="selected_id">3</td>
+                    <td id="selected_name"></td>
+                    <td id="selected_type">…</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div align="center">
+                <div class="btn-toolbar">
+
+                    <div class="btn-group">
+                        <btn id="run_button" class="btn btn-success btn-large disabled" title="Run all" onclick="operate_machine('run')"><i class="icon-play"></i></btn>
+                        <btn id="pause_button" class="btn btn-warning btn-large disabled" title="Pause all" onclick="operate_machine('pause')"><i class="icon-pause"></i></btn>
+                        <btn id="stop_button" class="btn btn-danger btn-large disabled" title="Stop all" onclick="operate_machine('stop')"><i class="icon-stop"></i></btn>
+                        <btn id="destroy_button" class="btn btn-danger btn-large hide" title="Stop all" onclick="operate_machine('destroy')"><i class="icon-remove"></i></btn>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         <!--
