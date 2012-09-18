@@ -1,3 +1,4 @@
+from ajpmanager.core.DBConnector import DBConnection
 from pyramid.httpexceptions import HTTPFound, HTTPForbidden
 from pyramid.view import (
     view_config,
@@ -10,10 +11,9 @@ from pyramid.security import (
     authenticated_userid,
     )
 
-from ajpmanager.core.Connector import DBConnection
 from ajpmanager.core.RedisAuth import User
-from ajpmanager.views import dbcon
 
+dbcon = DBConnection().io
 
 @view_config(route_name='login', renderer='templates/login.jinja2')
 @forbidden_view_config(renderer='templates/login.jinja2')

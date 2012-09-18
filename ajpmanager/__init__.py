@@ -2,8 +2,7 @@ from pyramid import session
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
-from ajpmanager.core.Connector import VMConnector
-from ajpmanager.core.VMdaemon import VMDaemon
+from ajpmanager.core.VMConnector import VMConnector
 from pyramid_beaker import set_cache_regions_from_settings
 from ajpmanager.core.DBConnector import DBConnection
 from ajpmanager.core.RedisAuth import groupfinder
