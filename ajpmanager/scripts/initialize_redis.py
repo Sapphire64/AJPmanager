@@ -1,10 +1,14 @@
 from passlib.hash import bcrypt
 import redis
 
-# TODO: READ FROM COMMAND LINE OPTIONS
+
+# If you want to rewrite all the values in DB
+force = True
+
 # Settings
 admin_email = 'root@localhost'
 
+# TODO: READ FROM COMMAND LINE OPTIONS
 # Presets
 host='localhost'
 port=6379
@@ -12,9 +16,6 @@ db=0
 
 # Redis connection
 db = redis.StrictRedis(host=host, port=port, db=db)
-
-# If you want to rewrite all the values in DB
-force = False
 
 def initialize_vm_settings():
     global db
@@ -63,10 +64,12 @@ def initialize_users():
         db.set('uid:1:password', bcrypt.encrypt('admin'))
         # You can change email to yours above
         db.set('uid:1:email', admin_email)
+        # Setting admin's group
+        db.set('uid:1:group', 'group:admin')
         # Connection your username with UID
         db.set('username:' + db.get('uid:1:username') + ':uid', 1)
         # Adding your user into global users list
-        db.rpush('users:list', 1)
+        db.sadd('users:list', 1)
         print ("Super user record was added, use next data to log in:\n"
                " - username: '%s' \n - password: 'admin'\n" % db.get('uid:1:username'))
     else:
