@@ -3,7 +3,7 @@ from pyramid.view import view_config
 from pyramid.security import authenticated_userid
 
 
-from ajpmanager.core.Connector import VMConnector
+from ajpmanager.core.VMConnector import VMConnector
 
 VMC = VMConnector()
 dbcon = VMC.dbcon # Wrong way? Maybe this can lead to more slow work with DB

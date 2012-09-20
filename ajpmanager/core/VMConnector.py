@@ -1,7 +1,11 @@
+from ajpmanager.core.DBConnector import DBConnection
 from ajpmanager.core.MiscTools import PathGetter, get_storage_info, safe_join, calculate_flat_folder_size
 from ajpmanager.core.providers.KVM import KVMProvider
 
-import libvirt
+try:
+    import libvirt
+except ImportError:
+    print ('Please install libvirt from libs folder')
 import socket
 import re
 
