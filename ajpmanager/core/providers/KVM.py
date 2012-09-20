@@ -6,7 +6,10 @@ from ajpmanager.core.MiscTools import safe_join, isOpen
 from xml.dom import minidom
 
 import os
-import libvirt
+try:
+    import libvirt
+except ImportError:
+    print ('Please install libvirt from libs folder')
 import random
 import json
 import shutil

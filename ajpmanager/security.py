@@ -10,7 +10,7 @@ from pyramid.security import (
     authenticated_userid,
     )
 
-from ajpmanager.core.Connector import DBConnection
+from ajpmanager.core.DBConnector import DBConnection
 from ajpmanager.core.RedisAuth import User
 from ajpmanager.views import dbcon
 

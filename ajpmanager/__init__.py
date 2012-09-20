@@ -2,8 +2,7 @@ from pyramid import session
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
-from ajpmanager.core.Connector import VMConnector
-from ajpmanager.core.VMdaemon import VMDaemon
+from ajpmanager.core.VMConnector import VMConnector
 from pyramid_beaker import set_cache_regions_from_settings
 from ajpmanager.core.DBConnector import DBConnection
 from ajpmanager.core.RedisAuth import groupfinder
@@ -15,15 +14,11 @@ def main(global_config, **settings):
 
     prepare_database(settings)
 
-
-
-
-
     authn_policy = AuthTktAuthenticationPolicy(
             'sikret;)', callback=groupfinder)
     authz_policy = ACLAuthorizationPolicy()
     config = Configurator(settings=settings,
-        root_factory='ajpmanager.factories.RootFactory')
+        root_factory='ajpmanager.core.Factories.RootFactory')
     config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(authz_policy)
 
@@ -46,6 +41,13 @@ def main(global_config, **settings):
     return config.make_wsgi_app()
 
 def prepare_database(settings):
+
+    try:
+        import libvirt
+    except ImportError:
+        print ('No libvirt module found, please install it from libs folder')
+        exit (1)
+
     db = DBConnection()
 
     db.io.set('provider', settings['ajp.vm_provider'])
