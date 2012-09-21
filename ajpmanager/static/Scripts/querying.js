@@ -169,8 +169,11 @@ function query_users_list() {
             console.log(data);
 
             $('#machines_list').addClass('hide');
+            $('#presets_list').addClass('hide');
             $('#users_screen').removeClass('hide');
-            $('#project_info').removeClass('hide');
+
+            $('#users_settings').removeClass('hide');
+
             $('#main_entry').removeClass('active');
             $('#users_entry').addClass('active').removeClass('hide');
             $('#quick_manage_block').addClass('hide');

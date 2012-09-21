@@ -80,6 +80,7 @@ function show_default_screen(query_server) {
     }
 
     $('#machines_list').removeClass('hide');
+    $('#presets_list').removeClass('hide');
     $('#machine_detailed_info').addClass('hide');
     $('#noVNC_screen').addClass('hide');
     $('#project_info').addClass('hide');
@@ -91,6 +92,8 @@ function show_default_screen(query_server) {
     $('#vnc_entry').removeClass('active').addClass('hide');
     $('#view_entry').removeClass('active').addClass('hide');
     $('#edit_entry').removeClass('active').addClass('hide');
+
+    $('#users_settings').addClass('hide');
 
     $('#unvnc_button').addClass('hide');
     $('#vnc_button').removeClass('hide');

@@ -21,8 +21,10 @@ function show_description_modal($model_id) {
     $('#descModal').modal('show');
 }
 
-function show_operations_modal($model_id) {
-    $('#op_modal_content').text(load_new_model_description($model_id))
+function show_operations_modal($op_id) {
     $('#opModal').modal('show');
 }
 
+function show_addusers_modal() {
+    $('#usersModal').modal('show');
+}

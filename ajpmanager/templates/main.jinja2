@@ -485,7 +485,7 @@
 
 
 
-        <div id="users_settings" class="well">
+        <div id="users_settings" class="well hide">
             <h3 align="center">
                 User edit
             </h3>
@@ -514,30 +514,20 @@
                 <div class="btn-toolbar">
 
                     <div class="btn-group">
-                        <btn id="run_button" class="btn btn-success btn-large disabled" title="Run all" onclick="operate_machine('run')"><i class="icon-play"></i></btn>
-                        <btn id="pause_button" class="btn btn-warning btn-large disabled" title="Pause all" onclick="operate_machine('pause')"><i class="icon-pause"></i></btn>
-                        <btn id="stop_button" class="btn btn-danger btn-large disabled" title="Stop all" onclick="operate_machine('stop')"><i class="icon-stop"></i></btn>
-                        <btn id="destroy_button" class="btn btn-danger btn-large hide" title="Stop all" onclick="operate_machine('destroy')"><i class="icon-remove"></i></btn>
+                        <btn id="user_info" class="btn btn-info btn-large" title="Detailed info about selected user" onclick="show_usersinfo_modal()">
+                            <i class="icon-info-sign"></i> Detailed info
+                        </btn>
+                    </div>
+
+                    <div class="btn-group">
+                        <btn id="new_user" class="btn btn-success btn-large" title="Add new user into system" onclick="show_addusers_modal()">
+                            <i class="icon-plus"></i> Add new
+                        </btn>
                     </div>
                 </div>
             </div>
 
         </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         <!--
@@ -575,7 +565,7 @@
                |_|   |_|  \___||___/\___|\__|___/  |_|_|___/\__|
         -->
 
-        <div class="well">
+        <div class="well" id="presets_list">
             <h4 align="center">Add new machine from preset</h4>
 
 
@@ -617,6 +607,114 @@
     -->
 
 
+    <div class="modal hide fade" id="opModal">
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal">×</a>
+            <h3>Active operations</h3>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="btn">Close</a>
+        </div>
+    </div>
+
+
+    <div id="usersModal" class="users_modal hide fade">
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal">&times;</a>
+            <h3>Add new user</h3>
+        </div>
+        <div class="modal-body">
+
+                <div class="row-fluid">
+                    <div class="span8">
+                    <p align="center">As system administrator you can add new users into system.</p>
+                    <br>
+                    <div align="center">
+
+
+
+
+
+                    </div>
+                        <form class="form-horizontal">
+                            <fieldset>
+                                <div class="control-group">
+                                    <label class="control-label" for="input01">Username</label>
+                                    <div class="controls">
+                                        <input type="text" class="input-xlarge centered" id="new_username" placeholder="username">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="input01">Email</label>
+                                    <div class="controls">
+                                        <input type="text" class="input-xlarge centered" id="new_email" placeholder="email">
+                                    </div>
+                                    <br>
+                                    <div class="controls">
+                                        <input type="checkbox" id="optionsCheckbox" value="option1">
+                                        Send to user's email information about registration
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="input01">First name</label>
+                                    <div class="controls">
+                                        <input type="text" class="input-xlarge centered" id="new_first_name" placeholder="first name (optional)">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="input01">Last name</label>
+                                    <div class="controls">
+                                        <input type="text" class="input-xlarge centered" id="new_last_name" placeholder="last name (optional)">
+                                        <p class="help-block">Supporting help text</p>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="input01">Password</label>
+                                    <div class="controls">
+                                        <input type="password" class="input-xlarge centered" id="new_password" placeholder="password">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="new_password_rpt">Password</label>
+                                    <div class="controls">
+                                        <input type="password" class="input-xlarge centered" id="new_password_rpt" placeholder="repeat password">
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </form>
+                    </div>
+
+                    <div class="span4">
+                        <div class="control-group">
+                            <label class="control-label" for="multiSelect">Select new user's group:</label>
+                            <div class="controls">
+                                <select multiple="multiple" style="height: 270px" id="multiSelect">
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="add_new_group_input">Or add new group:</label>
+                            <div class="controls">
+                                <input type="text" class="input-large centered" id="add_new_group_input" placeholder="new group name">
+                            </div>
+                        </div>
+
+                    </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <btn type="button" class="btn btn-success btn-large" onclick="install_machine();"><i class="icon-pencil"></i> Install</btn>
+            <a href="#" class="btn btn-large" data-dismiss="modal" >Close</a>
+        </div>
+    </div>
 
 
     <div id="descModal" class="modal hide fade" style="width: 670px">
@@ -627,86 +725,47 @@
         </div>
         <div class="modal-body">
 
-            <div id="modal_content">
+        <div id="modal_content">
 
 
-            </div>
-
-            <hr>
-
-            <div id="software">
-                <!-- THIS BLOCK IS TODO:
-                        SHOW OS ver,
-                </div>
-
-
-                <!--hr-->
-
-                <form class="form-horizontal">
-                    <fieldset>
-
-                        <div class="control-group span8">
-                            <label class="control-label" for="in-name">Machine name</label>
-                            <div class="controls">
-                                <input id="in-name" type="text" class="input-xlarge" maxlength="30">
-                            </div>
-                        </div>
-
-
-                    </fieldset>
-                </form>
-
-                <p id="storage_info" align="center">
-                    <b>Available:</b> 251.0 GB <!-- add spaces here TODO -->
-                    <b>Required:</b> 4.4 GB
-                </p>
-
-
-            </div>
-            <div class="modal-footer">
-                <btn type="button" class="btn btn-success btn-large" onclick="install_machine();"><i class="icon-pencil"></i> Install</btn>
-                <a href="#" class="btn btn-large" data-dismiss="modal" >Close</a>
-            </div>
         </div>
 
+        <hr>
 
-        <div id="opModal" class="modal hide fade" style="width: 670px">
-            <!-- slightly non-centered - FIXME -->
-            <div class="modal-header">
-                <a class="close" data-dismiss="modal" >&times;</a>
-                <h3 id="model_name">Image installation</h3>
+        <div id="software">
+            <!-- THIS BLOCK IS TODO:
+                    SHOW OS ver,
             </div>
-            <div class="modal-body">
-
-                <div id="op_modal_content">
 
 
-                </div>
+            <!--hr-->
 
-                <hr>
+            <form class="form-horizontal">
+                <fieldset>
 
-
-                <form class="form-horizontal">
-                    <fieldset>
-                        <div class="control-group span8">
-                            <label class="control-label" for="in-name">Machine name</label>
-                            <div class="controls">
-                                <input id="in-name" type="text" class="input-xlarge" maxlength="30">
-                            </div>
+                    <div class="control-group span8">
+                        <label class="control-label" for="in-name">Machine name</label>
+                        <div class="controls">
+                            <input id="in-name" type="text" class="input-xlarge" maxlength="30">
                         </div>
+                    </div>
 
 
-                    </fieldset>
-                </form>
+                </fieldset>
+            </form>
 
-            </div>
-            <div class="modal-footer">
-                <btn type="button" class="btn btn-success btn-large" onclick="install_machine();"><i class="icon-pencil"></i> Install</btn>
-                <a href="#" class="btn btn-large" data-dismiss="modal" >Close</a>
-            </div>
+            <p id="storage_info" align="center">
+                <b>Available:</b> 251.0 GB <!-- add spaces here TODO -->
+                <b>Required:</b> 4.4 GB
+            </p>
+
+
         </div>
-
-
+        <div class="modal-footer">
+            <btn type="button" class="btn btn-success btn-large" onclick="install_machine();"><i class="icon-pencil"></i> Install</btn>
+            <a href="#" class="btn btn-large" data-dismiss="modal" >Close</a>
+        </div>
+    </div>
 
 
 
