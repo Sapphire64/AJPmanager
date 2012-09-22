@@ -4,7 +4,6 @@ from passlib.hash import bcrypt
 import re
 
 dbcon = DBConnection()
-GROUPS = {'admin':['group:admins']}
 
 email_pattern = re.compile('^[_.0-9a-z-]+@([0-9a-z][0-9a-z-]+.)+[a-z]{2,4}$')
 
@@ -96,5 +95,6 @@ class User(object):
 
 
 def groupfinder(userid, request):
-    global GROUPS
-    return GROUPS.get(userid, ['group:users']) # special group or default one
+    global dbcon
+    uid = dbcon.io.get('username:' + userid + ':uid')
+    return [dbcon.io.get('uid:' + uid + ':group')]
