@@ -64,8 +64,10 @@ def initialize_users():
         db.set('uid:1:password', bcrypt.encrypt('admin'))
         # You can change email to yours above
         db.set('uid:1:email', admin_email)
+        # Creating new group - admin:
+        db.sadd('users:groups', 'group:admins')
         # Setting admin's group
-        db.set('uid:1:group', 'group:admin')
+        db.set('uid:1:group', 'group:admins')
         # Connection your username with UID
         db.set('username:' + db.get('uid:1:username') + ':uid', 1)
         # Adding your user into global users list
