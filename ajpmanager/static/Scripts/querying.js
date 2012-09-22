@@ -183,6 +183,22 @@ function query_users_list() {
 
 
 
+function query_users_groups() {
+    $.ajax({
+        type: "POST",
+        url: "/engine.ajax",
+        data: JSON.stringify({'query': 'get_groups_list'}),
+        contentType: 'application/json; charset=utf-8'
+    }).done(function ( data ) {
+            $('#groups_select').empty();
+            for (var i=0; i<data.data.length; i++) {
+                console.log(data.data);
+                $('#groups_select').append(new Option(data.data[i], ' ' + data.data[i], true, false));
+            }
+            $('#usersModal').modal('show');
+        });
+}
+
 
 
 function restore_default_settings() {

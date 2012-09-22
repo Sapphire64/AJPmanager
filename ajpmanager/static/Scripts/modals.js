@@ -26,5 +26,6 @@ function show_operations_modal($op_id) {
 }
 
 function show_addusers_modal() {
-    $('#usersModal').modal('show');
+    query_users_groups();
+
 }

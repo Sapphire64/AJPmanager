@@ -127,6 +127,9 @@ class VMConnector(object):
     def get_users_list(self):
         return User.get_all_users()
 
+    def get_groups_list(self):
+        return User.get_all_groups()
+
     def apply_settings(self, data):
         provider = self.db.io.get('provider')
 

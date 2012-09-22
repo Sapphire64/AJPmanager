@@ -93,6 +93,19 @@ class User(object):
                           'status':  dbcon.io.get('uid:' + username + ':online')})
         return sorted(users)
 
+    @classmethod
+    def get_all_groups(cls):
+        pattern = re.compile(r'group:(\w+)')
+        global dbcon
+        groups = list(dbcon.io.smembers('users:groups'))
+        answer = []
+        for item in groups:
+            try:
+                answer.append(pattern.search(item).groups()[0]) # Welcome to hell
+            except Exception:
+                pass
+        return answer
+
 
 def groupfinder(userid, request):
     global dbcon

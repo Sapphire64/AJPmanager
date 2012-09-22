@@ -1,7 +1,6 @@
 from pyramid.httpexceptions import HTTPForbidden
 from pyramid.view import view_config
-from pyramid.security import authenticated_userid
-
+from pyramid.security import authenticated_userid, unauthenticated_userid
 
 from ajpmanager.core.VMConnector import VMConnector
 
@@ -33,6 +32,7 @@ class MainPage(object):
             return HTTPForbidden()
 
         show_settings = False
+
         username = authenticated_userid(self.request)
 
         return {'username': username, 'show_settings': show_settings}
@@ -75,6 +75,10 @@ class JSONprocessor(object):
     def get_users_list(self):
         users = VMC.get_users_list()
         return {'status': True, 'data': users}
+
+    def get_groups_list(self):
+        groups = VMC.get_groups_list()
+        return {'status': True, 'data': groups}
 
     def get_presets_list(self):
         presets = VMC.get_presets_list()
@@ -165,6 +169,7 @@ class JSONprocessor(object):
                   'get_vms_list': get_vms_list,
                   'get_presets_list': get_presets_list,
                   'get_users_list': get_users_list,
+                  'get_groups_list': get_groups_list,
                   'machines_control': machines_control,
                   'get_storage_info': get_storage_info,
                   'get_settings': get_settings,
