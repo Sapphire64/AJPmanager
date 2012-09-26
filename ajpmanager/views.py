@@ -163,19 +163,32 @@ class JSONprocessor(object):
         answer = VMC.release_vnc_connection(username=username, hash=cookie)
         return {'status': answer}
 
+    def add_user(self):
+        data = self.json['data']
+        answer = VMC.add_user(data)
+        return {'status': answer[0], 'answer': answer[1]}
 
-    functions = { # This dictionary is used to implement factory run of the requested functions
-                  'verify_new_vm_name': verify_new_vm_name,
+
+    # This dictionary is used to implement factory run of the requested functions
+    functions = {
+                  # VM lists
                   'get_vms_list': get_vms_list,
                   'get_presets_list': get_presets_list,
-                  'get_users_list': get_users_list,
-                  'get_groups_list': get_groups_list,
+                  # VM control
                   'machines_control': machines_control,
+                  # Presets modal
                   'get_storage_info': get_storage_info,
+                  'verify_new_vm_name': verify_new_vm_name,
+                  # Settings
                   'get_settings': get_settings,
                   'apply_settings': apply_settings,
                   'restore_default_settings': restore_default_settings,
+                  # VNC
                   'create_vnc_connection': create_vnc_connection,
                   'release_vnc_connection': release_vnc_connection,
+                  # Users
+                  'get_users_list': get_users_list,
+                  'get_groups_list': get_groups_list,
+                  'add_user': add_user,
                   }
 
