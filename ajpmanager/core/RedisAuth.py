@@ -15,8 +15,6 @@ class User(object):
                      first_name = None, last_name = None,
                          group='group:users', expire=None,
                             send_password=False, dbcon=dbcon):
-        if not db:
-            raise Exception ('No redis connection provided')
         if 4 > len(password) > 16:
             raise ValueError ('Wrong password length!')
         if not email_pattern.match(email):
@@ -30,23 +28,59 @@ class User(object):
         self.email = email
         self.group = group
         self.expire = expire # So you can make temporary account
-        self.__add_to_redis()
+        self.send_password = send_password
 
-        if send_password:
-            pass # dummy function, to be replaced with email function
+    def __check_provided_data(self):
+        # Primitive checks block
+        if not self.username or not self.group or not self.password:
+            return False, 'Form data is not completely filled'
+        if len(self.username) < 5:
+            return False, 'Too short user name'
+        if len(self.password) < 6:
+            return False, 'Wrong password length'
+        if not email_pattern.match(self.email):
+            return False, 'Wrong Email address: Email address does not match email pattern'
+        # Redis checks block
+        if self.db.io.get('username:' + self.username + ':uid') is not None:
+            return False, 'Such username already registered'
+        if self.email in self.db.io.smembers('users:emails'):
+            return False, 'Such email address already registered'
 
-    def __add_to_redis(self):
-        uid = db.io.incr('global:nextUserId')
+        return True,
+
+    def add_to_redis(self, force=False):
+        proceed = force
+        if not force:
+            proceed = self.__check_provided_data()
+        if not proceed[0]:
+            return proceed
+
+
+
+        uid = str(self.db.io.incr('global:nextUserId'))
         self.db.io.set('uid:' + uid + ':username', self.username)
         self.db.io.set('uid:' + uid + ':first_name', self.first_name)
         self.db.io.set('uid:' + uid + ':last_name', self.last_name)
         self.db.io.set('uid:' + uid + ':password', self.password)
         self.db.io.set('uid:' + uid + ':email', self.email)
         self.db.io.set('uid:' + uid + ':group', self.group)
+
         if self.expire:
             self.db.io.expire('uid:' + uid + ':password', self.expire)
+
         self.db.io.set('username:' + self.username + ':uid', uid)
+
         self.db.io.sadd('users:list', uid)
+        self.db.io.sadd('users:email', self.email)
+        self.db.io.sadd('users:groups', self.group)
+
+        if self.send_password:
+            self._send_email()
+
+        return True, ''
+
+    def _send_email(self):
+        pass # Dummy
 
     @classmethod
     def authenticate(cls, username, password):

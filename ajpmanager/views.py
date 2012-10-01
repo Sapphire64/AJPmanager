@@ -1,6 +1,6 @@
 from pyramid.httpexceptions import HTTPForbidden
 from pyramid.view import view_config
-from pyramid.security import authenticated_userid, unauthenticated_userid
+from pyramid.security import authenticated_userid, Allow, Authenticated, Everyone
 
 from ajpmanager.core.VMConnector import VMConnector
 
@@ -11,13 +11,12 @@ dbcon = VMC.dbcon # Wrong way? Maybe this can lead to more slow work with DB
 class MainPage(object):
     """ Class for loading admin's menu view.
     """
-
     def __init__(self, request):
         # Pyramid's class-based view
         # This part is required
         self.request = request
 
-    @view_config(route_name='main', renderer='templates/main.jinja2', permission='admin')
+    @view_config(route_name='main', renderer='templates/main.jinja2', permission='registered')
     def __call__(self):
         # Actual function to run by framework (CBV)
         # Here we return only user's name and user's settings
@@ -46,7 +45,7 @@ class JSONprocessor(object):
         self.session = self.request.session.get_csrf_token()
         self.json = request.json_body
 
-    @view_config(renderer="json", route_name="engine.ajax", permission='admin')
+    @view_config(renderer="json", route_name="engine.ajax", permission='registered')
     def mainline(self):
 
         allowed_ips = dbcon.lrange("allowed_ips", 0, -1)
@@ -163,19 +162,32 @@ class JSONprocessor(object):
         answer = VMC.release_vnc_connection(username=username, hash=cookie)
         return {'status': answer}
 
+    def add_user(self):
+        data = self.json['data']
+        answer = VMC.add_user(data)
+        return {'status': answer[0], 'answer': answer[1]}
 
-    functions = { # This dictionary is used to implement factory run of the requested functions
-                  'verify_new_vm_name': verify_new_vm_name,
+
+    # This dictionary is used to implement factory run of the requested functions
+    functions = {
+                  # VM lists
                   'get_vms_list': get_vms_list,
                   'get_presets_list': get_presets_list,
-                  'get_users_list': get_users_list,
-                  'get_groups_list': get_groups_list,
+                  # VM control
                   'machines_control': machines_control,
+                  # Presets modal
                   'get_storage_info': get_storage_info,
+                  'verify_new_vm_name': verify_new_vm_name,
+                  # Settings
                   'get_settings': get_settings,
                   'apply_settings': apply_settings,
                   'restore_default_settings': restore_default_settings,
+                  # VNC
                   'create_vnc_connection': create_vnc_connection,
                   'release_vnc_connection': release_vnc_connection,
+                  # Users
+                  'get_users_list': get_users_list,
+                  'get_groups_list': get_groups_list,
+                  'add_user': add_user,
                   }
 

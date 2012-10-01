@@ -9,7 +9,9 @@ function jgrowl_error($type, $err) {
     else if ($type == 2) {
         header = 'Connection error';
     }
-
+    else if ($type == 3) {
+        header = 'Form error';
+    }
     else {
         header = 'Error';
     }
@@ -38,6 +40,23 @@ function jgrowl_success($msg) {
 }
 
 
+function adduser_notification($type, $message) {
+    var $block;
+    var $prefix;
+
+    if ($type == 1) { // Success
+        $block = $('#user_success_block')
+        $prefix = '<b>Success!</b> ';
+    }
+    else if ($type == 2) { // Success
+        $block = $('#user_danger_block')
+        $prefix = '<b>Error!</b> ';
+    }
+    $block.append($prefix + $message);
+    $block.removeClass('hide');
+}
+
+
 function setCookie(name, value, props) {
     props = props || {};
     var exp = props.expires;
@@ -56,4 +75,9 @@ function setCookie(name, value, props) {
         if(propValue !== true){ updatedCookie += "=" + propValue; }
     }
     document.cookie = updatedCookie;
+}
+
+function validateEmail(email) {
+    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
 }

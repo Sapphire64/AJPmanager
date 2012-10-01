@@ -130,6 +130,45 @@ class VMConnector(object):
     def get_groups_list(self):
         return User.get_all_groups()
 
+    def add_user(self, json):
+        " Processing query for adding new user "
+        # TODO: Check user's (who made new one) group
+        if not self.db:
+            raise Exception ('No redis connection provided')
+
+        username = json['username'].strip()
+        first_name = json['first_name'].strip()
+        last_name = json['last_name'].strip()
+        selected_group = json['selected_group'].strip()
+        new_group = json['new_group'].strip()
+
+        email = json['email'].strip()
+        send_email = json['send_email']
+
+        password = json['new_password'].strip()
+        password_rpt = json['new_password_repeat'].strip()
+
+        if not password or not password_rpt:
+            return False, "Please repeat new password"
+
+        if password != password_rpt:
+            return False, 'Passwords does not match'
+
+        if new_group:
+            group = new_group
+        elif selected_group:
+            group = selected_group
+        else:
+            return False, 'Wrong groups data'
+
+        group = 'groups:' + group
+
+        user = User(username, password, email,
+            first_name, last_name,
+            group=group, expire=None)
+
+        return user.add_to_redis()
+
     def apply_settings(self, data):
         provider = self.db.io.get('provider')
 

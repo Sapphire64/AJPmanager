@@ -1,8 +1,7 @@
-from pyramid import session
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
-from ajpmanager.core.VMConnector import VMConnector
+from ajpmanager.core.Factories import RootFactory
 from pyramid_beaker import set_cache_regions_from_settings
 from ajpmanager.core.DBConnector import DBConnection
 from ajpmanager.core.RedisAuth import groupfinder
@@ -14,23 +13,20 @@ def main(global_config, **settings):
 
     prepare_database(settings)
 
-
-
-
-
     authn_policy = AuthTktAuthenticationPolicy(
             'sikret;)', callback=groupfinder)
     authz_policy = ACLAuthorizationPolicy()
     config = Configurator(settings=settings,
-        root_factory='ajpmanager.factories.RootFactory')
+        root_factory=RootFactory)
     config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(authz_policy)
+
+    config.set_default_permission('registered')
 
     config.include('pyramid_jinja2')
     config.include("pyramid_beaker")
 
     set_cache_regions_from_settings(settings)
-
 
     config.add_static_view('static', 'static', cache_max_age=3600)
     config.add_route('main', '/')
@@ -39,8 +35,6 @@ def main(global_config, **settings):
     config.add_route('presets', '/presets')
     config.add_route('engine.ajax', '/engine.ajax')
     config.scan()
-
-
 
     return config.make_wsgi_app()
 
