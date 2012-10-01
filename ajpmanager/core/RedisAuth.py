@@ -6,6 +6,7 @@ import re
 dbcon = DBConnection()
 
 email_pattern = re.compile('^[_.0-9a-z-]+@([0-9a-z][0-9a-z-]+.)+[a-z]{2,4}$')
+groups_pattern = re.compile(r'group:(\w+)')
 
 
 class User(object):
@@ -129,13 +130,14 @@ class User(object):
 
     @classmethod
     def get_all_groups(cls):
-        pattern = re.compile(r'group:(\w+)')
         global dbcon
+        global groups_pattern
         groups = list(dbcon.io.smembers('users:groups'))
         answer = []
         for item in groups:
             try:
-                answer.append(pattern.search(item).groups()[0]) # Welcome to hell
+                # We're getting only `value` from "groups:{value}" pattern
+                answer.append(groups_pattern.search(item).groups()[0]) # Welcome to hell
             except Exception:
                 pass
         return answer
@@ -144,4 +146,10 @@ class User(object):
 def groupfinder(userid, request):
     global dbcon
     uid = dbcon.io.get('username:' + userid + ':uid')
-    return [dbcon.io.get('uid:' + uid + ':group')]
+    if not uid:
+        return None
+    group = dbcon.io.get('uid:' + uid + ':group')
+    if group:
+        return [group]
+    else:
+        return []
