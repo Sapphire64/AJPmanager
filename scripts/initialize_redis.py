@@ -76,6 +76,7 @@ def initialize_users():
         db.sadd('users:list', 1)
         print ("Super user record was added, use next data to log in:\n"
                " - username: '%s' \n - password: 'admin'\n" % db.get('uid:1:username'))
+        print ("Please change your password in AJP for safety reasons.")
     else:
         print ('Super user exists, change force to True to rewrite super user\'s password')
 

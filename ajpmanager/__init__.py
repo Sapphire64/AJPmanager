@@ -49,7 +49,7 @@ def prepare_database(settings):
         db.io.rpush('allowed_ips', ip.strip())
 
     if not db.io.get('global:nextUserId'):
-        raise SystemError ('No users data found, to start you must run scripts/initialize_redis.py script inside of project')
+        raise SystemError ('No users data found, to start you must run scripts/initialize_redis.py script')
     elif not db.io.get('uid:1:username'):
         raise SystemError ('Super user entry not found. Run scripts/initialize_redis.py to set up default super user account')
     elif not db.io.get('uid:1:password'):

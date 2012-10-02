@@ -10,7 +10,7 @@ import libvirt
 import random
 import json
 import shutil
-from scripts.websockify import WebSocketProxy
+from ajpmanager.core.sockets.websockify import WebSocketProxy
 
 
 def generate_uuid():

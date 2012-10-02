@@ -46,7 +46,6 @@ class User(object):
             return False, 'Such username already registered'
         if self.email in self.db.io.smembers('users:emails'):
             return False, 'Such email address already registered'
-
         return True,
 
     def add_to_redis(self, force=False):
@@ -55,8 +54,6 @@ class User(object):
             proceed = self.__check_provided_data()
         if not proceed[0]:
             return proceed
-
-
 
         uid = str(self.db.io.incr('global:nextUserId'))
         self.db.io.set('uid:' + uid + ':username', self.username)

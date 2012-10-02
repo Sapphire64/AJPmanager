@@ -161,7 +161,7 @@ class VMConnector(object):
         else:
             return False, 'Wrong groups data'
 
-        group = 'groups:' + group
+        group = 'group:' + group
 
         user = User(username, password, email,
             first_name, last_name,
