@@ -68,6 +68,8 @@ def initialize_users():
         db.sadd('users:emails', admin_email)
         # Creating new group - admin:
         db.sadd('users:groups', 'group:admins')
+        db.sadd('users:groups', 'group:moderators')
+        db.sadd('users:groups', 'group:users')
         # Setting admin's group
         db.set('uid:1:group', 'group:admins')
         # Connection your username with UID
