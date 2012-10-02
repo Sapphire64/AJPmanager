@@ -149,7 +149,4 @@ def groupfinder(userid, request):
     if not uid:
         return None
     group = dbcon.io.get('uid:' + uid + ':group')
-    if group:
-        return [group]
-    else:
-        return []
+    return [group]
