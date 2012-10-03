@@ -1,6 +1,6 @@
 from ajpmanager.core.DBConnector import DBConnection
 from ajpmanager.core.MiscTools import PathGetter, get_storage_info, safe_join, calculate_flat_folder_size
-from ajpmanager.core.RedisAuth import User
+from ajpmanager.core.RedisAuth import User, groupfinder
 from ajpmanager.core.providers.KVM import KVMProvider
 
 import libvirt
@@ -227,19 +227,22 @@ class VMConnector(object):
     def vnc_connection(self, username, machine_name):
         global localhost # FIXME: for network connections we need other solution
 
-        # Step 1: can user view this machine at all?
-        if username != 'admin' and machine_name not in self.db.io.get(username + ':machines'):
-            return (False, 'Access denied')
+        # Step 1: can user view this machine at all? TODO
+        #if groupfinder(username)  and machine_name not in self.db.io.get(username + ':machines'):
+        #    return (False, 'Access denied')
 
-        # Step 2: Binding free port to run
+        # Step 2: Finding but not binding free port to run
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind(('', 0)) # Asking OS to bind free port
         listen_port = sock.getsockname()[1] # << Here it is
         del(sock)
 
         # Step 3: Processing by VM manager
-        answer = self.conn.vnc_connection(machine_name=machine_name, listen_port=listen_port,
-            listen_host=localhost, target_host=localhost)
+        answer = self.conn.vnc_connection(user_groups=groupfinder(username, None),
+                                            machine_name=machine_name,
+                                            listen_port=listen_port,
+                                            listen_host=localhost,
+                                            target_host=localhost)
 
         # Step 4: Pack answer to client
         return answer
@@ -252,9 +255,9 @@ class VMConnector(object):
         if not machine_name:
             return (False, 'No machine found for such hash')
 
-        # Step 2: can user control this machine at all?
-        if username != 'admin' and machine_name not in self.db.io.get(username + ':machines'):
-            return (False, 'Access denied')
+        # Step 2: can user control this machine at all? TODO
+        #if username != 'admin' and machine_name not in self.db.io.get(username + ':machines'):
+        #    return (False, 'Access denied')
 
         # Step 3: Processing by VM manager
         answer = self.conn.disable_vnc_connection(machine_name=machine_name, session = hash)
