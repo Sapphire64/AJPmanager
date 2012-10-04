@@ -20,7 +20,7 @@ In AJPmanager we have 3 types of groups:
 * rest of the users with any other group name
 Admins have all the rights of moderators, but they are extended with ability to create
 moderators accounts, other administrators and so on. Both admins and moderators can
-spy for other users' VM sessions (see `Application in the education process`), both can
+spy for other users' VM sessions (see `Application in the education process <https://github.com/Sapphire64/AJPmanager/tree/users#application-in-the-educational-process>`_), both can
 make new users, new users groups, new VMs, grant permissions to VMs to users etc.
 Regular users are able to control granted VMs, see their terminal, see users list.
 
@@ -75,7 +75,7 @@ Requirements
   - Python 2.7 (not tested with earlier versions)
   - virtualenv
   - Redis DB
-  - Anything other will be installed into virtualenv automatically (except libvirt, see `Gettings Started`)
+  - Anything other will be installed into virtualenv automatically (except libvirt, see `Gettings Started<https://github.com/Sapphire64/AJPmanager/tree/users#getting-started>`_`)
 
 Getting Started
 ---------------
