@@ -83,7 +83,6 @@ To make this project run:
 
 - cd <directory containing this file>
 
-Libvirt library can't be installed from PYPI:
 - cp libs/site-packages/* $venv/local/lib/python{X}.{Y}/site-packages/
 
 - $venv/bin/python setup.py develop
@@ -92,3 +91,4 @@ Libvirt library can't be installed from PYPI:
 
 - browse to http://127.0.0.1:8081
 
+Please note, we are copying libvirt packages to your python distribution because they cannot be installed by PYPI.
