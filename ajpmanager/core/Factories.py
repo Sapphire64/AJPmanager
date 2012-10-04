@@ -1,13 +1,14 @@
 from pyramid.security import (
     Allow,
-    Everyone,
+    Authenticated,
     )
 
 
 
 class RootFactory(object):
-    __acl__ = [ (Allow, 'group:admins', 'admin'),
-                (Allow, 'group:users', 'admin')]
+    __acl__ = [ (Allow, Authenticated, 'registered'),
+                (Allow, 'group:admins', 'admins'),
+                (Allow, 'group:moderators', 'moderators')]
 
     def __init__(self, request):
-        pass
+        self.request = request

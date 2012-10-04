@@ -13,7 +13,7 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 
 import socket, optparse, time, os, sys, subprocess
 from select import select
-from websocket import WebSocketServer
+from ajpmanager.core.sockets.websocket import WebSocketServer
 
 class WebSocketProxy(WebSocketServer):
     """

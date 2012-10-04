@@ -159,6 +159,48 @@ function query_settings() {
 }
 
 
+function query_users_list() {
+    $.ajax({
+        type: "POST",
+        url: "/engine.ajax",
+        data: JSON.stringify({'query': 'get_users_list'}),
+        contentType: 'application/json; charset=utf-8'
+    }).done(function ( data ) {
+            console.log(data);
+
+            $('#machines_list').addClass('hide');
+            $('#presets_list').addClass('hide');
+            $('#users_screen').removeClass('hide');
+
+            $('#users_settings').removeClass('hide');
+
+            $('#main_entry').removeClass('active');
+            $('#users_entry').addClass('active').removeClass('hide');
+            $('#quick_manage_block').addClass('hide');
+            generate_users_list(data.data);
+        });
+}
+
+
+
+function query_users_groups() {
+    $.ajax({
+        type: "POST",
+        url: "/engine.ajax",
+        data: JSON.stringify({'query': 'get_groups_list'}),
+        contentType: 'application/json; charset=utf-8'
+    }).done(function ( data ) {
+            $('#groups_select').empty();
+            for (var i=0; i<data.data.length; i++) {
+                console.log(data.data);
+                $('#groups_select').append(new Option(data.data[i], ' ' + data.data[i], true, false));
+            }
+            $('#usersModal').modal('show');
+        });
+}
+
+
+
 function restore_default_settings() {
     $.ajax({
         type: "POST",
@@ -182,10 +224,93 @@ function restore_default_settings() {
 
 
 
+function add_user() {
+    $('#user_success_block').empty();
+    $('#user_success_block').addClass('hide');
+    $('#user_danger_block').empty();
+    $('#user_danger_block').addClass('hide');
+
+
+    var answer = new Object();
+
+    // APPENDING BLOCK
+    answer.username = document.getElementById('new_username').value;
+    answer.email = document.getElementById('new_email').value;
+    answer.first_name = document.getElementById('new_first_name').value;
+    answer.last_name = document.getElementById('new_last_name').value;
+    answer.new_password = document.getElementById('new_password').value;
+    answer.new_password_repeat = document.getElementById('new_password_repeat').value;
+
+    var e = document.getElementById("groups_select")
+    try {
+        answer.selected_group = e.options[e.selectedIndex].text;
+    }
+    catch (TypeError) {
+        answer.selected_group = "";
+    }
+
+    answer.new_group = document.getElementById('add_new_group_input').value;
+
+    answer.send_email = document.getElementById('send_email').checked;
+
+    // DATA PROCESSING BLOCK
+
+    if (!answer.username || !answer.email || !answer.new_password || !answer.new_password_repeat) {
+        adduser_notification(2, 'Please fill all required fields!')
+        return
+    }
+
+    else if (!validateEmail(answer.email)) {
+        adduser_notification(2, 'Bad email address provided');
+        return
+    }
+
+    else if (answer.new_password != answer.new_password_repeat) {
+        adduser_notification(2, 'Password fields does not match!')
+        document.getElementById('new_password').value = '';
+        document.getElementById('new_password_repeat').value = '';
+        return
+    }
+
+    else {
+        $.ajax({
+            type: "POST",
+            url: "/engine.ajax",
+            data: JSON.stringify({'query': 'add_user', 'data': answer}),
+            contentType: 'application/json; charset=utf-8'
+        }).done(function ( data ) {
+                console.log(data);
+                var status;
+                var message;
+                if (data.status) {
+                    status = 1;
+                    message = 'User was successfully added.'
+
+                    document.getElementById('new_username').value = '';
+                    document.getElementById('new_email').value = '';
+                    document.getElementById('new_first_name').value = '';
+                    document.getElementById('new_last_name').value = '';
+                    document.getElementById('new_password').value = '';
+                    document.getElementById('new_password_repeat').value = '';
+                    document.getElementById('add_new_group_input').value = '';
+                }
+                else {
+                    status = 2;
+                    message = data.answer;
+                }
+                adduser_notification(status, message);
+            });
+    }
+
+
+    console.log(answer)
+}
+
+
 
 function apply_settings() {
 
-    answer = new Object();
+    var answer = new Object();
 
     answer.provider = document.getElementById('vmprovider_settings').value;
     answer.vmmanager = document.getElementById('vmmanager_settings').value;

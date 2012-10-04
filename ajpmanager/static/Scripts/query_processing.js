@@ -99,3 +99,49 @@ function append_storage_info(free, preset_size) {
     var $storage =  'Required:<b> ' + preset_size + '</b><br>' + 'Available:<b> ' + free + ' </b>';
     $('#storage_info').append($storage);
 }
+
+
+
+function generate_users_list(data) {
+    $('#users_table tbody').empty();
+
+    var row = new Array();
+    var label_;
+
+    for (var i=0; i<data.length; i++){
+//
+//        <th style="width: 30px;">UID</th>
+//        <th style="width: 150px;">Username</th>
+//        <th style="width: 150px;">First name</th>
+//        <th style="width: 150px;">Last name</th>
+//        <th style="width: 30px;">Group</th>
+//        <th style="width: 30px;">Status</th>
+//        <th style="width: 25px;">
+//            <input id="check0" type="checkbox" onchange="note_checkboxes(this);">
+//            </th>
+
+        if (data[i].status == 'True') {
+            label_ = 'success';
+            text_ = 'online';
+        }
+        else {
+            label_ = 'warning';
+            text_ = 'offline'
+        }
+        row.push('<tr>');
+        row.push('<td>'+ data[i].uid + '</td>');
+        row.push('<td>'+ data[i].username + '</td>');
+        row.push('<td>'+ data[i].first_name + '</td>');
+        row.push('<td>'+ data[i].last_name + '</td>');
+        row.push('<td>'+ data[i].group + '</td>');
+        row.push('<td><span class="label label-' + label_ + '">'+ text_ + '</span></td>');
+        row.push('<td><input type="checkbox" onchange="users_note_checkboxes(\'' + data[i].uid + '\',\''+
+            data[i].username + '\',\'' +  data[i].type + '\',\'' +
+            data[i].status + '\', this);"></td>'); // this is odd, but anyway
+        row.push('</tr>');
+    }
+    row = row.join('\n');
+    $("#users_table > tbody").append(row);
+
+
+}

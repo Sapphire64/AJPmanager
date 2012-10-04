@@ -7,6 +7,17 @@
 
 <link rel="stylesheet" href="{{ request.static_url('ajpmanager:static/noVNC/base.css') }}">
 {% block content %}
+
+    <!--
+                       _   _             _
+                      | \ | | __ ___   _| |__   __ _ _ __
+                      |  \| |/ _` \ \ / / '_ \ / _` | '__|
+                      | |\  | (_| |\ V /| |_) | (_| | |
+                      |_| \_|\__,_| \_/ |_.__/ \__,_|_|
+
+    -->
+
+
     <div class="navbar navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container-fluid">
@@ -47,6 +58,16 @@
     </div>
     </div>
 
+    <!--
+                _          __ _
+               | |    ___ / _| |_    _ __ ___   ___ _ __  _   _
+               | |   / _ \ |_| __|  | '_ ` _ \ / _ \ '_ \| | | |
+               | |__|  __/  _| |_   | | | | | |  __/ | | | |_| |
+               |_____\___|_|  \__|  |_| |_| |_|\___|_| |_|\__,_|
+
+    -->
+
+
     <div class="container-fluid">
     <div class="row-fluid">
     <div class="span2">
@@ -57,7 +78,8 @@
                 <li id="view_entry" class="hide"><a href="#"><i class="icon-user"></i> View machine</a></li>
                 <li id="vnc_entry" class="hide"><a href="#" onclick="activate_vnc_screen();"><i class="icon-eye-open"></i> Machine console</a></li>
                 <li id="edit_entry" class="hide"><a href="#"><i class="icon-pencil"></i>  Edit machine</a></li>
-                <li class="nav-header">Misc</li>
+                <li class="nav-header">Configuration</li>
+                <li id="users_entry"><a href="#" onclick="show_users_list();"><i class="icon-user"></i> Users</a></li>
                 <li id="settings_entry"><a href="#" onclick="show_settings();"><i class="icon-cog"></i> Settings</a></li>
                 <li id="help_entry"><a href="#" onclick="show_help();"><i class="icon-flag"></i> Help</a></li>
 
@@ -69,6 +91,21 @@
 
             </ul>
         </div><!--/.well -->
+
+        <!--
+                             _        _   _
+                            / \   ___| |_(_)_   _____
+                           / _ \ / __| __| \ \ / / _ \
+                          / ___ \ (__| |_| |\ V /  __/
+                         /_/   \_\___|\__|_| \_/ \___|
+
+                                           _   _
+                 ___  _ __   ___ _ __ __ _| |_(_) ___  _ __  ___
+                / _ \| '_ \ / _ \ '__/ _` | __| |/ _ \| '_ \/ __|
+               | (_) | |_) |  __/ | | (_| | |_| | (_) | | | \__ \
+                \___/| .__/ \___|_|  \__,_|\__|_|\___/|_| |_|___/
+                     |_|
+        -->
 
         <div class="well">
             <div class="left_framer">
@@ -100,6 +137,15 @@
 
     <div class="span7">
 
+    <!--
+           __  __            _     _                     _ _     _
+          |  \/  | __ _  ___| |__ (_)_ __   ___  ___    | (_)___| |_
+          | |\/| |/ _` |/ __| '_ \| | '_ \ / _ \/ __|   | | / __| __|
+          | |  | | (_| | (__| | | | | | | |  __/\__ \   | | \__ \ |_
+          |_|  |_|\__,_|\___|_| |_|_|_| |_|\___||___/   |_|_|___/\__|
+
+    -->
+
         <div class="well hide" id="machines_list">
             <h3 align="center">Virtual Machines List</h3>
             <br>
@@ -125,6 +171,15 @@
         </div> <!-- Running machines DIV -->
 
 
+    <!--
+                        _   ___  _______
+               ___  ___| | / / |/ / ___/  ___ ___________ ___ ___
+              / _ \/ _ \ |/ /    / /__   (_-</ __/ __/ -_) -_) _ \
+             /_//_/\___/___/_/|_/\___/  /___/\__/_/  \__/\__/_//_/
+
+    -->
+
+
         <div id="noVNC_screen" class="hide well" align="center">
             <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
                 <table border=0 width="100%"><tr>
@@ -141,6 +196,22 @@
         </div>
 
 
+<!--
+   ____       _        _ _          _    __  __            _     _
+  |  _ \  ___| |_ __ _(_) | ___  __| |  |  \/  | __ _  ___| |__ (_)_ __   ___
+  | | | |/ _ \ __/ _` | | |/ _ \/ _` |  | |\/| |/ _` |/ __| '_ \| | '_ \ / _ \
+  | |_| |  __/ || (_| | | |  __/ (_| |  | |  | | (_| | (__| | | | | | | |  __/
+  |____/ \___|\__\__,_|_|_|\___|\__,_|  |_|  |_|\__,_|\___|_| |_|_|_| |_|\___|
+
+                               _        __
+                              (_)_ __  / _| ___
+                              | | '_ \| |_ / _ \
+                              | | | | |  _| (_) |
+                              |_|_| |_|_|  \___/
+
+-->
+
+
         <div class="well hide" id="machine_detailed_info">
 
             <div class="btn-group">
@@ -155,6 +226,22 @@
 
         </div>
 
+<!--
+
+          _____    _ _ _                           _     _
+         | ____|__| (_) |_    _ __ ___   __ _  ___| |__ (_)_ __   ___
+         |  _| / _` | | __|  | '_ ` _ \ / _` |/ __| '_ \| | '_ \ / _ \
+         | |__| (_| | | |_   | | | | | | (_| | (__| | | | | | | |  __/
+         |_____\__,_|_|\__|  |_| |_| |_|\__,_|\___|_| |_|_|_| |_|\___|
+
+
+                          ___  ___ _ __ ___  ___ _ __
+                         / __|/ __| '__/ _ \/ _ \ '_ \
+                         \__ \ (__| | |  __/  __/ | | |
+                         |___/\___|_|  \___|\___|_| |_|
+
+-->
+
 
         <div class="well hide" id="edit_machine_screen">
 
@@ -165,11 +252,55 @@
 
         </div>
 
+
+        <!--
+                     _   _                      _ _     _
+                    | | | |___  ___ _ __ ___   | (_)___| |_
+                    | | | / __|/ _ \ '__/ __|  | | / __| __|
+                    | |_| \__ \  __/ |  \__ \  | | \__ \ |_
+                     \___/|___/\___|_|  |___/  |_|_|___/\__|
+        -->
+
+
+        <div class="well hide" id="users_screen">
+            <h3 align="center">Users</h3>
+            <br>
+
+            <table id="users_table" class="table table-striped table-centered" style="background-color: #ffffff;">
+                <thead>
+                <tr>
+                    <th style="width: 30px;">UID</th>
+                    <th style="width: 150px;">Username</th>
+                    <th style="width: 150px;">First name</th>
+                    <th style="width: 150px;">Last name</th>
+                    <th style="width: 30px;">Group</th>
+                    <th style="width: 30px;">Status</th>
+                    <th style="width: 25px;">
+                        <input id="ucheck0" type="checkbox" onchange="users_note_checkboxes(this);">
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
+        </div>
+
+
+
+<!--
+      ____       _   _   _
+     / ___|  ___| |_| |_(_)_ __   __ _ ___    ___  ___ _ __ ___  ___ _ __
+     \___ \ / _ \ __| __| | '_ \ / _` / __|  / __|/ __| '__/ _ \/ _ \ '_ \
+      ___) |  __/ |_| |_| | | | | (_| \__ \  \__ \ (__| | |  __/  __/ | | |
+     |____/ \___|\__|\__|_|_| |_|\__, |___/  |___/\___|_|  \___|\___|_| |_|
+                                 |___/
+-->
+
         <div class="well hide" id="settings_screen">
 
             <ul id="tab" class="nav nav-tabs">
                 <li class="active"><a href="#hypervisor" data-toggle="tab">Hypervisor settings</a></li>
-                <li><a href="#users" data-toggle="tab">Users</a></li>
             </ul>
             <div id="TabContent" class="tab-content">
 
@@ -251,15 +382,25 @@
                         </div>
                     </div>
                 </div>
-                <div class="tab-pane fade" id="users">
-                    Users list
-                </div>
+
                 </div>
             </div>
 
 
 
         </div>
+
+    <!--
+
+              _   _      _       _
+             | | | | ___| |_ __ | |   ___  ___ _ __ ___  ___ _ __
+             | |_| |/ _ \ | '_ \| |  / __|/ __| '__/ _ \/ _ \ '_ \
+             |  _  |  __/ | |_) |_|  \__ \ (__| | |  __/  __/ | | |
+             |_| |_|\___|_| .__/(_)  |___/\___|_|  \___|\___|_| |_|
+                          |_|
+
+    -->
+
 
         <div class="well hide" id="help_screen">
 
@@ -271,6 +412,14 @@
         </div>
 
 
+<!--
+              ____  _       _     _                             _
+             |  _ \(_) __ _| |__ | |_    _ __   __ _ _ __   ___| |
+             | |_) | |/ _` | '_ \| __|  | '_ \ / _` | '_ \ / _ \ |
+             |  _ <| | (_| | | | | |_   | |_) | (_| | | | |  __/ |
+             |_| \_\_|\__, |_| |_|\__|  | .__/ \__,_|_| |_|\___|_|
+                      |___/             |_|
+-->
 
 
     <div class="span3">
@@ -323,6 +472,79 @@
 
         </div>
 
+        <!--
+                                        _   _                           _ _ _
+                                       | | | |___  ___ _ __     ___  __| (_) |_
+                                       | | | / __|/ _ \ '__|   / _ \/ _` | | __|
+                                       | |_| \__ \  __/ |     |  __/ (_| | | |_
+                                        \___/|___/\___|_|      \___|\__,_|_|\__|
+
+        -->
+
+
+
+
+
+        <div id="users_settings" class="well hide">
+            <h3 align="center">
+                User edit
+            </h3>
+            <br>
+
+
+
+            <table class="table table-bordered table-centered" style="background-color: #ffffff;">
+                <thead>
+                <tr>
+                    <th style="width: 30px;">#</th>
+                    <th style="width: 200px;">Name</th>
+                    <th style="width: 150px;">Type</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td id="selected_id">3</td>
+                    <td id="selected_name"></td>
+                    <td id="selected_type">…</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div align="center">
+                <div class="btn-toolbar">
+
+                    <div class="btn-group">
+                        <btn id="user_info" class="btn btn-info btn-large" title="Detailed info about selected user" onclick="show_usersinfo_modal()">
+                            <i class="icon-info-sign"></i> Detailed info
+                        </btn>
+                    </div>
+
+                    <div class="btn-group">
+                        <btn id="new_user" class="btn btn-success btn-large" title="Add new user into system" onclick="show_addusers_modal()">
+                            <i class="icon-plus"></i> Add new
+                        </btn>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!--
+                        ____            _           _
+                       |  _ \ _ __ ___ (_) ___  ___| |_
+                       | |_) | '__/ _ \| |/ _ \/ __| __|
+                       |  __/| | | (_) | |  __/ (__| |_
+                       |_|   |_|  \___// |\___|\___|\__|
+                                     |__/
+                     _ _          _       _
+                  __| (_)___  ___| | __ _(_)_ __ ___   ___ _ __
+                 / _` | / __|/ __| |/ _` | | '_ ` _ \ / _ \ '__|
+                | (_| | \__ \ (__| | (_| | | | | | | |  __/ |
+                 \__,_|_|___/\___|_|\__,_|_|_| |_| |_|\___|_|
+
+        -->
+
         <div id="project_info" class="well hide">
             <h3 align="center">
                 AJPmanager info
@@ -335,9 +557,15 @@
 
         </div>
 
+        <!--
+                ____                     _          _ _     _
+               |  _ \ _ __ ___  ___  ___| |_ ___   | (_)___| |_
+               | |_) | '__/ _ \/ __|/ _ \ __/ __|  | | / __| __|
+               |  __/| | |  __/\__ \  __/ |_\__ \  | | \__ \ |_
+               |_|   |_|  \___||___/\___|\__|___/  |_|_|___/\__|
+        -->
 
-
-        <div class="well">
+        <div class="well" id="presets_list">
             <h4 align="center">Add new machine from preset</h4>
 
 
@@ -369,9 +597,123 @@
 
 
 
+    <!--
+                     __  __           _       _
+                    |  \/  | ___   __| | __ _| |___
+                    | |\/| |/ _ \ / _` |/ _` | / __|
+                    | |  | | (_) | (_| | (_| | \__ \
+                    |_|  |_|\___/ \__,_|\__,_|_|___/
+
+    -->
 
 
+    <div class="modal hide fade" id="opModal">
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal">×</a>
+            <h3>Active operations</h3>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="btn">Close</a>
+        </div>
+    </div>
 
+
+    <div id="usersModal" class="users_modal hide fade">
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal">&times;</a>
+            <h3>Add new user</h3>
+        </div>
+        <div class="modal-body">
+
+
+            <div id="user_danger_block" class="alert alert-error hide">
+
+            </div>
+
+            <div id="user_success_block" class="alert alert-success hide">
+
+            </div>
+
+            <div class="row-fluid">
+                    <div class="span8">
+                    <div align="center">
+                        <div class="alert hide">
+                            <button type="button" class="close" data-dismiss="alert">×</button>
+                            <strong>Warning!</strong> Best check yo self, you're not looking too good.
+                        </div>
+                    </div>
+                        <form class="form-horizontal">
+                            <fieldset>
+                                <div class="control-group">
+                                    <label class="control-label" for="new_username"><b>Username *</b></label>
+                                    <div class="controls">
+                                        <input type="text" class="input-xlarge centered" id="new_username" placeholder="username">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="new_email"><b>Email*</b></label>
+                                    <div class="controls">
+                                        <input type="text" class="input-xlarge centered" id="new_email" placeholder="email">
+                                    </div>
+                                    <br>
+                                    <div class="controls">
+                                        <input type="checkbox" id="send_email" value="option1">
+                                        Send to user information about registration
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="new_first_name">First name</label>
+                                    <div class="controls">
+                                        <input type="text" class="input-xlarge centered" id="new_first_name" placeholder="first name">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="new_last_name">Last name</label>
+                                    <div class="controls">
+                                        <input type="text" class="input-xlarge centered" id="new_last_name" placeholder="last name">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="new_password"><b>Password*</b></label>
+                                    <div class="controls">
+                                        <input type="password" class="input-xlarge centered" id="new_password" placeholder="password">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <div class="controls">
+                                        <input type="password" class="input-xlarge centered" id="new_password_repeat" placeholder="repeat password">
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </form>
+                    </div>
+
+                    <div class="span4">
+                        <div class="control-group">
+                            <label class="control-label" for="groups_select">Select new user's group:</label>
+                            <div class="controls">
+                                <select multiple="multiple" style="height: 240px" id="groups_select">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="add_new_group_input">Or add new group:</label>
+                            <div class="controls">
+                                <input type="text" class="input-large centered" id="add_new_group_input" placeholder="new group name">
+                            </div>
+                        </div>
+
+                    </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <btn type="button" class="btn btn-success btn-large" onclick="add_user();"><i class="icon-plus-sign"></i> Add User</btn>
+            <a href="#" class="btn btn-large" data-dismiss="modal" >Cancel</a>
+        </div>
+    </div>
 
 
     <div id="descModal" class="modal hide fade" style="width: 670px">
@@ -382,86 +724,47 @@
         </div>
         <div class="modal-body">
 
-            <div id="modal_content">
+        <div id="modal_content">
 
 
-            </div>
-
-            <hr>
-
-            <div id="software">
-                <!-- THIS BLOCK IS TODO:
-                        SHOW OS ver,
-                </div>
-
-
-                <!--hr-->
-
-                <form class="form-horizontal">
-                    <fieldset>
-
-                        <div class="control-group span8">
-                            <label class="control-label" for="in-name">Machine name</label>
-                            <div class="controls">
-                                <input id="in-name" type="text" class="input-xlarge" maxlength="30">
-                            </div>
-                        </div>
-
-
-                    </fieldset>
-                </form>
-
-                <p id="storage_info" align="center">
-                    <b>Available:</b> 251.0 GB <!-- add spaces here TODO -->
-                    <b>Required:</b> 4.4 GB
-                </p>
-
-
-            </div>
-            <div class="modal-footer">
-                <btn type="button" class="btn btn-success btn-large" onclick="install_machine();"><i class="icon-pencil"></i> Install</btn>
-                <a href="#" class="btn btn-large" data-dismiss="modal" >Close</a>
-            </div>
         </div>
 
+        <hr>
 
-        <div id="opModal" class="modal hide fade" style="width: 670px">
-            <!-- slightly non-centered - FIXME -->
-            <div class="modal-header">
-                <a class="close" data-dismiss="modal" >&times;</a>
-                <h3 id="model_name">Image installation</h3>
+        <div id="software">
+            <!-- THIS BLOCK IS TODO:
+                    SHOW OS ver,
             </div>
-            <div class="modal-body">
-
-                <div id="op_modal_content">
 
 
-                </div>
+            <!--hr-->
 
-                <hr>
+            <form class="form-horizontal">
+                <fieldset>
 
-
-                <form class="form-horizontal">
-                    <fieldset>
-                        <div class="control-group span8">
-                            <label class="control-label" for="in-name">Machine name</label>
-                            <div class="controls">
-                                <input id="in-name" type="text" class="input-xlarge" maxlength="30">
-                            </div>
+                    <div class="control-group span8">
+                        <label class="control-label" for="in-name">Machine name</label>
+                        <div class="controls">
+                            <input id="in-name" type="text" class="input-xlarge" maxlength="30">
                         </div>
+                    </div>
 
 
-                    </fieldset>
-                </form>
+                </fieldset>
+            </form>
 
-            </div>
-            <div class="modal-footer">
-                <btn type="button" class="btn btn-success btn-large" onclick="install_machine();"><i class="icon-pencil"></i> Install</btn>
-                <a href="#" class="btn btn-large" data-dismiss="modal" >Close</a>
-            </div>
+            <p id="storage_info" align="center">
+                <b>Available:</b> 251.0 GB <!-- add spaces here TODO -->
+                <b>Required:</b> 4.4 GB
+            </p>
+
+
         </div>
-
-
+        <div class="modal-footer">
+            <btn type="button" class="btn btn-success btn-large" onclick="install_machine();"><i class="icon-pencil"></i> Install</btn>
+            <a href="#" class="btn btn-large" data-dismiss="modal" >Close</a>
+        </div>
+    </div>
 
 
 
@@ -476,7 +779,11 @@
 {% endblock %}
 
 {% block ajp_scripts %}
-    <!-- AJPmanager scripts -->
+    <!--                                 _      __
+                                        /_|   //__)_  _   _ _ _ _   _ _ _ ' _/ _
+                                       (  |(_//   //)(//)(/(/(-/  _) ( / //)/_)
+                                                          _/             /
+                                                                                                         -->
     <script type="text/javascript" src="{{ request.static_url('ajpmanager:static/Scripts/navigation.js') }}"></script>
     <script type="text/javascript" src="{{ request.static_url('ajpmanager:static/Scripts/helpers.js') }}"></script>
     <script type="text/javascript" src="{{ request.static_url('ajpmanager:static/Scripts/modals.js') }}"></script>

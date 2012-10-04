@@ -1,5 +1,6 @@
 from ajpmanager.core.DBConnector import DBConnection
 from ajpmanager.core.MiscTools import PathGetter, get_storage_info, safe_join, calculate_flat_folder_size
+from ajpmanager.core.RedisAuth import User, groupfinder
 from ajpmanager.core.providers.KVM import KVMProvider
 
 try:
@@ -50,7 +51,7 @@ class VMConnector(object):
         provider = self.db.io.get('provider')
 
         if self.providers[provider].check_availability():
-                return self.providers[provider]
+            return self.providers[provider]
 
         return False
 
@@ -126,6 +127,51 @@ class VMConnector(object):
 
         return answer
 
+    def get_users_list(self):
+        return User.get_all_users()
+
+    def get_groups_list(self):
+        return User.get_all_groups()
+
+    def add_user(self, json):
+        " Processing query for adding new user "
+        # TODO: Check user's (who made new one) group
+        if not self.db:
+            raise Exception ('No redis connection provided')
+
+        username = json['username'].strip()
+        first_name = json['first_name'].strip()
+        last_name = json['last_name'].strip()
+        selected_group = json['selected_group'].strip()
+        new_group = json['new_group'].strip()
+
+        email = json['email'].strip()
+        send_email = json['send_email']
+
+        password = json['new_password'].strip()
+        password_rpt = json['new_password_repeat'].strip()
+
+        if not password or not password_rpt:
+            return False, "Please repeat new password"
+
+        if password != password_rpt:
+            return False, 'Passwords does not match'
+
+        if new_group:
+            group = new_group
+        elif selected_group:
+            group = selected_group
+        else:
+            return False, 'Wrong groups data'
+
+        group = 'group:' + group
+
+        user = User(username, password, email,
+            first_name, last_name,
+            group=group, expire=None)
+
+        return user.add_to_redis()
+
     def apply_settings(self, data):
         provider = self.db.io.get('provider')
 
@@ -180,3 +226,55 @@ class VMConnector(object):
         self.db.io.set('VMMANAGER_PATH', 'qemu:///system')
 
         self._prepare_hypervisor_connection(reload=True)
+
+    def vnc_connection(self, username, machine_name):
+        global localhost # FIXME: for network connections we need other solution
+
+        # Step 1: can user view this machine at all? TODO
+        #if groupfinder(username)  and machine_name not in self.db.io.get(username + ':machines'):
+        #    return (False, 'Access denied')
+
+        # Step 2: Finding but not binding free port to run
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind(('', 0)) # Asking OS to bind free port
+        listen_port = sock.getsockname()[1] # << Here it is
+        del(sock)
+
+        # Step 3: Processing by VM manager
+        answer = self.conn.vnc_connection(user_groups=groupfinder(username, None),
+                                            machine_name=machine_name,
+                                            listen_port=listen_port,
+                                            listen_host=localhost,
+                                            target_host=localhost)
+
+        # Step 4: Pack answer to client
+        return answer
+
+    def release_vnc_connection(self, username, hash):
+
+        # Step 1: getting machine name with security cookie
+        machine_name = self.conn.get_machine_name_by_hash(hash)
+
+        if not machine_name:
+            return (False, 'No machine found for such hash')
+
+        # Step 2: can user control this machine at all? TODO
+        #if username != 'admin' and machine_name not in self.db.io.get(username + ':machines'):
+        #    return (False, 'Access denied')
+
+        # Step 3: Processing by VM manager
+        answer = self.conn.disable_vnc_connection(machine_name=machine_name, session = hash)
+
+        # Step 4: Pack answer to client
+        return answer
+
+    def log_active(self, username):
+        """
+        Add info to redis that user is online
+        """
+        self.db.io.set('uid:' + username + ':online', True)
+        # 5 minutes w/o activity will say that user is offline
+        # This is not accurate (vnc session for example can much longer)
+        # but anyway ... ;)
+        self.db.io.expire('uid:' + username + ':online', 300)
+

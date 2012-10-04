@@ -1,8 +1,14 @@
 from passlib.hash import bcrypt
 import redis
 
-# TODO: READ FROM COMMAND LINE OPTIONS
 
+# If you want to rewrite all the values in DB
+force = True
+
+# Settings
+admin_email = 'root@localhost'
+
+# TODO: READ FROM COMMAND LINE OPTIONS
 # Presets
 host='localhost'
 port=6379
@@ -11,15 +17,12 @@ db=0
 # Redis connection
 db = redis.StrictRedis(host=host, port=port, db=db)
 
-# If you want to rewrite all the values in DB
-force = False
-
 def initialize_vm_settings():
     global db
     global force
     # WARNING! We have same functionality in VMConnector class
     # Any changes here should by applied there
-    # o you can always reset this values via admin interface
+    # or you can always reset this values via admin interface
     if force or not db.get('XEN_PATH'):
         db.set('XEN_PATH', '/xen')
 
@@ -50,13 +53,32 @@ def initialize_vm_settings():
 def initialize_users():
     global db
     global force
+    global admin_email
+
     if force or not db.get('global:nextUserId') or not db.get('uid:1:username'):
+        # Setting global users counter
         db.set('global:nextUserId', 1)
+        # Please don't change default admin's name!
         db.set('uid:1:username', 'admin')
+        # To make things more secure please change default password inside of admin UI.
         db.set('uid:1:password', bcrypt.encrypt('admin'))
-        db.set('username:admin:uid', 1)
-        db.rpush('users:list', 1)
-        print ("Super user record was added, use next data to log in:\n - username: 'admin' \n - password: 'admin'\n")
+        # You can change email to yours above
+        db.set('uid:1:email', admin_email)
+        # Adding email into emails list
+        db.sadd('users:emails', admin_email)
+        # Creating new group - admin:
+        db.sadd('users:groups', 'group:admins')
+        db.sadd('users:groups', 'group:moderators')
+        db.sadd('users:groups', 'group:users')
+        # Setting admin's group
+        db.set('uid:1:group', 'group:admins')
+        # Connection your username with UID
+        db.set('username:' + db.get('uid:1:username') + ':uid', 1)
+        # Adding your user into global users list
+        db.sadd('users:list', 1)
+        print ("Super user record was added, use next data to log in:\n"
+               " - username: '%s' \n - password: 'admin'\n" % db.get('uid:1:username'))
+        print ("Please change your password in AJP for safety reasons.")
     else:
         print ('Super user exists, change force to True to rewrite super user\'s password')
 

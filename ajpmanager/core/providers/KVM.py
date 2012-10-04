@@ -13,7 +13,7 @@ except ImportError:
 import random
 import json
 import shutil
-from scripts.websockify import WebSocketProxy
+from ajpmanager.core.sockets.websockify import WebSocketProxy
 
 
 def generate_uuid():
@@ -477,7 +477,35 @@ class KVMProvider(object):
         #self._clone(id, preset_name, machine_name, session, force) # for debugging
 
 
-    def vnc_connection(self, machine_name, target_host,listen_host, listen_port, ssl_only=None, ssl_cert=None):
+    def _check_vnc_permissions(self, user_groups, accepted_group, match_if_all=False):
+        """ A function to check user's permission in
+        internal factory functions. Accepts `accepted_group` parameter
+        must be without `group:` lead part.
+        Like: `admins`
+
+        TODO: refractoring (check views file for same function)
+        """
+        type_ = type(accepted_group)
+        if type_ is str: # single STR group
+            if 'group:' + accepted_group in user_groups:
+                return True
+            else:
+                return False
+        elif type_ is list: # multiple permissions
+            if match_if_all: # Match all
+                for item in accepted_group:
+                    if 'group:' + item not in user_groups:
+                        return False
+                return True
+            else:
+                for item in accepted_group:
+                    if 'group:' + item in user_groups:
+                        return True
+                return False
+        else:
+            raise TypeError ("Wrong accepted_groups type provided!")
+
+    def vnc_connection(self, machine_name, target_host, listen_host, listen_port, user_groups=None, ssl_only=None, ssl_cert=None):
         """
         ================================================! WARNING !===================================================
         FIXME: If user will close browser tab, function 'disconnect' will not be run and we will have zombie connection
@@ -492,9 +520,17 @@ class KVMProvider(object):
             successful connection he can spy for another user connected right now. All he need to do - just avoid our
             "disconnect()" function, but send disconnect query to our server AJAX server. This will lead to release
             possibility to create new connection for another user BUT WILL NOT CLOSE ACTIVE PROXY TO VNC SERVER.
-             <---- will be fixed by good or bad (probably) way.
          ================================================! WARNING !===================================================
+
+         Update: comments are quickly becoming outdated, I don't know, is this fixed or not, probably yes :)
         """
+        is_super_user = self._check_vnc_permissions(user_groups, ['admins', 'moderators'])
+
+        # TODO:
+        # Can user manipulate this machine at all?
+        if not is_super_user:
+            pass # Do some checks
+
         # Finding target domain
         try:
             domain = self.connection.lookupByName(machine_name)
@@ -507,48 +543,56 @@ class KVMProvider(object):
         if not domain.isActive():
             return (False, 'Run machine first')
 
+        secondary_connection = False # Client-side JS won't disable connection if user does not initiated it.
 
-        if self.vnc_proxies.get(machine_name): # check if vnc session is running already
-            return (False, "VNC connection is already established")
-            print ('failed!')
-
-        if ssl_only and not os.path.exists(ssl_cert):
-            raise Exception ("SSL only and %s not found" % ssl_cert)
-        else:
-            # TODO: SSL support
-            pass
-
-        # Finding target machine's VNC port
-        xml = domain.XMLDesc(0) # Getting XML description to find machine's VNC port
-        dom = minidom.parseString(xml)
-        graphics = dom.getElementsByTagName('graphics')
-
-        for item in graphics:
-            if item.attributes.get('type').value == 'vnc':
-                target_port = int(item.attributes.get('port').value)
-                break
-
-        if not target_port:
-            return (False, "Can't find VNC port for given machine")
-
-
-        hash = os.urandom(16).encode('hex') + '00000' + machine_name # Generating random hash
-
-        opts = dict(listen_host=listen_host, listen_port=listen_port, target_host=target_host, target_port=target_port,
-                    session_id = hash, wrap_cmd = False, wrap_mode = False) # Dunno what this two do
-
-        # Create and start the WebSockets proxy
-        server = WebSocketProxy(**opts)
-        p = Process(target=server.start_server, args=())
         # This operation should block other server starts or it could cause problems
-        if self.vnc_proxies.get(machine_name): # check if vnc session is running already - yes, again
-            return (False, "Machine is currently running")
+        if self.vnc_proxies.get(machine_name): # check if vnc session is running already
+            if is_super_user:
+                # Here SU can just spy for somebody else !!! :)
+                # Please use for educational purposes only :P
+                hash = self.vnc_proxies[machine_name][0]
+                listen_host = self.vnc_proxies[machine_name][2]
+                listen_port = self.vnc_proxies[machine_name][3]
+                secondary_connection = True
+            else:
+                return (False, "VNC connection is already established")
         else:
-            self.vnc_proxies[machine_name] = (hash, p, listen_host, listen_port)
-            #import pdb; pdb.set_trace()
+            if ssl_only and not os.path.exists(ssl_cert):
+                raise Exception ("SSL only and %s not found" % ssl_cert)
+            else:
+                # TODO: SSL support
+                pass
+
+            # Finding target machine's VNC port
+            xml = domain.XMLDesc(0) # Getting XML description to find machine's VNC port
+            dom = minidom.parseString(xml)
+            graphics = dom.getElementsByTagName('graphics')
+
+            for item in graphics:
+                if item.attributes.get('type').value == 'vnc':
+                    target_port = int(item.attributes.get('port').value)
+                    break
+
+            if not target_port:
+                return (False, "Can't find VNC port for given machine")
+
+
+            hash = os.urandom(16).encode('hex') + '00000' + machine_name # Generating random hash
+
+            opts = dict(listen_host=listen_host, listen_port=listen_port, target_host=target_host, target_port=target_port,
+                        session_id = hash, wrap_cmd = False, wrap_mode = False) # Dunno what this two do
+
+            # Create and start the WebSockets proxy
+            server = WebSocketProxy(**opts)
+            p = Process(target=server.start_server, args=())
+
+            # Memory db with info about connections
+            # IMPORTANT: we are storing `is_super_user` flag so in future releases one can add
+            # a toggle to show super user's session to other super users or not
+            self.vnc_proxies[machine_name] = (hash, p, listen_host, listen_port, is_super_user)
             self.vnc_proxies[machine_name][1].start()
 
-        data = {'cookie': hash, 'host': listen_host, 'port': listen_port}
+        data = {'cookie': hash, 'host': listen_host, 'port': listen_port, 'secondary_connection': secondary_connection}
         return (True, data)
 
     def disable_vnc_connection(self, machine_name, session):
@@ -573,7 +617,7 @@ class KVMProvider(object):
 
 
     """
-    Some 'docs' :)
+    Some 'docs' as development reminder :)
 
     f = open('/etc/libvirt/qemu/Web-apache.xml')
     f = f.read()
