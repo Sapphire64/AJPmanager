@@ -4,9 +4,10 @@ AJPmanager
 Goals of the project
 ---------------
 Develop tool for:
-1) Easy installation of VMs from presets.
-2) Easy use of VM terminal or desktop via web interface remotely (including from mobile devices).
-3) Make possible to grant rights to control VMs to remote users.
+
+1. Easy installation of VMs from presets.
+2. Easy use of VM terminal or desktop via web interface remotely (including from mobile devices).
+3. Make possible to grant rights to control VMs to remote users.
 
 Presets
 ---------------
