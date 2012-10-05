@@ -309,6 +309,42 @@ function add_user() {
 }
 
 
+function delete_user() {
+    if (!$selected_user) {
+        return;
+    }
+
+    var id = $('#selected_user_id').html();
+    if (id != $selected_user) {
+        jgrowl_error(1, "Interface error, deletion user_id is not the ID you are viewing. Please try to refresh this page.");
+        return;
+    }
+    var username = $('#selected_user_name').html();
+
+
+    var agree=confirm("Are you sure you want to delete " + username + " account? This cannot be undone.");
+    if (agree) {
+        $.ajax({
+            type: "POST",
+            url: "/engine.ajax",
+            data: JSON.stringify({'query': 'delete_user', 'data': $selected_user}),
+            contentType: 'application/json; charset=utf-8'
+        }).done(function ( data ) {
+                console.log(data);
+                if (data.status) {
+                    jgrowl_success("User ID" + username + " was successfully deleted!");
+                    show_users_list();
+                }
+                else {
+                    jgrowl_error(1, 'Error message from the server during attempt to apply new settings: <br>' + data.answer);
+                }
+            });
+    }
+    else {
+        return;
+    }
+}
+
 
 function apply_settings() {
 

@@ -100,25 +100,17 @@ function append_storage_info(free, preset_size) {
     $('#storage_info').append($storage);
 }
 
-
+$users_list = new Array();
 
 function generate_users_list(data) {
     $('#users_table tbody').empty();
+
+    $users_list = new Array();
 
     var row = new Array();
     var label_;
 
     for (var i=0; i<data.length; i++){
-//
-//        <th style="width: 30px;">UID</th>
-//        <th style="width: 150px;">Username</th>
-//        <th style="width: 150px;">First name</th>
-//        <th style="width: 150px;">Last name</th>
-//        <th style="width: 30px;">Group</th>
-//        <th style="width: 30px;">Status</th>
-//        <th style="width: 25px;">
-//            <input id="check0" type="checkbox" onchange="note_checkboxes(this);">
-//            </th>
 
         if (data[i].status == 'True') {
             label_ = 'success';
@@ -136,11 +128,13 @@ function generate_users_list(data) {
         row.push('<td>'+ data[i].group + '</td>');
         row.push('<td><span class="label label-' + label_ + '">'+ text_ + '</span></td>');
         if ($privileged) {
-            row.push('<td><input type="checkbox" onchange="users_note_checkboxes(\'' + data[i].uid + '\',\''+
-                data[i].username + '\',\'' +  data[i].type + '\',\'' +
+            row.push('<td><input id="user' + data[i].uid + '" type="checkbox" onchange="users_note_checkboxes(\'' + data[i].uid + '\',\''+
+                data[i].username + '\',\'' +  data[i].group + '\',\'' +
                 data[i].status + '\', this);"></td>'); // this is odd, but anyway
         }
         row.push('</tr>');
+
+        $users_list.push(data[i].uid);
     }
     row = row.join('\n');
     $("#users_table > tbody").append(row);

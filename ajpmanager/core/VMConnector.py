@@ -172,6 +172,14 @@ class VMConnector(object):
 
         return user.add_to_redis()
 
+    def delete_user(self, id, deleter_username):
+        " Processing query for deleting user "
+        if not self.db:
+            raise Exception ('No redis connection provided')
+        return User.remove_user(id, deleter_username)
+
+
+
     def apply_settings(self, data):
         provider = self.db.io.get('provider')
 
@@ -272,9 +280,9 @@ class VMConnector(object):
         """
         Add info to redis that user is online
         """
-        self.db.io.set('uid:' + username + ':online', True)
+        self.db.io.set('username:' + username + ':online', True)
         # 5 minutes w/o activity will say that user is offline
         # This is not accurate (vnc session for example can much longer)
         # but anyway ... ;)
-        self.db.io.expire('uid:' + username + ':online', 300)
+        self.db.io.expire('username:' + username + ':online', 300)
 

@@ -202,10 +202,17 @@ class JSONprocessor(object):
 
     def add_user(self):
         if not self.__check_permissions(['admins', 'moderators']):
-            return {'status': False, 'answer': 'You are not authorized to get settings info'}
+            return {'status': False, 'answer': 'You are not authorized to add user'}
         data = self.json['data']
         answer = VMC.add_user(data)
         return {'status': answer[0], 'answer': answer[1]}
+
+    def delete_user(self):
+        if not self.__check_permissions(['admins', 'moderators']):
+            return {'status': False, 'answer': 'You are not authorized to delete user'}
+        id = self.json['data']
+        answer = VMC.delete_user(id, authenticated_userid(self.request))
+
 
     # This dictionary is used to implement factory run of the requested functions
     functions = {
@@ -228,5 +235,6 @@ class JSONprocessor(object):
         'get_users_list': get_users_list,
         'get_groups_list': get_groups_list,
         'add_user': add_user,
+        'delete_user': delete_user,
         }
 

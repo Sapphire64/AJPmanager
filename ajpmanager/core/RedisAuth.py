@@ -10,7 +10,6 @@ groups_pattern = re.compile(r'group:(\w+)')
 
 
 class User(object):
-    global dbcon
 
     def __init__(self, username, password, email,
                      first_name = None, last_name = None,
@@ -21,7 +20,6 @@ class User(object):
         if not email_pattern.match(email):
             raise ValueError ('Wrong email address!')
 
-        self.db = dbcon
         self.first_name = first_name
         self.last_name = last_name
         self.username = username
@@ -42,9 +40,9 @@ class User(object):
         if not email_pattern.match(self.email):
             return False, 'Wrong Email address: Email address does not match email pattern'
         # Redis checks block
-        if self.db.io.get('username:' + self.username + ':uid') is not None:
+        if dbcon.io.get('username:' + self.username + ':uid') is not None:
             return False, 'Such username already registered'
-        if self.email in self.db.io.smembers('users:emails'):
+        if self.email in dbcon.io.smembers('users:emails'):
             return False, 'Such email address already registered'
         return True,
 
@@ -55,22 +53,22 @@ class User(object):
         if not proceed[0]:
             return proceed
 
-        uid = str(self.db.io.incr('global:nextUserId'))
-        self.db.io.set('uid:' + uid + ':username', self.username)
-        self.db.io.set('uid:' + uid + ':first_name', self.first_name)
-        self.db.io.set('uid:' + uid + ':last_name', self.last_name)
-        self.db.io.set('uid:' + uid + ':password', self.password)
-        self.db.io.set('uid:' + uid + ':email', self.email)
-        self.db.io.set('uid:' + uid + ':group', self.group)
+        uid = str(dbcon.io.incr('global:nextUserId'))
+        dbcon.io.set('uid:' + uid + ':username', self.username)
+        dbcon.io.set('uid:' + uid + ':first_name', self.first_name)
+        dbcon.io.set('uid:' + uid + ':last_name', self.last_name)
+        dbcon.io.set('uid:' + uid + ':password', self.password)
+        dbcon.io.set('uid:' + uid + ':email', self.email)
+        dbcon.io.set('uid:' + uid + ':group', self.group)
 
         if self.expire:
-            self.db.io.expire('uid:' + uid + ':password', self.expire)
+            dbcon.io.expire('uid:' + uid + ':password', self.expire)
 
-        self.db.io.set('username:' + self.username + ':uid', uid)
+        dbcon.io.set('username:' + self.username + ':uid', uid)
 
-        self.db.io.sadd('users:list', uid)
-        self.db.io.sadd('users:email', self.email)
-        self.db.io.sadd('users:groups', self.group)
+        dbcon.io.sadd('users:list', uid)
+        dbcon.io.sadd('users:email', self.email)
+        dbcon.io.sadd('users:groups', self.group)
 
         if self.send_password:
             self._send_email()
@@ -92,7 +90,6 @@ class User(object):
 
     @classmethod
     def change_password(cls, username, new_password, new_password_repeat, old_password=None, force=False):
-        global dbcon
         if new_password != new_password_repeat:
             raise ValueError ('Entered passwords does not match')
 
@@ -109,10 +106,8 @@ class User(object):
         dbcon.io.set('uid:' + uid + ':password', bcrypt.encrypt(new_password))
         return True
 
-
     @classmethod
     def get_all_users(cls):
-        global dbcon
         users = []
         for uid in dbcon.io.smembers('users:list'):
             username = dbcon.io.get('uid:' + uid + ':username')
@@ -122,13 +117,11 @@ class User(object):
             email = dbcon.io.get('uid:' + uid + ':email')
             users.append({'uid': uid, 'group': group, 'username': username, 'email': email,
                           'first_name': first_name, 'last_name': last_name,
-                          'status':  dbcon.io.get('uid:' + username + ':online')})
+                          'status':  dbcon.io.get('username:' + username + ':online')})
         return sorted(users)
 
     @classmethod
     def get_all_groups(cls):
-        global dbcon
-        global groups_pattern
         groups = list(dbcon.io.smembers('users:groups'))
         answer = []
         for item in groups:
@@ -138,6 +131,44 @@ class User(object):
             except Exception:
                 pass
         return answer
+
+    @classmethod
+    def remove_user(cls, deleting_uid, deleter_username):
+        " Please make sure that deleter_username was checked by authenticated_userid() function! "
+        if int(deleting_uid) == 1:
+            return False
+        # Determining deleter uid and group
+        deleter_uid = dbcon.io.get('username:' + deleter_username + ':uid')
+        deleter_group = dbcon.io.get('uid:' + deleter_uid + ':group')
+        
+        username = dbcon.io.get('uid:' + deleting_uid + ':username')
+        deleted_user_group = dbcon.io.get('uid:' + deleting_uid + ':group')
+
+        if deleter_group not in ['group:admins', 'group:moderators']:
+            return False
+
+        if deleted_user_group in ['group:admins', 'group:moderators']:
+            if deleter_group != 'group:admins':
+                return False
+
+        # Making deletion
+        dbcon.io.expire('uid:' + deleting_uid + ':username', 0)
+        dbcon.io.expire('uid:' + deleting_uid + ':first_name', 0)
+        dbcon.io.expire('uid:' + deleting_uid + ':last_name', 0)
+        dbcon.io.expire('uid:' + deleting_uid + ':password', 0)
+
+        email = dbcon.io.get('uid:' + deleting_uid + ':email')
+        dbcon.io.expire('uid:' + deleting_uid + ':email', 0)
+        dbcon.io.srem('users:email', email)
+
+        dbcon.io.expire('uid:' + deleting_uid + ':group', 0)
+        dbcon.io.expire('username:' + username + ':uid', 0)
+        dbcon.io.srem('users:list', deleting_uid)
+
+        # Say farewell...
+        return True
+
+
 
 
 def groupfinder(userid, request):

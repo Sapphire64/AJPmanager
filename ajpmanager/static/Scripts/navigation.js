@@ -170,6 +170,59 @@ function note_checkboxes(id, name, type, status, object){
 
 }
 
+var $selected_user;
+
+function users_note_checkboxes(id, name, group, status, object){
+    if (object.checked) {
+        $selected_user = id;
+    }
+    else {
+        $selected_user = null;
+    }
+    check_users_select();
+
+    if ($selected_user != null) {
+        $('#selected_user_id').text(id);
+        $('#selected_user_name').text(name);
+        $('#selected_user_type').text(group);
+    }
+    else{
+        clear_user_menu();
+        return
+    }
+
+}
+
+
+function check_users_select(){
+
+    if ($selected_user != null) {
+        for (var i=0; i<$users_list.length; i++) {
+            if ($users_list[i] != $selected_user) {
+                $checked = false;
+            }
+            else {
+                $checked = true;
+            }
+            document.getElementById('user' + $users_list[i]).checked = $checked;
+        }
+        $('#delete_user').removeClass('disabled');
+    }
+    else {
+        $('#delete_user').addClass('disabled');
+    }
+}
+
+
+function clear_user_menu() {
+    $active_objects = new Array();
+    $('#selected_user_id').text('-');
+    $('#selected_user_name').text('');
+    $('#selected_user_type').text('');
+    $('#delete_user').addClass('disabled');
+}
+
+
 function check_multiple_select(){
 
     if ($active_objects.length == 1) {
