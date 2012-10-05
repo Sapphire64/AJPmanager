@@ -30,6 +30,10 @@ class MainPage(object):
 
 
 class JSONprocessor(object):
+    """ This block is project's workhorse. All user requests are passing this block.
+
+    TODO: implement more RESTful approach.
+    """
 
     def __init__(self, request):
         self.request = request
@@ -41,7 +45,6 @@ class JSONprocessor(object):
         internal factory functions. Accepts `accepted_group` parameter
         must be without `group:` lead part.
         Like: `admins`
-
         """
         username = authenticated_userid(self.request)
         groups = groupfinder(username, self.request)
