@@ -332,7 +332,7 @@ function delete_user() {
         }).done(function ( data ) {
                 console.log(data);
                 if (data.status) {
-                    jgrowl_success("User ID" + username + " was successfully deleted!");
+                    jgrowl_success("User " + username + " was successfully deleted!");
                     show_users_list();
                 }
                 else {
