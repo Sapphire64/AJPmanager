@@ -218,7 +218,7 @@ function restore_default_settings() {
 
             }
             else {
-                jgrowl_error(1, 'Error message from the server during attempt to recieve settings: <br>' + data.answer);
+                jgrowl_error(1, 'Error message from the server during attempt to restore settings: <br>' + data.answer);
             }
         });
 
@@ -336,7 +336,7 @@ function delete_user() {
                     show_users_list();
                 }
                 else {
-                    jgrowl_error(1, 'Error message from the server during attempt to apply new settings: <br>' + data.answer);
+                    jgrowl_error(-1, 'User deletion failed:<br>' + data.answer);
                 }
             });
     }
