@@ -25,7 +25,8 @@ class MainPage(object):
             return HTTPForbidden()
         show_settings = False
         username = authenticated_userid(self.request)
-        return {'username': username, 'show_settings': show_settings}
+        user_groups = groupfinder(username, self.request)
+        return {'username': username, 'show_settings': show_settings, 'user_groups': user_groups}
 
 
 class JSONprocessor(object):
