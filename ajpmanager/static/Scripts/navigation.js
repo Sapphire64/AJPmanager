@@ -64,7 +64,7 @@ function restore_default_settings_ask() {
 function show_help() {
     show_default_screen(false);
 
-    $('#running_machines_list').addClass('hide');
+    $('#machines_list').addClass('hide');
     $('#help_screen').removeClass('hide');
     $('#project_info').removeClass('hide');
     $('#main_entry').removeClass('active');
@@ -220,6 +220,7 @@ function show_vnc_screen() {
 
 function show_users_list() {
     show_default_screen(false);
+    $('#project_info').removeClass('hide');
     query_users_list();
 }
 

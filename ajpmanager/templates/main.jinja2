@@ -78,9 +78,15 @@
                 <li id="view_entry" class="hide"><a href="#"><i class="icon-user"></i> View machine</a></li>
                 <li id="vnc_entry" class="hide"><a href="#" onclick="activate_vnc_screen();"><i class="icon-eye-open"></i> Machine console</a></li>
                 <li id="edit_entry" class="hide"><a href="#"><i class="icon-pencil"></i>  Edit machine</a></li>
+                {% if 'group:admins' in user_groups %}
                 <li class="nav-header">Configuration</li>
+                {% else %}
+                <li class="nav-header">Information</li>
+                {% endif %}
                 <li id="users_entry"><a href="#" onclick="show_users_list();"><i class="icon-user"></i> Users</a></li>
+                {% if 'group:admins' in user_groups %}
                 <li id="settings_entry"><a href="#" onclick="show_settings();"><i class="icon-cog"></i> Settings</a></li>
+                {% endif %}
                 <li id="help_entry"><a href="#" onclick="show_help();"><i class="icon-flag"></i> Help</a></li>
 
                 <li class="nav-header">Links</li>
@@ -275,9 +281,11 @@
                     <th style="width: 150px;">Last name</th>
                     <th style="width: 30px;">Group</th>
                     <th style="width: 30px;">Status</th>
+                    {% if 'group:admins' in user_groups or 'group:moderators' in user_groups %}
                     <th style="width: 25px;">
                         <input id="ucheck0" type="checkbox" onchange="users_note_checkboxes(this);">
                     </th>
+                    {% endif %}
                 </tr>
                 </thead>
                 <tbody>
@@ -287,7 +295,7 @@
         </div>
 
 
-
+    {% if 'group:admins' in user_groups %}
 <!--
       ____       _   _   _
      / ___|  ___| |_| |_(_)_ __   __ _ ___    ___  ___ _ __ ___  ___ _ __
@@ -317,7 +325,7 @@
                             <form class="form-horizontal">
                                 <fieldset>
                                     <div class="control-group">
-                                        <label class="control-label" for="vm_provider">VM Provider</label>
+                                        <label class="control-label" for="vmprovider_settings">VM Provider</label>
                                         <div class="controls">
                                             <input class="input-xlarge disabled" style="text-align: center;" id="vmprovider_settings" type="text" placeholder="kvm" disabled>
                                         </div>
@@ -385,10 +393,8 @@
 
                 </div>
             </div>
+    {% endif %}
 
-
-
-        </div>
 
     <!--
 
@@ -410,6 +416,8 @@
 
 
         </div>
+
+    </div>
 
 
 <!--
@@ -472,6 +480,7 @@
 
         </div>
 
+        {% if 'group:admins' in user_groups or 'group:moderators' in user_groups %}
         <!--
                                         _   _                           _ _ _
                                        | | | |___  ___ _ __     ___  __| (_) |_
@@ -503,9 +512,9 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td id="selected_id">3</td>
-                    <td id="selected_name"></td>
-                    <td id="selected_type">…</td>
+                    <td id="selected_user_id">3</td>
+                    <td id="selected_user_name"></td>
+                    <td id="selected_user_type">…</td>
                 </tr>
                 </tbody>
             </table>
@@ -528,6 +537,7 @@
             </div>
 
         </div>
+        {% endif %}
 
 
         <!--
@@ -557,6 +567,7 @@
 
         </div>
 
+        {% if 'group:admins' in user_groups or 'group:moderators' in user_groups %}
         <!--
                 ____                     _          _ _     _
                |  _ \ _ __ ___  ___  ___| |_ ___   | (_)___| |_
@@ -593,6 +604,7 @@
 
 
     </div>
+    {% endif %}
     </div><!--/row-->
 
 
@@ -619,7 +631,7 @@
         </div>
     </div>
 
-
+    {% if 'group:admins' in user_groups or 'group:moderators' in user_groups %}
     <div id="usersModal" class="users_modal hide fade">
         <div class="modal-header">
             <a class="close" data-dismiss="modal">&times;</a>
@@ -714,8 +726,9 @@
             <a href="#" class="btn btn-large" data-dismiss="modal" >Cancel</a>
         </div>
     </div>
+    {% endif %}
 
-
+    {% if 'group:admins' in user_groups or 'group:moderators' in user_groups %}
     <div id="descModal" class="modal hide fade" style="width: 670px">
         <!-- slightly non-centered - FIXME -->
         <div class="modal-header">
@@ -765,7 +778,7 @@
             <a href="#" class="btn btn-large" data-dismiss="modal" >Close</a>
         </div>
     </div>
-
+    {% endif %}
 
 
 
@@ -804,6 +817,13 @@
             $('#noVNC_screen').removeClass('well');
         }
     });
+    {% if 'group:admins' in user_groups or 'group:moderators' in user_groups %}
+    var $privileged = true;
+    {% else %}
+    var $privileged = false;
+    {% endif %}
+    {# Yes, this can be changed by user, but we don't mind, because we have server-side security
+       so this `var` was made only for user's smooth experience. #}
 {% endblock %}
 
 
@@ -813,3 +833,4 @@
     <!-- Activate Chosen js -->
     <script type="text/javascript"> $(".chzn-select").chosen(); $(".chzn-select-deselect").chosen({allow_single_deselect:true}); </script>
 {% endblock %}
+</div>

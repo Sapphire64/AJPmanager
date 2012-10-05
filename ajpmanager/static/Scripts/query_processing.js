@@ -135,9 +135,11 @@ function generate_users_list(data) {
         row.push('<td>'+ data[i].last_name + '</td>');
         row.push('<td>'+ data[i].group + '</td>');
         row.push('<td><span class="label label-' + label_ + '">'+ text_ + '</span></td>');
-        row.push('<td><input type="checkbox" onchange="users_note_checkboxes(\'' + data[i].uid + '\',\''+
-            data[i].username + '\',\'' +  data[i].type + '\',\'' +
-            data[i].status + '\', this);"></td>'); // this is odd, but anyway
+        if ($privileged) {
+            row.push('<td><input type="checkbox" onchange="users_note_checkboxes(\'' + data[i].uid + '\',\''+
+                data[i].username + '\',\'' +  data[i].type + '\',\'' +
+                data[i].status + '\', this);"></td>'); // this is odd, but anyway
+        }
         row.push('</tr>');
     }
     row = row.join('\n');

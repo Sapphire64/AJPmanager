@@ -31,22 +31,24 @@ function query_all(){
             }
         });
 
-    $.ajax({
-        type: "POST",
-        url: "/engine.ajax",
-        data: JSON.stringify({'query': 'get_presets_list'}),
-        contentType: 'application/json; charset=utf-8'
-    }).done(function ( data ) {
-            console.log(data);
-            if (data.status) {
-                $presets = data.data;
-                append_presets();
-                //console.log(data.data);
-            }
-            else {
-                jgrowl_error(1, 'Error message from the server during attempt to recieve presets list: <br>' + data.answer);
-            }
-        });
+    if ($privileged) {
+        $.ajax({
+            type: "POST",
+            url: "/engine.ajax",
+            data: JSON.stringify({'query': 'get_presets_list'}),
+            contentType: 'application/json; charset=utf-8'
+        }).done(function ( data ) {
+                console.log(data);
+                if (data.status) {
+                    $presets = data.data;
+                    append_presets();
+                    //console.log(data.data);
+                }
+                else {
+                    jgrowl_error(1, 'Error message from the server during attempt to recieve presets list: <br>' + data.answer);
+                }
+            });
+    }
 
 }
 
