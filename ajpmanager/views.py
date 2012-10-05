@@ -212,6 +212,7 @@ class JSONprocessor(object):
             return {'status': False, 'answer': 'You are not authorized to delete user'}
         id = self.json['data']
         answer = VMC.delete_user(id, authenticated_userid(self.request))
+        return {'status': answer[0], 'answer': answer[1]}
 
 
     # This dictionary is used to implement factory run of the requested functions

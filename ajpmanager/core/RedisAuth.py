@@ -136,7 +136,7 @@ class User(object):
     def remove_user(cls, deleting_uid, deleter_username):
         " Please make sure that deleter_username was checked by authenticated_userid() function! "
         if int(deleting_uid) == 1:
-            return False
+            return False, 'Cannot delete superadmin\'s account'
         # Determining deleter uid and group
         deleter_uid = dbcon.io.get('username:' + deleter_username + ':uid')
         deleter_group = dbcon.io.get('uid:' + deleter_uid + ':group')
@@ -145,11 +145,11 @@ class User(object):
         deleted_user_group = dbcon.io.get('uid:' + deleting_uid + ':group')
 
         if deleter_group not in ['group:admins', 'group:moderators']:
-            return False
+            return False, 'You don\'t have permissions to delete users'
 
         if deleted_user_group in ['group:admins', 'group:moderators']:
             if deleter_group != 'group:admins':
-                return False
+                return False, 'You don\'t have permissions to delete admins or moderators'
 
         # Making deletion
         dbcon.io.expire('uid:' + deleting_uid + ':username', 0)
@@ -166,7 +166,7 @@ class User(object):
         dbcon.io.srem('users:list', deleting_uid)
 
         # Say farewell...
-        return True
+        return True, 'Farewell ' + str(username)
 
 
 
