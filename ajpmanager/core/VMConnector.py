@@ -1,7 +1,8 @@
 from ajpmanager.core.DBConnector import DBConnection
 from ajpmanager.core.MiscTools import PathGetter, get_storage_info, safe_join, calculate_flat_folder_size
-from ajpmanager.core.RedisAuth import User, groupfinder
+from ajpmanager.core.RedisAuth import groupfinder
 from ajpmanager.core.providers.KVM import KVMProvider
+from ajpmanager.models import User
 
 try:
     import libvirt
@@ -10,12 +11,11 @@ except ImportError:
 import socket
 import re
 
-
-
 localhost = '127.0.0.1' # Hardcoding localhost
 
 FOLDERS_RE = re.compile(r'^[a-zA-Z0-9_-]+$')
 FILES_RE = re.compile(r'^[a-zA-Z0-9_.-]+$')
+
 
 class VMConnector(object):
     " Interface for VM daemons "
@@ -36,7 +36,6 @@ class VMConnector(object):
         except libvirt.libvirtError as e:
             print ('Cannot create hypervisor connection')
             self.conn = None
-
 
     @property
     def dbcon(self):
@@ -174,9 +173,13 @@ class VMConnector(object):
 
     def delete_user(self, id, deleter_username):
         " Processing query for deleting user "
-        if not self.db:
-            raise Exception ('No redis connection provided')
         return User.remove_user(id, deleter_username)
+
+    def get_user_info(self, ident, by_name):
+        if by_name is True:
+            return User.get_user_info_by_name(ident)
+        else:
+            return User.get_user_info_by_id(ident)
 
 
 

@@ -3,10 +3,9 @@ from pyramid.view import view_config
 from pyramid.security import authenticated_userid, Allow, Authenticated, Everyone
 from ajpmanager.core.RedisAuth import groupfinder
 from ajpmanager.core.VMConnector import VMConnector
+from ajpmanager.security import verify_ip
 
 VMC = VMConnector()
-dbcon = VMC.dbcon # Wrong way? Maybe this can lead to more slow work with DB
-
 
 class MainPage(object):
     """ Class for loading admin's menu view.
@@ -20,8 +19,7 @@ class MainPage(object):
     def __call__(self):
         # Actual function to run by framework (CBV)
         # TODO: display server IP and maybe some other info which can be loaded only once (will not change during run)
-        allowed_ips = dbcon.lrange("allowed_ips", 0, -1)
-        if '*' not in allowed_ips and self.request['REMOTE_ADDR'] not in allowed_ips:
+        if not verify_ip(self.request['REMOTE_ADDR']):
             return HTTPForbidden()
         show_settings = False
         username = authenticated_userid(self.request)
@@ -34,7 +32,6 @@ class JSONprocessor(object):
 
     TODO: implement more RESTful approach.
     """
-
     def __init__(self, request):
         self.request = request
         self.session = self.request.session.get_csrf_token()
@@ -73,9 +70,7 @@ class JSONprocessor(object):
     @view_config(renderer="json", route_name="engine.ajax", permission='registered')
     def mainline(self):
 
-        allowed_ips = dbcon.lrange("allowed_ips", 0, -1)
-
-        if '*' not in allowed_ips and self.request['REMOTE_ADDR'] not in allowed_ips:
+        if not verify_ip(self.request['REMOTE_ADDR']):
             return HTTPForbidden()
 
         # Add to redis info that user is online
@@ -207,6 +202,12 @@ class JSONprocessor(object):
         answer = VMC.add_user(data)
         return {'status': answer[0], 'answer': answer[1]}
 
+    def get_user_info(self):
+        ident = self.json['data'][0]
+        by_name = self.json['data'][1]
+        answer = VMC.get_user_info(ident, by_name)
+        return {'status': answer[0], 'answer': answer[1]}
+
     def delete_user(self):
         if not self.__check_permissions(['admins', 'moderators']):
             return {'status': False, 'answer': 'You are not authorized to delete user'}
@@ -233,6 +234,7 @@ class JSONprocessor(object):
         'create_vnc_connection': create_vnc_connection,
         'release_vnc_connection': release_vnc_connection,
         # Users
+        'get_user_info': get_user_info,
         'get_users_list': get_users_list,
         'get_groups_list': get_groups_list,
         'add_user': add_user,

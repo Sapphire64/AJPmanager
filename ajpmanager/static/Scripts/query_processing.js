@@ -141,3 +141,38 @@ function generate_users_list(data) {
 
 
 }
+
+function append_user_info(data) {
+    document.getElementById('view_username').value = data.username;
+
+    if (data.online) {
+        status = 'btn btn-success';
+    }
+    else {
+        status = 'btn btn-danger';
+    }
+    document.getElementById('online_img').setAttribute('class', status);
+
+    document.getElementById('view_email').value = data.email;
+    document.getElementById('mailto').href = 'mailto:' + data.email;
+
+    if (data.first_name) {
+        first_name = data.first_name;;
+    }
+    else {
+        first_name = '- Not specified -';
+    }
+    document.getElementById('view_first_name').value = first_name;
+
+    if (data.last_name) {
+        last_name = data.last_name;
+    }
+    else {
+        last_name = '- Not specified -';
+    }
+    document.getElementById('view_last_name').value = last_name;
+
+
+    $('#infoModal').modal('show'); // Showing actual modal
+}
+

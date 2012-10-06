@@ -15,6 +15,7 @@ function load_new_model_description($model_id){
     return content;
 }
 
+
 function show_description_modal($model_id) {
     $('#modal_content').text(load_new_model_description($model_id));
     get_storage_info($model_id);
@@ -27,5 +28,8 @@ function show_operations_modal($op_id) {
 
 function show_addusers_modal() {
     query_users_groups();
+}
 
+function show_usersinfo_modal() {
+    prepare_usersinfo_modal();
 }

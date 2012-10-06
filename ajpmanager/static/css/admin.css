@@ -72,3 +72,7 @@
     /* Cursor for labels in new_models_templates window */
     cursor: pointer;
 }
+
+.darkize {
+    color: rgb(16, 7, 46);
+}

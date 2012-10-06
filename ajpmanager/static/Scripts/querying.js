@@ -346,6 +346,37 @@ function delete_user() {
 }
 
 
+function prepare_usersinfo_modal() {
+    var $send_data, $by_name;
+    if ($selected_user != null) {
+        $send_data = $selected_user;
+        $by_name = false;
+    }
+    else {
+        // definitely user clicked 'your info'
+        $send_data = $self_username; // setted username by template engine
+        $by_name = true;
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "/engine.ajax",
+        data: JSON.stringify({'query': 'get_user_info', 'data': [$send_data, $by_name]}),
+        contentType: 'application/json; charset=utf-8'
+    }).done(function ( data ) {
+            console.log(data);
+            if (data.status) {
+                append_user_info(data.answer);
+            }
+            else {
+                jgrowl_error(1, 'Error message from the server during attempt to get user info: <br>' + data.answer);
+            }
+        });
+
+}
+
+
+
 function apply_settings() {
 
     var answer = new Object();
@@ -377,3 +408,5 @@ function apply_settings() {
         });
 
 }
+
+

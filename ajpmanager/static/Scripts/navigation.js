@@ -207,9 +207,11 @@ function check_users_select(){
             document.getElementById('user' + $users_list[i]).checked = $checked;
         }
         $('#delete_user').removeClass('disabled');
+        document.getElementById('user_info').innerHTML = '<i class="icon-info-sign"></i> Detailed info';
     }
     else {
         $('#delete_user').addClass('disabled');
+        document.getElementById('user_info').innerHTML = '<i class="icon-info-sign"></i> Your info';
     }
 }
 
