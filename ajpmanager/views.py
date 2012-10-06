@@ -206,7 +206,9 @@ class JSONprocessor(object):
         ident = self.json['data'][0]
         by_name = self.json['data'][1]
         answer = VMC.get_user_info(ident, by_name)
-        return {'status': answer[0], 'answer': answer[1]}
+        answer[1]['self_profile'] = answer[1]['username'] == authenticated_userid(self.request)
+        return {'status': answer[0],
+                'answer': answer[1]}
 
     def delete_user(self):
         if not self.__check_permissions(['admins', 'moderators']):

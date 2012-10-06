@@ -143,6 +143,7 @@ function generate_users_list(data) {
 }
 
 function append_user_info(data) {
+    $('#change_password_container').addClass('hide');
     document.getElementById('view_username').value = data.username;
 
     if (data.online) {
@@ -172,6 +173,9 @@ function append_user_info(data) {
     }
     document.getElementById('view_last_name').value = last_name;
 
+    if (data.self_profile) {
+        $('#change_password_container').removeClass('hide');
+    }
 
     $('#infoModal').modal('show'); // Showing actual modal
 }
