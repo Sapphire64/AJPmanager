@@ -92,7 +92,7 @@ class JSONprocessor(object):
 
     def get_users_list(self):
         users = VMC.get_users_list()
-        return {'status': True, 'data': users}
+        return {'status': True, 'data': sorted(users, key=lambda user: user['uid'])}
 
     def get_groups_list(self):
         if not self.__check_permissions(['admins', 'moderators']):
