@@ -144,6 +144,21 @@ class User(object):
             return cls.get_user_info_by_id(uid)
 
     @classmethod
+    def _clean_unused_groups(cls):
+        """ Removing from users:groups unused groups
+        """
+        groups_list = dbcon.io.smembers('users:groups')
+        used_groups = set(['group:admins', 'group:moderators', 'group:users']) # Set with non-deleting default groups
+        for i in range(2, int(dbcon.io.get('global:nextUserId'))):
+            group = dbcon.io.get('uid:' + str(i) + ':group')
+            if group:
+                used_groups.add(group)
+
+        for group in groups_list:
+            if group not in used_groups:
+                dbcon.io.srem('users:groups', group)
+
+    @classmethod
     def remove_user(cls, deleting_uid, deleter_username):
         " Please make sure that deleter_username was checked by authenticated_userid() function! "
         if int(deleting_uid) == 1:
@@ -175,6 +190,8 @@ class User(object):
         dbcon.io.expire('uid:' + deleting_uid + ':group', 0)
         dbcon.io.expire('username:' + username + ':uid', 0)
         dbcon.io.srem('users:list', deleting_uid)
+
+        cls._clean_unused_groups()
 
         # Say farewell...
         return True, 'Farewell ' + str(username)
