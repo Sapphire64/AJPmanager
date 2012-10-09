@@ -303,26 +303,36 @@ class VMConnector(object):
 
     def vnc_connection(self, username, machine_name):
         """ Function to prepare proxy VNC connection for VM provider """
-        global localhost # FIXME: for network connections we need other solution
+        global localhost 
 
         # Step 1: can user view this machine at all? TODO
         #if groupfinder(username)  and machine_name not in self.db.io.get(username + ':machines'):
         #    return (False, 'Access denied')
 
-        # Step 2: Finding but not binding free port to run
+        # Step 2: Finding your IP to bind to it (this allows remote users to connect)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.connect(('yandex.ru', 0))
+        hostname = sock.getsockname()[0]
+
+        # Step 3: Finding but not binding free port to run
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.bind(('', 0)) # Asking OS to bind free port
-        listen_port = sock.getsockname()[1] # << Here it is
+        try:
+            sock.bind((hostname, 0)) # Asking OS to bind free port on your WAN IP
+        except Exception:
+            sock.bind(('', 0)) # If failed - on local IP.
+            hostname = localhost
+        finally:
+            listen_port = sock.getsockname()[1] # << Here it is
         del(sock)
 
-        # Step 3: Processing by VM manager
+        # Step 4: Processing by VM manager
         answer = self.conn.vnc_connection(user_groups=groupfinder(username, None),
                                             machine_name=machine_name,
                                             listen_port=listen_port,
-                                            listen_host=localhost,
+                                            listen_host=hostname,
                                             target_host=localhost)
 
-        # Step 4: Pack answer to client
+        # Step 5: Pack answer to client
         return answer
 
     def release_vnc_connection(self, username, hash):
