@@ -184,8 +184,9 @@ class JSONprocessor(object):
 
     def create_vnc_connection(self):
         username = authenticated_userid(self.request)
+        is_local = self.request['REMOTE_ADDR'] == '127.0.0.1'
         print ('create VNC')
-        answer = VMC.vnc_connection(username=username, machine_name=self.json.get('machine'))
+        answer = VMC.vnc_connection(username=username, machine_name=self.json.get('machine'), local_user=is_local)
         return {'status': answer[0], 'data': answer[1]}
 
     def release_vnc_connection(self):

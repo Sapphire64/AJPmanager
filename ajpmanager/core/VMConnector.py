@@ -301,18 +301,21 @@ class VMConnector(object):
 
         self._prepare_hypervisor_connection(reload=True)
 
-    def vnc_connection(self, username, machine_name):
+    def vnc_connection(self, username, machine_name, local_user=False):
         """ Function to prepare proxy VNC connection for VM provider """
-        global localhost 
+        global localhost
 
         # Step 1: can user view this machine at all? TODO
         #if groupfinder(username)  and machine_name not in self.db.io.get(username + ':machines'):
         #    return (False, 'Access denied')
 
         # Step 2: Finding your IP to bind to it (this allows remote users to connect)
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.connect(('yandex.ru', 0))
-        hostname = sock.getsockname()[0]
+        if not local_user: # This was added because local user does not store cookies for WAN IP connection.
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            sock.connect(('yandex.ru', 0))
+            hostname = sock.getsockname()[0]
+        else:
+            hostname = localhost
 
         # Step 3: Finding but not binding free port to run
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
