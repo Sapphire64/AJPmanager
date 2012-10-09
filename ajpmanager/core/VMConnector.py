@@ -18,7 +18,13 @@ FILES_RE = re.compile(r'^[a-zA-Z0-9_.-]+$')
 
 
 class VMConnector(object):
-    " Interface for VM daemons "
+    """ Interface to connect AJP with VM daemons.
+     Also this class extend VMdaemons functionality with some additional methods
+     like getting storage info, manipulations with users accounts, log online users.
+
+     This :class: is created during initialization of views.py file and mostly executed from its classes,
+     i.e. by ajax or web page handlers.
+     """
 
     providers = {#'xen': None,
                  'kvm': KVMProvider}
@@ -31,6 +37,12 @@ class VMConnector(object):
         self._prepare_hypervisor_connection()
 
     def _prepare_hypervisor_connection(self, reload=False):
+        """ Initializing VM provider connection by creating VM provider's object.
+
+        In constructor of any VM provider we use DB object and PathGetter object from this function.
+        `DBconnection` will be used for caching purposes,
+        `PathGetter` will be used as abstract interface to filesystem & VM system path.
+        """
         try:
             self.conn = self.__select_vm_provider(reload)(self.db.io, self.pg) # Raise if not found
         except libvirt.libvirtError as e:
@@ -43,7 +55,10 @@ class VMConnector(object):
 
     def __select_vm_provider(self, reload=False):
         """ This function recognizes - which VM provider we must
-        use - Xen or Qemu+KVM (or any else) """
+        use - Xen or Qemu+KVM (or any else)
+
+         FIXME: all the project is currently tested only with KVM.
+         """
         if self.conn and not reload:
             return True
 
@@ -55,42 +70,70 @@ class VMConnector(object):
         return False
 
     def clone(self, base, new_name):
+        """ Clone selected machine from presets
+
+         TODO: add possibility to clone production machine, not only from presets.
+        """
         if not self.__select_vm_provider():
             return
         self.conn.clone_machine(base, new_name)
 
     def run_machine(self, name):
+        """ Asks VM provider to run VM with provided name.
+        """
         if not self.__select_vm_provider():
             return
         return self.conn.run_machine(name)
 
     def stop_machine(self, name):
+        """ Asks VM provider to stop VM with provided name.
+        This can be ignored by target so UI after calling this method can call
+        `destroy_machine` method to force stopping.
+        """
         if not self.__select_vm_provider():
             return
         return self.conn.stop_machine(name)
 
     def pause_machine(self, name):
+        """ Asks VM provider to pause VM with provided name.
+        TODO: This is not implemented yet by any VM provider, also we don't have unpause function.
+        """
         if not self.__select_vm_provider():
             return
         return self.conn.pause_machine(name)
 
     def destroy_machine(self, name):
+        """ Asks VM provider to force stop of VM with provided name.
+        This can be called by UI after calling `stop_machine` function, which can be ignored by VM.
+        """
         if not self.__select_vm_provider():
             return
         return self.conn.destroy_machine(name)
 
     def get_vms_list(self, no_cache):
+        """ Asking VM provider to provide list of all non-presets VMs.
+        """
         if not self.__select_vm_provider():
             return
         return self.conn.get_machines_list(no_cache)
 
     def get_presets_list(self):
+        """ Asking VM provider to provide list of all presets VMs.
+        """
         if not self.__select_vm_provider():
             return
         return self.conn.get_presets_list()
 
     def get_storage_info(self, machine):
+        """ Calculating storage info (total, free, used) for new VM:
+        We are getting all storage info and then calculate how much space
+         you need to copy selected VM.
+
+        FIXME: we are calculating info only for presets, this should be fixed for cloning
+            non-preset machines.
+        """
         provider = self.db.io.get('provider')
+        # TODO: optimize next, or maybe move it to VM provider.
         if provider == 'kvm':
             root = self.pg.KVM_PATH
         elif provider == 'xen':
@@ -106,6 +149,8 @@ class VMConnector(object):
         return (total, used, free, preset_storage)
 
     def get_settings(self):
+        """ Interface to PathGetter :class: -> we are packing it's results into AJAX answer.
+        """
         provider = self.db.io.get('provider')
         answer = {}
 
@@ -127,13 +172,18 @@ class VMConnector(object):
         return answer
 
     def get_users_list(self):
+        """ Interface to User model :class: - asking for users list """
         return User.get_all_users()
 
     def get_groups_list(self):
+        """ Interface to User model :class: - asking for groups list """
         return User.get_all_groups()
 
     def add_user(self, json):
-        " Processing query for adding new user "
+        """ Processing query for adding new user.
+        All the registration data is provided by JSON body.
+        """
+
         # TODO: Check user's (who made new one) group
         if not self.db:
             raise Exception ('No redis connection provided')
@@ -172,10 +222,20 @@ class VMConnector(object):
         return user.add_to_redis()
 
     def delete_user(self, id, deleter_username):
-        " Processing query for deleting user "
+        """ Processing query for deleting user.
+
+        @param `id` - removing user ID.
+        @param `deleter_username` - username of the person who
+            tries to delete user with provided `id`.
+
+        This will be used to check deleter's permissions.
+        Please make sure you are using authenticated_userid() to get deleter_username.
+        """
         return User.remove_user(id, deleter_username)
 
     def get_user_info(self, ident, by_name):
+        """ Function to get user info by name or by id (depends on who you are getting it in UI).
+        """
         if by_name is True:
             return User.get_user_info_by_name(ident)
         else:
@@ -184,6 +244,8 @@ class VMConnector(object):
 
 
     def apply_settings(self, data):
+        """ Save settings into DB """
+        # TODO: implement it in PathGetter
         provider = self.db.io.get('provider')
 
         if not data['path']:
@@ -225,6 +287,7 @@ class VMConnector(object):
 
 
     def restore_default_settings(self):
+        """ Restoring project's recommended settings including file paths """
         # Warning! FIXME: we have same functionality in ajpmanager/__init__ module
         # Any changes here must by applied there
         self.db.io.set('XEN_PATH', '/xen')
@@ -239,6 +302,7 @@ class VMConnector(object):
         self._prepare_hypervisor_connection(reload=True)
 
     def vnc_connection(self, username, machine_name):
+        """ Function to prepare proxy VNC connection for VM provider """
         global localhost # FIXME: for network connections we need other solution
 
         # Step 1: can user view this machine at all? TODO
@@ -262,6 +326,7 @@ class VMConnector(object):
         return answer
 
     def release_vnc_connection(self, username, hash):
+        """ Closing VNC proxy connection """
 
         # Step 1: getting machine name with security cookie
         machine_name = self.conn.get_machine_name_by_hash(hash)
@@ -280,8 +345,7 @@ class VMConnector(object):
         return answer
 
     def log_active(self, username):
-        """
-        Add info to redis that user is online
+        """ Add info to redis that user is online
         """
         self.db.io.set('username:' + username + ':online', True)
         # 5 minutes w/o activity will say that user is offline
