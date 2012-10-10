@@ -1,9 +1,11 @@
 from ajpmanager.core.DBConnector import DBConnection
 from passlib.hash import bcrypt
+from time import sleep
 
 dbcon = DBConnection()
 
 def authenticate(username, password):
+    sleep(1.2) # Slowing down attacks
     uid = dbcon.io.get('username:' + username + ':uid')
     if uid is None:
         return False
