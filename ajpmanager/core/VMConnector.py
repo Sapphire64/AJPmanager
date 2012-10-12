@@ -1,8 +1,8 @@
 from ajpmanager.core.DBConnector import DBConnection
 from ajpmanager.core.MiscTools import PathGetter, get_storage_info, safe_join, calculate_flat_folder_size
-from ajpmanager.core.RedisAuth import groupfinder
+from ajpmanager.core.RedisAuth import groupfinder, authenticate
 from ajpmanager.core.providers.KVM import KVMProvider
-from ajpmanager.models import User
+from ajpmanager.models import User, email_pattern
 
 try:
     import libvirt
@@ -179,20 +179,43 @@ class VMConnector(object):
         """ Interface to User model :class: - asking for groups list """
         return User.get_all_groups()
 
-    def add_user(self, json):
+    def add_user(self, json, adder_username):
         """ Processing query for adding new user.
         All the registration data is provided by JSON body.
+
+        TODO: Functional tests required!
         """
 
-        # TODO: Check user's (who made new one) group
-        if not self.db:
-            raise Exception ('No redis connection provided')
+        # Prepare for permissions check
+        info = User.get_user_info_by_name(adder_username)
+        if not info[0] or not info[1]['username']: # if adder_username does not exists in DB (this is almost impossible)
+           raise SystemError('Wrong adder username provided')
+        adder_info = info[1]
 
+        if adder_info['group'] not in ['group:admins', 'group:moderators']:
+            raise SystemError("Non-privileged user have access to adding users!"
+                              " Something wrong with JSONprocessor security or with DB!")
+
+        selected_group = json['selected_group'].strip()
+        new_group = json['new_group'].strip()
+        # Pack groups information
+        if new_group:
+            group = new_group
+        elif selected_group:
+            group = selected_group
+        else:
+            return False, 'Wrong groups data'
+
+        group = 'group:' + group
+
+        # Check permissions to add such group (IMPORTANT!!!)
+        if group in ['group:admins', 'group:moderators'] and adder_info['group'] != 'group:admins':
+            return False, 'You don\'t have permissions to add new moderator or administrator'
+
+        # All good. Continue to pack info.
         username = json['username'].strip()
         first_name = json['first_name'].strip()
         last_name = json['last_name'].strip()
-        selected_group = json['selected_group'].strip()
-        new_group = json['new_group'].strip()
 
         email = json['email'].strip()
         send_email = json['send_email']
@@ -206,20 +229,105 @@ class VMConnector(object):
         if password != password_rpt:
             return False, 'Passwords does not match'
 
-        if new_group:
-            group = new_group
-        elif selected_group:
-            group = selected_group
-        else:
-            return False, 'Wrong groups data'
-
-        group = 'group:' + group
-
         user = User(username, password, email,
             first_name, last_name,
             group=group, expire=None)
 
         return user.add_to_redis()
+
+    def update_user(self, json, updater_username):
+        """
+        TODO: Functional tests required!
+        """
+
+        # Step 0: prepare data
+        username = json['username'].strip()
+        first_name = json['first_name'].strip()
+        last_name = json['last_name'].strip()
+        group = json['group'].strip()
+
+        if not group:
+            return False, 'Bad group name provided'
+        else:
+            group = 'group:' + group
+
+        email = json['email'].strip()
+
+        if not email_pattern.match(email):
+            return False, "Wrong email address!"
+
+        old_password = json['old_password'].strip()
+        password = json['change_password'].strip()
+        password_rpt = json['change_password_confirm'].strip()
+
+        #
+
+        # Step 1: getting updater user permissions
+        info = User.get_user_info_by_name(updater_username)
+        if not info[0] or not info[1]['username']: # if updater_username does not exists in DB (this is almost impossible)
+            raise SystemError('Wrong updater username provided')
+        updater_info = info[1]
+
+        # Step 2: collecting info about editing user
+        info = User.get_user_info_by_name(username)
+        if not info[0] or not info[1]['username']: # if editing_username does not exists in DB (but this IS possible :)
+            return False, 'Wrong changing username provided'
+        changing_user_info = info[1]
+
+        # Step 3: setting vars
+        change_password = False
+        if any([password, password_rpt]) and not all([password, password_rpt]):
+            return False, "To change password please fill all fields"
+        elif all([password, password_rpt]):
+            if password != password_rpt:
+                return False, "New passwords does not match"
+            elif not 4 <= len(password) <= 16:
+                return False, 'Wrong password length! 4 <= x <= 16'
+            else:
+                change_password = True
+
+        # Step 4: testing permissions and applying update
+        # There are many cases which must be implemented
+        new_password = None
+        if updater_info['username'] == changing_user_info['username']:
+            # Regular user or superuser changing himself
+            if change_password:
+                if not old_password:
+                    return False, "To change password please fill all fields"
+                if not authenticate(updater_info['username'], old_password):
+                    return False, "Wrong old password provided"
+                new_password = password
+
+
+            group = None # Disabled change of self group
+
+            User.update_user(username=updater_info['username'], first_name=first_name,
+                last_name=last_name, group=group, email=email, password=new_password)
+
+        elif updater_info['group'] not in ['group:admins', 'group:moderators']:
+            # Non-privileged user trying to change somebody else
+            return False, "You don't have permissions to change this user"
+
+        else:
+            # Superuser changing somebody else
+            if changing_user_info['username'] == 'admin':
+                return False, 'Nobody except admin himself can change superadmin profile'
+
+            if updater_info['group'] == 'group:moderators':
+                if changing_user_info['group'] in ['group:admins', 'group:moderators']:
+                    return False, "You don't have permissions to change this user"
+                # IMPORTANT
+                if group in ['group:admins', 'group:moderators']:
+                    return False, 'You don\'t have permissions to add new moderator or administrator'
+
+            if change_password:
+                new_password = password
+
+            User.update_user(username=changing_user_info['username'], first_name=first_name,
+                last_name=last_name, group=group, email=email, password=new_password)
+
+        return True, ''
+
 
     def delete_user(self, id, deleter_username):
         """ Processing query for deleting user.

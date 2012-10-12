@@ -376,6 +376,42 @@ function prepare_usersinfo_modal() {
 }
 
 
+function update_user_info() {
+    var data = {};
+
+    data.username = document.getElementById('view_username').value
+    data.email = document.getElementById('view_email').value;
+    data.first_name = document.getElementById('view_first_name').value;
+    data.last_name = document.getElementById('view_last_name').value;
+    data.group = document.getElementById('view_group').value;
+
+    data.old_password = document.getElementById('old_password').value;
+    data.change_password = document.getElementById('change_password').value;
+    data.change_password_confirm = document.getElementById('change_password_confirm').value;
+
+    $.ajax({
+        type: "POST",
+        url: "/engine.ajax",
+        data: JSON.stringify({'query': 'update_user_info', 'data': data}),
+        contentType: 'application/json; charset=utf-8'
+    }).done(function ( data ) {
+            if (data.status) {
+                status = 1;
+                message = 'User was successfully updated.';
+                show_usersinfo_modal(); // Refresh
+            }
+            else {
+                status = 2;
+                message = data.answer;
+            }
+            update_user_notification(status, message);
+        });
+
+}
+
+
+
+
 
 function apply_settings() {
 

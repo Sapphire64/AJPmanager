@@ -199,8 +199,9 @@ class JSONprocessor(object):
     def add_user(self):
         if not self.__check_permissions(['admins', 'moderators']):
             return {'status': False, 'answer': 'You are not authorized to add user'}
+        username = authenticated_userid(self.request)
         data = self.json['data']
-        answer = VMC.add_user(data)
+        answer = VMC.add_user(data, username)
         return {'status': answer[0], 'answer': answer[1]}
 
     def get_user_info(self):
@@ -208,6 +209,13 @@ class JSONprocessor(object):
         by_name = self.json['data'][1]
         answer = VMC.get_user_info(ident, by_name)
         answer[1]['self_profile'] = answer[1]['username'] == authenticated_userid(self.request)
+        return {'status': answer[0],
+                'answer': answer[1]}
+
+    def update_user_info(self):
+        username = authenticated_userid(self.request)
+        data = self.json['data']
+        answer = VMC.update_user(data, username)
         return {'status': answer[0],
                 'answer': answer[1]}
 
@@ -240,6 +248,7 @@ class JSONprocessor(object):
         'get_user_info': get_user_info,
         'get_users_list': get_users_list,
         'get_groups_list': get_groups_list,
+        'update_user_info': update_user_info,
         'add_user': add_user,
         'delete_user': delete_user,
         }

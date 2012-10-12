@@ -1,6 +1,8 @@
+from time import sleep
 from ajpmanager.core.DBConnector import DBConnection
 from passlib.hash import bcrypt
 import re
+from ajpmanager.core.RedisAuth import authenticate
 
 dbcon = DBConnection()
 
@@ -13,7 +15,7 @@ class User(object):
                  first_name = None, last_name = None,
                  group='group:users', expire=None,
                  send_password=False):
-        if 4 > len(password) > 16:
+        if not 4 <= len(password) <= 16:
             raise ValueError ('Wrong password length!')
         if not email_pattern.match(email):
             raise ValueError ('Wrong email address!')
@@ -77,24 +79,6 @@ class User(object):
         pass # Dummy
 
     @classmethod
-    def change_password(cls, username, new_password, new_password_repeat, old_password=None, force=False):
-        if new_password != new_password_repeat:
-            raise ValueError ('Entered passwords does not match')
-
-        if 4 > len(new_password) > 16:
-            raise ValueError ('Wrong password length!')
-
-        uid = dbcon.io.get('username:' + username + ':uid')
-        if not uid:
-            raise ValueError ('Wrong username provided')
-
-        if not force:
-            if not old_password or not cls.authenticate(username, old_password):
-                raise ValueError ('Wrong old password provided')
-        dbcon.io.set('uid:' + uid + ':password', bcrypt.encrypt(new_password))
-        return True
-
-    @classmethod
     def get_all_users(cls):
         users = []
         for uid in dbcon.io.smembers('users:list'):
@@ -144,19 +128,24 @@ class User(object):
             return cls.get_user_info_by_id(uid)
 
     @classmethod
-    def _clean_unused_groups(cls):
+    def _update_groups_list(cls):
         """ Removing from users:groups unused groups
         """
         groups_list = dbcon.io.smembers('users:groups')
         used_groups = set(['group:admins', 'group:moderators', 'group:users']) # Set with non-deleting default groups
-        for i in range(2, int(dbcon.io.get('global:nextUserId'))):
+        for i in range(2, int(dbcon.io.get('global:nextUserId'))+1):
             group = dbcon.io.get('uid:' + str(i) + ':group')
             if group:
                 used_groups.add(group)
-
+        # TODO: optimize next algorithm
+        # Removing unused groups from groups list
         for group in groups_list:
             if group not in used_groups:
                 dbcon.io.srem('users:groups', group)
+        # Adding new groups not listed in groups list
+        for group in used_groups:
+            if group not in groups_list:
+                dbcon.io.sadd('users:groups', group)
 
     @classmethod
     def remove_user(cls, deleting_uid, deleter_username):
@@ -191,7 +180,46 @@ class User(object):
         dbcon.io.expire('username:' + username + ':uid', 0)
         dbcon.io.srem('users:list', deleting_uid)
 
-        cls._clean_unused_groups()
+        cls._update_groups_list()
 
         # Say farewell...
         return True, 'Farewell ' + str(username)
+
+    @classmethod
+    def update_user(cls, username, first_name=None, last_name=None, group=None, email=None, password=None):
+        """ Function which applies provided username's new information.
+        Only granted users can change user information and nobody can change username.
+        """
+        uid = dbcon.io.get('username:' + username + ':uid')
+        if not uid:
+            raise SystemError ('UID for provided username not found!')
+
+        update_password = False
+        if password is not None:
+            if not 4 <= len(password) <= 16:
+                raise ValueError ('Wrong password length!')
+            password = bcrypt.encrypt(password)
+            update_password = True
+
+        update_email = False
+        if email is not None:
+            if not email_pattern.match(email):
+                raise ValueError ('Wrong email address!')
+            else:
+                update_email = True
+
+        # Applying changes
+        if first_name is not None:
+            dbcon.io.set('uid:' + uid + ':first_name', first_name)
+        if last_name is not None:
+            dbcon.io.set('uid:' + uid + ':last_name', last_name)
+        if group is not None:
+            old_group = dbcon.io.get('uid:' + uid + ':group')
+            dbcon.io.set('uid:' + uid + ':group', group)
+            cls._update_groups_list()
+        if update_email:
+            dbcon.io.set('uid:' + uid + ':email', email)
+        if update_password:
+            dbcon.io.set('uid:' + uid + ':password', password)
+
+        # All done.

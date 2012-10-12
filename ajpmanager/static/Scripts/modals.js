@@ -30,6 +30,9 @@ function show_addusers_modal() {
     query_users_groups();
 }
 
-function show_usersinfo_modal() {
+function show_usersinfo_modal(flag) {
+    if (flag != undefined) {
+        $selected_user = null;
+    }
     prepare_usersinfo_modal();
 }

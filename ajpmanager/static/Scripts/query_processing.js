@@ -127,11 +127,9 @@ function generate_users_list(data) {
         row.push('<td>'+ data[i].last_name + '</td>');
         row.push('<td>'+ data[i].group + '</td>');
         row.push('<td><span class="label label-' + label_ + '">'+ text_ + '</span></td>');
-        if ($privileged) {
-            row.push('<td><input id="user' + data[i].uid + '" type="checkbox" onchange="users_note_checkboxes(\'' + data[i].uid + '\',\''+
-                data[i].username + '\',\'' +  data[i].group + '\',\'' +
-                data[i].status + '\', this);"></td>'); // this is odd, but anyway
-        }
+        row.push('<td><input id="user' + data[i].uid + '" type="checkbox" onchange="users_note_checkboxes(\'' + data[i].uid + '\',\''+
+            data[i].username + '\',\'' +  data[i].group + '\',\'' +
+            data[i].status + '\', this);"></td>'); // this is odd, but anyway
         row.push('</tr>');
 
         $users_list.push(data[i].uid);
@@ -144,6 +142,14 @@ function generate_users_list(data) {
 
 function append_user_info(data) {
     $('#change_password_container').addClass('hide');
+    $('#update_user_info_btn').addClass('hide');
+    $('#old_password_group').addClass('hide');
+
+    $('#view_email').attr('disabled');
+    $('#view_first_name').attr('disabled');
+    $('#view_last_name').attr('disabled');
+    $('#view_group').attr('disabled');
+
     document.getElementById('view_username').value = data.username;
 
     if (data.online) {
@@ -156,6 +162,8 @@ function append_user_info(data) {
 
     document.getElementById('view_email').value = data.email;
     document.getElementById('mailto').href = 'mailto:' + data.email;
+
+    document.getElementById('view_group').value = data.group.split(':')[1];
 
     if (data.first_name) {
         first_name = data.first_name;;
@@ -173,8 +181,30 @@ function append_user_info(data) {
     }
     document.getElementById('view_last_name').value = last_name;
 
-    if (data.self_profile) {
+    // Allow to edit:
+    if ($privileged || data.self_profile) {
+        if (!$privileged || data.self_profile) {
+            $('#old_password_group').removeClass('hide');
+        }
+        else {
+            $('#view_group').removeAttr('disabled');
+        }
+
         $('#change_password_container').removeClass('hide');
+
+        $('#update_user_info_btn').removeClass('hide');
+        $('#view_email').removeAttr('disabled');
+        $('#view_first_name').removeAttr('disabled');
+        $('#view_last_name').removeAttr('disabled');
+
+
+        if (document.getElementById('view_first_name').value == '- Not specified -') {
+            document.getElementById('view_first_name').value = '';
+        }
+
+        if (document.getElementById('view_last_name').value == '- Not specified -') {
+            document.getElementById('view_last_name').value = '';
+        }
     }
 
     $('#infoModal').modal('show'); // Showing actual modal

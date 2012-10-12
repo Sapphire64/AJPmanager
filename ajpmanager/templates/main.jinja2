@@ -32,7 +32,7 @@
                         <li><a href="#about">About</a></li>
                         <li><a href="#contact">Contact</a></li>
                     </ul>
-                    <p id="username" class="navbar-text pull-right">Logged in as <a href="#">{{ username }}</a></p>
+                    <p id="username" class="navbar-text pull-right">Logged in as <a href="#" onclick="show_usersinfo_modal(true);">{{ username }}</a></p>
                 </div><!--/.nav-collapse -->
 
             </div>
@@ -281,11 +281,9 @@
                     <th style="width: 150px;">Last name</th>
                     <th style="width: 30px;">Group</th>
                     <th style="width: 30px;">Status</th>
-                    {% if 'group:admins' in user_groups or 'group:moderators' in user_groups %}
                     <th style="width: 25px;">
                         <input id="ucheck0" type="checkbox" onchange="users_note_checkboxes(this);">
                     </th>
-                    {% endif %}
                 </tr>
                 </thead>
                 <tbody>
@@ -480,7 +478,7 @@
 
         </div>
 
-        {% if 'group:admins' in user_groups or 'group:moderators' in user_groups %}
+
         <!--
                                         _   _                           _ _ _
                                        | | | |___  ___ _ __     ___  __| (_) |_
@@ -521,12 +519,13 @@
 
             <div align="center">
                 <div class="btn-toolbar">
-
+                    {% if 'group:admins' in user_groups or 'group:moderators' in user_groups %}
                     <div class="btn-group">
                         <btn id="new_user" class="btn btn-success btn-large" title="Add new user into system" onclick="show_addusers_modal()">
                             <i class="icon-plus"></i> Add new
                         </btn>
                     </div>
+                    {% endif %}
 
                     <div class="btn-group">
                         <btn id="user_info" class="btn btn-info btn-large" title="Detailed info about selected user" onclick="show_usersinfo_modal()">
@@ -534,17 +533,18 @@
                         </btn>
                     </div>
 
-
+                    {% if 'group:admins' in user_groups or 'group:moderators' in user_groups %}
                     <div class="btn-group">
                         <btn id="delete_user" class="btn btn-warning btn-large disabled" title="Delete selected user from the system" onclick="delete_user()">
                             <i class="icon-remove-sign"></i> Delete
                         </btn>
                     </div>
+                    {% endif %}
                 </div>
             </div>
 
         </div>
-        {% endif %}
+
 
 
         <!--
@@ -652,13 +652,21 @@
         </div>
         <div class="modal-body">
 
+            <div id="user_edit_danger_block" class="alert alert-error hide">
+
+            </div>
+
+            <div id="user_edit_success_block" class="alert alert-success hide">
+
+            </div>
+
             <form class="form-horizontal">
                 <fieldset>
                     <div class="control-group">
                         <label class="control-label" for="view_username">Username</label>
                         <div class="controls">
                             <input type="text" class="input-xlarge centered darkize" id="view_username" placeholder="username" disabled>
-                            <a id="online_img" class="btn" href="#"><i class="icon-user" disabled></i></a>
+                            <a id="online_img" class="btn" href="#"><i class="icon-user" style="color: #ffffff;" disabled></i></a>
                         </div>
                     </div>
                     <div class="control-group">
@@ -682,9 +690,16 @@
                     </div>
 
                     <div id="change_password_container" class="hide">
-                        <h4>Change your password</h4>
-                        <br>
                         <div class="control-group">
+                            <label class="control-label" for="view_group">Group</label>
+                            <div class="controls">
+                                <input type="text" class="input-xlarge centered darkize" id="view_group" placeholder="group name" disabled>
+                            </div>
+                        </div>
+
+                        <h4>Change password</h4>
+                        <br>
+                        <div class="control-group" id="old_password_group">
                             <label class="control-label" for="old_password">Old password</label>
                             <div class="controls">
                                 <input type="password" class="input-xlarge centered darkize" id="old_password" placeholder="password">
@@ -709,6 +724,10 @@
 
         </div>
         <div class="modal-footer">
+            <a href="#" id="update_user_info_btn"
+               class="btn btn-large btn-success hide"
+               style="color: #ffffff;"
+               onclick="update_user_info();">Update info</a>
             <a href="#" class="btn btn-large" data-dismiss="modal" onclick="show_users_list();">Close</a>
         </div>
     </div>

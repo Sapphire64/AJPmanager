@@ -276,6 +276,7 @@ function show_vnc_screen() {
 function show_users_list() {
     show_default_screen(false);
     $('#project_info').removeClass('hide');
+    clear_user_menu();
     query_users_list();
 }
 
