@@ -339,7 +339,33 @@ class VMConnector(object):
         This will be used to check deleter's permissions.
         Please make sure you are using authenticated_userid() to get deleter_username.
         """
-        return User.remove_user(id, deleter_username)
+        # Determining deleter uid and group
+        info = User.get_user_info_by_name(deleter_username)
+        if not info[0] or not info[1]['username']: # if updater_username does not exists in DB (this is almost impossible)
+            raise SystemError('Wrong deleter username provided')
+        deleter_info = info[1]
+
+        # Step 2: collecting info about editing user
+        info = User.get_user_info_by_id(id)
+        if not info[0] or not info[1]['username']: # if editing_username does not exists in DB (but this IS possible :)
+            return False, 'Wrong deleting id provided'
+        deleting_user_info = info[1]
+
+        if deleter_info['username'] == deleting_user_info['username']:
+            return False, "You can't delete yourself"
+
+
+        deleter_group = deleter_info['group']
+        deleted_user_group = deleting_user_info['group']
+
+        if deleter_group not in ['group:admins', 'group:moderators']:
+            return False, 'You don\'t have permissions to delete users'
+
+        if deleted_user_group in ['group:admins', 'group:moderators']:
+            if deleter_group != 'group:admins':
+                return False, 'You don\'t have permissions to delete admins or moderators'
+
+        return User.remove_user(id)
 
     def get_user_info(self, ident, by_name):
         """ Function to get user info by name or by id (depends on who you are getting it in UI).

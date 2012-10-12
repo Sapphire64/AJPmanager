@@ -148,24 +148,12 @@ class User(object):
                 dbcon.io.sadd('users:groups', group)
 
     @classmethod
-    def remove_user(cls, deleting_uid, deleter_username):
+    def remove_user(cls, deleting_uid):
         " Please make sure that deleter_username was checked by authenticated_userid() function! "
         if int(deleting_uid) == 1:
             return False, 'Cannot delete superadmin\'s account'
-            # Determining deleter uid and group
-        deleter_uid = dbcon.io.get('username:' + deleter_username + ':uid')
-        deleter_group = dbcon.io.get('uid:' + deleter_uid + ':group')
 
         username = dbcon.io.get('uid:' + deleting_uid + ':username')
-        deleted_user_group = dbcon.io.get('uid:' + deleting_uid + ':group')
-
-        if deleter_group not in ['group:admins', 'group:moderators']:
-            return False, 'You don\'t have permissions to delete users'
-
-        if deleted_user_group in ['group:admins', 'group:moderators']:
-            if deleter_group != 'group:admins':
-                return False, 'You don\'t have permissions to delete admins or moderators'
-
         # Making deletion
         dbcon.io.expire('uid:' + deleting_uid + ':username', 0)
         dbcon.io.expire('uid:' + deleting_uid + ':first_name', 0)
@@ -183,6 +171,7 @@ class User(object):
         cls._update_groups_list()
 
         # Say farewell...
+        print ("Farewell, %s" % username)
         return True, 'Farewell ' + str(username)
 
     @classmethod
