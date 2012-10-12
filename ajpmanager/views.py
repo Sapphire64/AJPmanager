@@ -1,6 +1,6 @@
 from pyramid.httpexceptions import HTTPForbidden
 from pyramid.view import view_config
-from pyramid.security import authenticated_userid, Allow, Authenticated, Everyone
+from pyramid.security import authenticated_userid, Allow, Authenticated, Everyone, forget
 from ajpmanager.core.RedisAuth import groupfinder
 from ajpmanager.core.VMConnector import VMConnector
 from ajpmanager.security import verify_ip
@@ -24,6 +24,10 @@ class MainPage(object):
         show_settings = False
         username = authenticated_userid(self.request)
         user_groups = groupfinder(username, self.request)
+        if user_groups[0] is None: # Deleted user tries to do something
+            headers = forget(self.request)
+            return HTTPForbidden(headers=headers)
+        print ('%s %s %s' % (user_groups, username, show_settings))
         return {'username': username, 'show_settings': show_settings, 'user_groups': user_groups}
 
 
@@ -34,6 +38,7 @@ class JSONprocessor(object):
     """
     def __init__(self, request):
         self.request = request
+        self.username = authenticated_userid(self.request)
         self.session = self.request.session.get_csrf_token()
         self.json = request.json_body
 
@@ -43,8 +48,7 @@ class JSONprocessor(object):
         must be without `group:` lead part.
         Like: `admins`
         """
-        username = authenticated_userid(self.request)
-        groups = groupfinder(username, self.request)
+        groups = groupfinder(self.username, self.request)
 
         type_ = type(accepted_group)
         if type_ is str: # single STR group
@@ -72,6 +76,10 @@ class JSONprocessor(object):
 
         if not verify_ip(self.request['REMOTE_ADDR']):
             return HTTPForbidden()
+
+        if groupfinder(self.username, self.request)[0] is None: # Deleted user tries to do something
+            headers = forget(self.request)
+            return HTTPForbidden(headers=headers)
 
         # Add to redis info that user is online
         VMC.log_active(authenticated_userid(self.request))
@@ -183,39 +191,35 @@ class JSONprocessor(object):
             return {'status': answer[0], 'answer': answer[1]}
 
     def create_vnc_connection(self):
-        username = authenticated_userid(self.request)
         is_local = self.request['REMOTE_ADDR'] == '127.0.0.1'
         print ('create VNC')
-        answer = VMC.vnc_connection(username=username, machine_name=self.json.get('machine'), local_user=is_local)
+        answer = VMC.vnc_connection(username=self.username, machine_name=self.json.get('machine'), local_user=is_local)
         return {'status': answer[0], 'data': answer[1]}
 
     def release_vnc_connection(self):
-        username = authenticated_userid(self.request)
         print ('release VNC')
         cookie = self.request.cookies['ajpvnc_key']
-        answer = VMC.release_vnc_connection(username=username, hash=cookie)
+        answer = VMC.release_vnc_connection(username=self.username, hash=cookie)
         return {'status': answer}
 
     def add_user(self):
         if not self.__check_permissions(['admins', 'moderators']):
             return {'status': False, 'answer': 'You are not authorized to add user'}
-        username = authenticated_userid(self.request)
         data = self.json['data']
-        answer = VMC.add_user(data, username)
+        answer = VMC.add_user(data, self.username)
         return {'status': answer[0], 'answer': answer[1]}
 
     def get_user_info(self):
         ident = self.json['data'][0]
         by_name = self.json['data'][1]
         answer = VMC.get_user_info(ident, by_name)
-        answer[1]['self_profile'] = answer[1]['username'] == authenticated_userid(self.request)
+        answer[1]['self_profile'] = answer[1]['username'] == self.username
         return {'status': answer[0],
                 'answer': answer[1]}
 
     def update_user_info(self):
-        username = authenticated_userid(self.request)
         data = self.json['data']
-        answer = VMC.update_user(data, username)
+        answer = VMC.update_user(data, self.username)
         return {'status': answer[0],
                 'answer': answer[1]}
 
