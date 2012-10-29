@@ -78,36 +78,64 @@ class VMConnector(object):
             return
         self.conn.clone_machine(base, new_name)
 
-    def run_machine(self, name):
+    def run_machine(self, username, name):
         """ Asks VM provider to run VM with provided name.
         """
         if not self.__select_vm_provider():
             return
+
+        if not username:
+            return
+        user_machines = User.get_user_machines_by_name(username)
+        if name not in user_machines:
+            return
+
         return self.conn.run_machine(name)
 
-    def stop_machine(self, name):
+    def stop_machine(self, username, name):
         """ Asks VM provider to stop VM with provided name.
         This can be ignored by target so UI after calling this method can call
         `destroy_machine` method to force stopping.
         """
         if not self.__select_vm_provider():
             return
+
+        if not username:
+            return
+        user_machines = User.get_user_machines_by_name(username)
+        if name not in user_machines:
+            return
+
         return self.conn.stop_machine(name)
 
-    def pause_machine(self, name):
+    def pause_machine(self, username, name):
         """ Asks VM provider to pause VM with provided name.
         TODO: This is not implemented yet by any VM provider, also we don't have unpause function.
         """
         if not self.__select_vm_provider():
             return
+
+        if not username:
+            return
+        user_machines = User.get_user_machines_by_name(username)
+        if name not in user_machines:
+            return
+
         return self.conn.pause_machine(name)
 
-    def destroy_machine(self, name):
+    def destroy_machine(self, username, name):
         """ Asks VM provider to force stop of VM with provided name.
         This can be called by UI after calling `stop_machine` function, which can be ignored by VM.
         """
         if not self.__select_vm_provider():
             return
+
+        if not username:
+            return
+        user_machines = User.get_user_machines_by_name(username)
+        if name not in user_machines:
+            return
+
         return self.conn.destroy_machine(name)
 
     def get_vms_list(self, username=None, no_cache=None):
@@ -126,7 +154,6 @@ class VMConnector(object):
             vms['online'] = filter(lambda x: x['name'] in user_machines, vms['online'])
 
         return vms
-
 
     def get_presets_list(self):
         """ Asking VM provider to provide list of all presets VMs.
@@ -429,8 +456,6 @@ class VMConnector(object):
 
         self._prepare_hypervisor_connection(reload=True)
 
-
-
     def restore_default_settings(self):
         """ Restoring project's recommended settings including file paths """
         # Warning! FIXME: we have same functionality in ajpmanager/__init__ module
@@ -450,9 +475,12 @@ class VMConnector(object):
         """ Function to prepare proxy VNC connection for VM provider """
         global localhost
 
-        # Step 1: can user view this machine at all? TODO
-        #if groupfinder(username)  and machine_name not in self.db.io.get(username + ':machines'):
-        #    return (False, 'Access denied')
+        # Step 1: can user view this machine at all?
+        if not username:
+            return
+        user_machines = User.get_user_machines_by_name(username)
+        if machine_name not in user_machines:
+            return
 
         # Step 2: Finding your IP to bind to it (this allows remote users to connect)
         if not local_user: # This was added because local user does not store cookies for WAN IP connection.

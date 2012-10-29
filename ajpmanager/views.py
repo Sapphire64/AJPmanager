@@ -187,8 +187,11 @@ class JSONprocessor(object):
         if not function:
             return {'status': False, 'answer': 'No function found for "%s" request' % operation}
         else:
-            answer = function(name)
-            return {'status': answer[0], 'answer': answer[1]}
+            answer = function(self.username, name)
+            if answer is not None:
+                return {'status': answer[0], 'answer': answer[1]}
+            else:
+                return {'status': False, 'answer': "Something went wrong"}
 
     def create_vnc_connection(self):
         is_local = self.request['REMOTE_ADDR'] == '127.0.0.1'
