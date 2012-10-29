@@ -3,11 +3,21 @@ AJPmanager
 
 Goals of the project
 ---------------
-Develop tool for:
 
 1. Easy installation of VMs from presets.
 2. Easy use of VM terminal or desktop via web interface remotely (including from mobile devices).
-3. Make possible to grant rights to control VMs to remote users.
+3. Make possible to grant rights to control selected VMs to remote users.
+4. Make this app friendly for educational process.
+
+What is done
+--------------
+1) Complete AJAX-powered interface
+2) Integration with QEMU-KVM
+3) Permissions model with per-user allowed machines control, admins and moderators roles (as supervisors)
+4) Start & Stop of virtual machines
+5) Installation of new machines from presets with new processed config files
+6) Complex VNC client integration with permissions check
+
 
 Presets
 ---------------
@@ -68,8 +78,11 @@ This is not the best choice for package management so we hope somebody can help 
 
 TODO
 --------------
-1) Testings
-2) VM rooms to separate physical hardware for classroomes (far future)
+1) Full test coverage
+2) Machines pause :)
+3) Clone non-presetted machines, save state, detailed machine info
+4) Friendly interface for screens with resolution less than 1280x720
+5) VM rooms to separate physical hardware for classroomes (far future)
 
 Requirements
 ---------------
