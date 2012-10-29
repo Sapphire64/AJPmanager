@@ -86,11 +86,13 @@ class JSONprocessor(object):
 
         # Factory to answer for JSON requests
         try:
-            return self.functions[self.json['query']](self)
+            func = self.functions[self.json['query']]
         except KeyError:
             # If we have wrong JSON request
             print ('Wrong JSON request: ' + str(self.json['query']))
             return {'status': False, 'answer': 'Wrong query'}
+        else:
+            return func(self)
 
     def get_vms_list(self):
         # Here we are reading all virtual machines and packing them into answer:
@@ -113,6 +115,14 @@ class JSONprocessor(object):
             return {'status': False, 'answer': 'You are not authorized to get presets list'}
         presets = VMC.get_presets_list()
         return {'status': True, 'data': presets}
+
+    def install_from_preset(self):
+        if not self.__check_permissions(['admins', 'moderators']):
+            return {'status': False, 'answer': 'You are not authorized to do that'}
+        new_name = self.json['data']['new_name']
+        preset = self.json['data']['preset']
+        answer = VMC.install_from_preset(new_name=new_name, preset=preset)
+        return {'status': answer[0], 'answer': answer[1]}
 
     def get_active_operations(self):
         # Connect to redis and get list
@@ -145,7 +155,6 @@ class JSONprocessor(object):
             return {'status': False, 'answer': 'You are not authorized to get settings info'}
         settings = VMC.get_settings()
         return {'status': True, 'data': settings}
-
 
     def apply_settings(self):
         if not self.__check_permissions('admins'):
@@ -250,6 +259,7 @@ class JSONprocessor(object):
         # Presets modal
         'get_storage_info': get_storage_info,
         'verify_new_vm_name': verify_new_vm_name,
+        'install_from_preset': install_from_preset,
         # Settings
         'get_settings': get_settings,
         'apply_settings': apply_settings,

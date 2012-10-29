@@ -1,9 +1,6 @@
 
 
 function load_new_model_description($model_id){
-    /* HERE WE SHOULD SEND AJAX QUERY TO SERVER
-     * TO GET CONTENT OF THE MODEL'S DESCRIPTION
-     * FILE.*/
      var content = 'Unknown';
      for (var i=0; i<$presets.length; i++) {
         if ($presets[i].name == $model_id) {
@@ -15,9 +12,13 @@ function load_new_model_description($model_id){
     return content;
 }
 
+var $active_preset = '';
 
 function show_description_modal($model_id) {
     $('#modal_content').text(load_new_model_description($model_id));
+
+    $active_preset = $model_id;
+
     get_storage_info($model_id);
     $('#descModal').modal('show');
 }

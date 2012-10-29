@@ -187,6 +187,9 @@ class KVMProvider(object):
 
 
     def get_machines_list(self, no_cache=False):
+        """
+            @param no_cache - clear cache flag
+        """
         # Read from Redis cache:
         from time import time
         t1 = time()

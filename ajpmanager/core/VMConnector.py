@@ -70,10 +70,10 @@ class VMConnector(object):
         return False
 
     def clone(self, base, new_name):
-        """ Clone selected machine from presets
-
-         TODO: add possibility to clone production machine, not only from presets.
         """
+            Clone selected machine from presets
+        """
+        # TODO: add possibility to clone production machine, not only from presets.
         if not self.__select_vm_provider():
             return
         self.conn.clone_machine(base, new_name)
@@ -138,8 +138,10 @@ class VMConnector(object):
 
         return self.conn.destroy_machine(name)
 
-    def get_vms_list(self, username=None, no_cache=None):
+    def get_vms_list(self, username=None, no_cache=False):
         """ Asking VM provider to provide list of all non-presets VMs, then filtering by allowed.
+
+            @param no_cache - clear machines list cache flag
         """
         if not self.__select_vm_provider():
             return
@@ -156,11 +158,52 @@ class VMConnector(object):
         return vms
 
     def get_presets_list(self):
-        """ Asking VM provider to provide list of all presets VMs.
+        """
+            Asking VM provider to provide list of all presets VMs.
         """
         if not self.__select_vm_provider():
             return
         return self.conn.get_presets_list()
+
+    def install_from_preset(self, new_name, preset):
+
+        if not new_name or not preset:
+            return False, "No preset or no name provided"
+
+        # Check for special signs (to avoid names like '*L()B$73R*')
+        def special_match(strg, search=re.compile(r'[^A-Za-z0-9]').search):
+            return not bool(search(strg))
+        if not special_match(new_name) or (24 < len(new_name) < 4):
+            import pdb; pdb.set_trace()
+            return False, "Please provide better name"
+
+        if preset not in map(lambda x: x['name'], self.get_presets_list()):
+            return False, "Such preset does not exist"
+
+        # Actual machines list for now
+        # TODO: block concurrent operations
+        vms = self.conn.get_machines_list(no_cache=True)
+
+        vms = map(lambda x: x['name'], vms['online']) + map(lambda x: x['name'], vms['offline'])
+
+        if new_name in vms:
+            return False, "Such name already in use"
+
+        free_space = self.get_storage_info(preset)
+
+        if free_space[2] < free_space[3]:
+            return False, "You don't have enough free disk space available to install from preset"
+
+        # Looks like all good - continue
+        try:
+            self.clone(base=preset,  new_name=new_name)
+        except Exception as e:
+            print (e)
+            return False, "Something went wrong: %s" % e
+        else:
+            return True, "New machine was successfully created"
+
+
 
     def get_storage_info(self, machine):
         """ Calculating storage info (total, free, used) for new VM:

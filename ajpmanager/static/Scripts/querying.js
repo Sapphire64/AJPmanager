@@ -414,6 +414,34 @@ function update_user_info() {
 
 
 
+function install_machine() {
+
+    var data = new Object();
+
+    data.new_name = document.getElementById('in-name').value;
+    data.preset = $active_preset;
+
+    $.ajax({
+        type: "POST",
+        url: "/engine.ajax",
+        data: JSON.stringify({'query': 'install_from_preset', 'data': data}),
+        contentType: 'application/json; charset=utf-8'
+    }).done(function ( data ) {
+            if (data.status) {
+                show_default_screen(true);
+                jgrowl_success(data.answer);
+            }
+            else {
+                jgrowl_error(3, data.answer);
+            }
+
+        });
+
+}
+
+
+
+
 
 function apply_settings() {
 
