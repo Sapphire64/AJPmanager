@@ -214,6 +214,12 @@ class JSONprocessor(object):
         by_name = self.json['data'][1]
         answer = VMC.get_user_info(ident, by_name)
         answer[1]['self_profile'] = answer[1]['username'] == self.username
+        if not self.__check_permissions(['admins', 'moderators']):
+            answer[1]['machines'] = None
+        else:
+            vms_list = self.get_vms_list()
+            answer[1]['all_machines'] = [machine['name'] for machine in vms_list['data']['offline']] +\
+                            [machine['name'] for machine in vms_list['data']['online']]
         return {'status': answer[0],
                 'answer': answer[1]}
 

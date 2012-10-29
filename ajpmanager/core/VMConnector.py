@@ -246,6 +246,8 @@ class VMConnector(object):
         last_name = json['last_name'].strip()
         group = json['group'].strip()
 
+        machines = json['machines']
+
         if not group:
             return False, 'Bad group name provided'
         else:
@@ -324,7 +326,7 @@ class VMConnector(object):
                 new_password = password
 
             User.update_user(username=changing_user_info['username'], first_name=first_name,
-                last_name=last_name, group=group, email=email, password=new_password)
+                last_name=last_name, group=group, email=email, password=new_password, machines=machines)
 
         return True, ''
 
@@ -374,8 +376,6 @@ class VMConnector(object):
             return User.get_user_info_by_name(ident)
         else:
             return User.get_user_info_by_id(ident)
-
-
 
     def apply_settings(self, data):
         """ Save settings into DB """

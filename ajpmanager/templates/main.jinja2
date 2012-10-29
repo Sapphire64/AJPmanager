@@ -645,84 +645,112 @@
       but in case of program's extension
       (with more user info which shouldn't be loaded in general)
       this can be a plus #}
-    <div class="modal hide fade" id="infoModal">
+    <div class="modal hide fade users_modal" id="infoModal">
         <div class="modal-header">
             <a class="close" data-dismiss="modal">×</a>
             <h3>User info</h3>
         </div>
         <div class="modal-body">
 
-            <div id="user_edit_danger_block" class="alert alert-error hide">
+            {% if 'group:admins' in user_groups or 'group:moderators' in user_groups %}
+
+            <div class="row-fluid">
+
+                <div class="span8">
+
+                {% endif %}
+
+                    <div id="user_edit_danger_block" class="alert alert-error hide">
+
+                    </div>
+
+                    <div id="user_edit_success_block" class="alert alert-success hide">
+
+                    </div>
+
+                    <form class="form-horizontal">
+                        <fieldset>
+                            <div class="control-group">
+                                <label class="control-label" for="view_username">Username</label>
+                                <div class="controls">
+                                    <input type="text" class="input-xlarge centered darkize" id="view_username" placeholder="username" disabled>
+                                    <a id="online_img" class="btn" href="#"><i class="icon-user" style="color: #ffffff;" disabled></i></a>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="view_email">Email</label>
+                                <div class="controls">
+                                    <input type="text" class="input-xlarge darkize centered" id="view_email" placeholder="email" disabled>
+                                    <a id="mailto" title="Send email to the user" class="btn" href="mailto:foo@mail.com"><i class="icon-envelope"></i></a>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="view_first_name">First name</label>
+                                <div class="controls">
+                                    <input type="text" class="input-xlarge centered darkize" id="view_first_name" placeholder="first name" disabled>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="view_last_name">Last name</label>
+                                <div class="controls">
+                                    <input type="text" class="input-xlarge centered darkize" id="view_last_name" placeholder="last name" disabled>
+                                </div>
+                            </div>
+
+                            <div id="change_password_container" class="hide">
+                                <div class="control-group">
+                                    <label class="control-label" for="view_group">Group</label>
+                                    <div class="controls">
+                                        <input type="text" class="input-xlarge centered darkize" id="view_group" placeholder="group name" disabled>
+                                    </div>
+                                </div>
+
+                                <h4>Change password</h4>
+                                <br>
+                                <div class="control-group" id="old_password_group">
+                                    <label class="control-label" for="old_password">Old password</label>
+                                    <div class="controls">
+                                        <input type="password" class="input-xlarge centered darkize" id="old_password" placeholder="password">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="change_password">New password</label>
+                                    <div class="controls">
+                                        <input type="password" class="input-xlarge centered darkize" id="change_password" placeholder="password">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="change_password_confirm">Confirm password</label>
+                                    <div class="controls">
+                                        <input type="password" class="input-xlarge centered darkize" id="change_password_confirm" placeholder="password">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </fieldset>
+                    </form>
+
+                {% if 'group:admins' in user_groups or 'group:moderators' in user_groups %}
+
+                    </div>
+
+                    <div class="span4">
+
+                        <div class="control-group">
+                            <label class="control-label" for="groups_select">Allowed machines for user</label>
+                            <div class="controls">
+                                <select multiple="multiple" style="height: 320px" id="machines_select">
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% endif %}
 
             </div>
-
-            <div id="user_edit_success_block" class="alert alert-success hide">
-
-            </div>
-
-            <form class="form-horizontal">
-                <fieldset>
-                    <div class="control-group">
-                        <label class="control-label" for="view_username">Username</label>
-                        <div class="controls">
-                            <input type="text" class="input-xlarge centered darkize" id="view_username" placeholder="username" disabled>
-                            <a id="online_img" class="btn" href="#"><i class="icon-user" style="color: #ffffff;" disabled></i></a>
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="view_email">Email</label>
-                        <div class="controls">
-                            <input type="text" class="input-xlarge darkize centered" id="view_email" placeholder="email" disabled>
-                            <a id="mailto" title="Send email to the user" class="btn" href="mailto:foo@mail.com"><i class="icon-envelope"></i></a>
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="view_first_name">First name</label>
-                        <div class="controls">
-                            <input type="text" class="input-xlarge centered darkize" id="view_first_name" placeholder="first name" disabled>
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="view_last_name">Last name</label>
-                        <div class="controls">
-                            <input type="text" class="input-xlarge centered darkize" id="view_last_name" placeholder="last name" disabled>
-                        </div>
-                    </div>
-
-                    <div id="change_password_container" class="hide">
-                        <div class="control-group">
-                            <label class="control-label" for="view_group">Group</label>
-                            <div class="controls">
-                                <input type="text" class="input-xlarge centered darkize" id="view_group" placeholder="group name" disabled>
-                            </div>
-                        </div>
-
-                        <h4>Change password</h4>
-                        <br>
-                        <div class="control-group" id="old_password_group">
-                            <label class="control-label" for="old_password">Old password</label>
-                            <div class="controls">
-                                <input type="password" class="input-xlarge centered darkize" id="old_password" placeholder="password">
-                            </div>
-                        </div>
-                        <div class="control-group">
-                            <label class="control-label" for="change_password">New password</label>
-                            <div class="controls">
-                                <input type="password" class="input-xlarge centered darkize" id="change_password" placeholder="password">
-                            </div>
-                        </div>
-                        <div class="control-group">
-                            <label class="control-label" for="change_password_confirm">Confirm password</label>
-                            <div class="controls">
-                                <input type="password" class="input-xlarge centered darkize" id="change_password_confirm" placeholder="password">
-                            </div>
-                        </div>
-                    </div>
-
-                </fieldset>
-            </form>
-
-        </div>
         <div class="modal-footer">
             <a href="#" id="update_user_info_btn"
                class="btn btn-large btn-success hide"

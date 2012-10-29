@@ -389,6 +389,8 @@ function update_user_info() {
     data.change_password = document.getElementById('change_password').value;
     data.change_password_confirm = document.getElementById('change_password_confirm').value;
 
+    data.machines = $('#machines_select').val()
+
     $.ajax({
         type: "POST",
         url: "/engine.ajax",

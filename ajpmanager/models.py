@@ -117,6 +117,8 @@ class User(object):
         pack['group'] = dbcon.io.get('uid:' + uid + ':group')
         pack['online'] =  dbcon.io.get('username:' + pack['username'] + ':online')
 
+        pack['machines'] = list(dbcon.io.smembers('uid:' + uid + ":machines"))
+
         return True, pack
 
     @classmethod
@@ -175,7 +177,8 @@ class User(object):
         return True, 'Farewell ' + str(username)
 
     @classmethod
-    def update_user(cls, username, first_name=None, last_name=None, group=None, email=None, password=None):
+    def update_user(cls, username, first_name=None, last_name=None,
+                    group=None, email=None, password=None, machines=None):
         """ Function which applies provided username's new information.
         Only granted users can change user information and nobody can change username.
         """
@@ -210,5 +213,10 @@ class User(object):
             dbcon.io.set('uid:' + uid + ':email', email)
         if update_password:
             dbcon.io.set('uid:' + uid + ':password', password)
+
+        if machines is not None:
+            dbcon.io.expire('uid:' + uid + ':machines', 0)
+            for machine in machines:
+                dbcon.io.sadd('uid:' + uid + ':machines', machine)
 
         # All done.

@@ -141,6 +141,8 @@ function generate_users_list(data) {
 }
 
 function append_user_info(data) {
+    $('#machines_select').empty();
+
     $('#change_password_container').addClass('hide');
     $('#update_user_info_btn').addClass('hide');
     $('#old_password_group').addClass('hide');
@@ -205,6 +207,21 @@ function append_user_info(data) {
         if (document.getElementById('view_last_name').value == '- Not specified -') {
             document.getElementById('view_last_name').value = '';
         }
+
+        if ($privileged && !data.self_profile) {
+            for (var i=0; i<data.all_machines.length; i++) {
+                $('#machines_select').append(new Option(data.all_machines[i], '' + data.all_machines[i], true, false));
+
+                if (data.machines.indexOf(data.all_machines[i]) != -1) {
+                    $("#machines_select").val( data.all_machines[i] ).attr('selected',true);
+                }
+            }
+        }
+        else if ($privileged && (data.self_profile || data.group == 'group:admins' || data.group == 'group:moderators')) {
+            $('#machines_select').append(new Option("Only for regular users", "None", true, false));
+        }
+
+
     }
 
     $('#infoModal').modal('show'); // Showing actual modal
