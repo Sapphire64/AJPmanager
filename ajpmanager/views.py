@@ -95,7 +95,7 @@ class JSONprocessor(object):
     def get_vms_list(self):
         # Here we are reading all virtual machines and packing them into answer:
         no_cache = self.json.get('no_cache')
-        vms = VMC.get_vms_list(no_cache=no_cache)
+        vms = VMC.get_vms_list(username=self.username, no_cache=no_cache)
         return {'status': True, 'data': vms}
 
     def get_users_list(self):

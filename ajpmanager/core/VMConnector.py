@@ -110,12 +110,23 @@ class VMConnector(object):
             return
         return self.conn.destroy_machine(name)
 
-    def get_vms_list(self, no_cache):
-        """ Asking VM provider to provide list of all non-presets VMs.
+    def get_vms_list(self, username=None, no_cache=None):
+        """ Asking VM provider to provide list of all non-presets VMs, then filtering by allowed.
         """
         if not self.__select_vm_provider():
             return
-        return self.conn.get_machines_list(no_cache)
+        if not username:
+            return
+
+        vms = self.conn.get_machines_list(no_cache)
+        user_machines = User.get_user_machines_by_name(username)
+
+        if user_machines is not None:
+            vms['offline'] = filter(lambda x: x['name'] in user_machines, vms['offline'])
+            vms['online'] = filter(lambda x: x['name'] in user_machines, vms['online'])
+
+        return vms
+
 
     def get_presets_list(self):
         """ Asking VM provider to provide list of all presets VMs.

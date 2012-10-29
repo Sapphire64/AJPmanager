@@ -342,7 +342,6 @@ class KVMProvider(object):
                 return str(key)
         return None
 
-
     def _get_xml_info(self, machine_name, presets=False):
         source = self.IMAGES if not presets else self.PRESETS
         path = safe_join(source, machine_name)
@@ -369,14 +368,11 @@ class KVMProvider(object):
                 cpu = '?'
         return (type, cpu, memory)
 
-
     def _get_offline_machines(self):
         return self.connection.listDefinedDomains()
 
-
     def _get_online_machines(self):
         return self.connection.listDomainsID()
-
 
     def _define_machines(self):
         """ Adding VM into Libvirt. Also refreshing changed config files.
@@ -394,7 +390,6 @@ class KVMProvider(object):
                     # vice versa -> undefine_XML
                 except Exception:
                     continue
-
 
     def run_machine(self, machine_name, preset=False):
         if isinstance(machine_name, libvirt.virDomain): # Processing domain object itself
@@ -468,14 +463,11 @@ class KVMProvider(object):
     def pause_machine(self, machine_name):
         return (False, 'Not implemented yet')
 
-
-
     def clone_machine(self, preset_name, machine_name, session, force=False):
         id = 1
         p = Process(target=self._clone, args=(id, preset_name, machine_name, session, force)) # In different process
         p.start()
         #self._clone(id, preset_name, machine_name, session, force) # for debugging
-
 
     def _check_vnc_permissions(self, user_groups, accepted_group, match_if_all=False):
         """ A function to check user's permission in
@@ -611,9 +603,6 @@ class KVMProvider(object):
                 del(self.vnc_proxies[machine_name])
 
         return (True, '')
-
-
-
 
 
     """

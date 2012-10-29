@@ -105,6 +105,20 @@ class User(object):
         return answer
 
     @classmethod
+    def get_user_machines_by_name(cls, name):
+        uid = dbcon.io.get('username:' + str(name) + ':uid')
+        if not uid:
+            return False, "User does not exists"
+        else:
+            return cls.get_user_machines_by_id(uid)
+
+    @classmethod
+    def get_user_machines_by_id(cls, uid):
+        if dbcon.io.get('uid:' + uid + ':group') in ['group:admins', 'group:moderators']:
+            return None
+        return list(dbcon.io.smembers('uid:' + uid + ":machines"))
+
+    @classmethod
     def get_user_info_by_id(cls, uid):
         pack = dict()
 
@@ -117,7 +131,7 @@ class User(object):
         pack['group'] = dbcon.io.get('uid:' + uid + ':group')
         pack['online'] =  dbcon.io.get('username:' + pack['username'] + ':online')
 
-        pack['machines'] = list(dbcon.io.smembers('uid:' + uid + ":machines"))
+        pack['machines'] = cls.get_user_machines_by_id(uid)
 
         return True, pack
 
@@ -214,8 +228,8 @@ class User(object):
         if update_password:
             dbcon.io.set('uid:' + uid + ':password', password)
 
+        dbcon.io.expire('uid:' + uid + ':machines', 0)
         if machines is not None:
-            dbcon.io.expire('uid:' + uid + ':machines', 0)
             for machine in machines:
                 dbcon.io.sadd('uid:' + uid + ':machines', machine)
 
