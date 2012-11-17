@@ -79,10 +79,13 @@ This is not the best choice for package management so we hope somebody can help 
 TODO
 --------------
 1) Full test coverage
-2) Machines pause :)
-3) Clone non-presetted machines, save state, detailed machine info
-4) Friendly interface for screens with resolution less than 1280x720
-5) VM rooms to separate physical hardware for classroomes (far future)
+2) SSL
+3) Package for much easier installation of the manager
+4) Machines pause :)
+5) Clone non-presetted machines, save state, detailed machine info
+6) Friendly interface for screens with resolution less than 1280x720
+7) VNC screen size adjustments
+8) VM rooms to separate physical hardware for classroomes (far future)
 
 Requirements
 ---------------
