@@ -89,7 +89,7 @@ class JSONprocessor(object):
             func = self.functions[self.json['query']]
         except KeyError:
             # If we have wrong JSON request
-            print ('Wrong JSON request: ' + str(self.json['query']))
+            print ('Wrong JSON request: ' + str(self.json.get('query')))
             return {'status': False, 'answer': 'Wrong query'}
         else:
             return func(self)
