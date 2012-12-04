@@ -272,8 +272,6 @@ class KVMProvider(object):
         else:
             self.db.rpush('online', 'Empty')
 
-        self.db.expire('online', 600)
-
         if offline:
             for item in offline:
                 item = json.dumps(item)
@@ -281,6 +279,7 @@ class KVMProvider(object):
         else:
             self.db.rpush('offline', 'Empty')
 
+        self.db.expire('online', 600)
         self.db.expire('offline', 600)
 
         print ('Cache not used: '  + str(time()-t1)) # Temp mini-bench
