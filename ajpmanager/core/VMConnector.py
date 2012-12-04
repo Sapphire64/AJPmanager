@@ -69,14 +69,14 @@ class VMConnector(object):
 
         return False
 
-    def clone(self, base, new_name):
+    def clone(self, base, new_name, session):
         """
             Clone selected machine from presets
         """
         # TODO: add possibility to clone production machine, not only from presets.
         if not self.__select_vm_provider():
             return
-        self.conn.clone_machine(base, new_name)
+        self.conn.clone_machine(base, new_name, session)
 
     def run_machine(self, username, name):
         """ Asks VM provider to run VM with provided name.
@@ -111,7 +111,7 @@ class VMConnector(object):
 
     def pause_machine(self, username, name):
         """ Asks VM provider to pause VM with provided name.
-        TODO: This is not implemented yet by any VM provider, also we don't have unpause function.
+        TODO: This is not implemented yet by any VM provider class, also we don't have unpause function.
         """
         if not self.__select_vm_provider():
             return
@@ -171,7 +171,7 @@ class VMConnector(object):
             return
         return self.conn.get_presets_list()
 
-    def install_from_preset(self, new_name, preset):
+    def install_from_preset(self, new_name, preset, session):
 
         if not new_name or not preset:
             return False, "No preset or no name provided"
@@ -201,7 +201,7 @@ class VMConnector(object):
 
         # Looks like all good - continue
         try:
-            self.clone(base=preset,  new_name=new_name)
+            self.clone(base=preset, new_name=new_name, session=session)
         except Exception as e:
             print (e)
             return False, "Something went wrong: %s" % e

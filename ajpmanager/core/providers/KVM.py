@@ -110,8 +110,17 @@ class KVMProvider(object):
             # </TOTAL_MADNESS>
 
         # XML ready
+        # Finding libvirt group name
 
-        for file in [DESCRIPTION_NAME, VMIMAGE_NAME] + additional_images:
+        import grp
+        try:
+            groupinfo = grp.getgrnam('libvirt')
+            gid = groupinfo.gr_gid
+        except Exception as e:
+            print ('Error while trying to determine libvirt\'s group: %s' % e)
+            raise
+
+        for file in [self.DESCRIPTION_NAME, self.VMIMAGE_NAME] + additional_images:
             try:
                 shutil.copy2(safe_join(src, file), dst)
             except OSError as exc: # python >2.5
@@ -119,6 +128,10 @@ class KVMProvider(object):
                 if exc.errno == 28:
                     return {'answer': False, 'message': 'No space left on device'}
                 print (exc.errno)
+            else:
+                os.chown(safe_join(dst, file), -1, gid) # appending libvirt permissions to files
+        os.chown(dst, -1, gid) # appending libvirt group to folder
+
 
         self.db.expire('copy', 0)
         # Drop cache:
@@ -136,6 +149,7 @@ class KVMProvider(object):
 
     def _prepare_database(self, soft=False): # aka drop cache
         # Set flags in DB and also prepare list of preset domains
+        print ('Cache dropped')
         if not soft:
             self.db.expire('copy', 0)
             self.db.set('provider', 'kvm')
@@ -190,8 +204,18 @@ class KVMProvider(object):
         """
             @param no_cache - clear cache flag
         """
-        # Read from Redis cache:
 
+        # Best place for debugging KVMProvider
+        #import pdb; pdb.set_trace()
+
+        # Two refreshes in 5 seconds drop cache:
+        if self.db.get('drop_cache'):
+            no_cache = True
+        else:
+            self.db.set('drop_cache', 1)
+            self.db.expire('drop_cache', 5)
+
+        # Read from Redis cache:
         from time import time
         t1 = time()
 
@@ -380,6 +404,11 @@ class KVMProvider(object):
     def _define_machines(self):
         """ Adding VM into Libvirt. Also refreshing changed config files.
         """
+        # Clearing all defined domains:
+        online = self._get_online_machines()
+        offline = self._get_offline_machines()
+        map(lambda x: x.undefine(), map(self.connection.lookupByName, online + offline))
+
         # Find preset's name & image name of the machine and add it into libvirt
         for category in [self.IMAGES, self.PRESETS]: # Scanning both images and presets
             for directory in os.listdir(category):
@@ -394,6 +423,7 @@ class KVMProvider(object):
                 except Exception as e:
                     print (e)
                     continue
+
 
     def run_machine(self, machine_name, preset=False):
         if isinstance(machine_name, libvirt.virDomain): # Processing domain object itself
