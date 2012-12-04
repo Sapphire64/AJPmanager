@@ -115,7 +115,7 @@ class User(object):
     @classmethod
     def get_user_machines_by_id(cls, uid):
         if dbcon.io.get('uid:' + uid + ':group') in ['group:admins', 'group:moderators']:
-            return None
+            return [True]
         return list(dbcon.io.smembers('uid:' + uid + ":machines"))
 
     @classmethod

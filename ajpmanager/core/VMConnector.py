@@ -87,9 +87,9 @@ class VMConnector(object):
         if not username:
             return
         user_machines = User.get_user_machines_by_name(username)
-        if name not in user_machines:
-            return
-
+        if user_machines != [True]:
+            if name not in user_machines:
+                return
         return self.conn.run_machine(name)
 
     def stop_machine(self, username, name):
@@ -151,11 +151,14 @@ class VMConnector(object):
         vms = self.conn.get_machines_list(no_cache)
         user_machines = User.get_user_machines_by_name(username)
 
-        if user_machines is not None:
+        if user_machines == [True]:
+            return vms
+        elif user_machines is not None:
             vms['offline'] = filter(lambda x: x['name'] in user_machines, vms['offline'])
             vms['online'] = filter(lambda x: x['name'] in user_machines, vms['online'])
-
-        return vms
+            return vms
+        else:
+            return None
 
     def get_presets_list(self):
         """
@@ -174,7 +177,6 @@ class VMConnector(object):
         def special_match(strg, search=re.compile(r'[^A-Za-z0-9]').search):
             return not bool(search(strg))
         if not special_match(new_name) or (24 < len(new_name) < 4):
-            import pdb; pdb.set_trace()
             return False, "Please provide better name"
 
         if preset not in map(lambda x: x['name'], self.get_presets_list()):
@@ -520,10 +522,12 @@ class VMConnector(object):
 
         # Step 1: can user view this machine at all?
         if not username:
-            return
+            return False, "Not allowed"
         user_machines = User.get_user_machines_by_name(username)
-        if machine_name not in user_machines:
-            return
+        if user_machines == [True]:
+            pass # Admin
+        elif machine_name not in user_machines:
+            return False, 'Now allowed'
 
         # Step 2: Finding your IP to bind to it (this allows remote users to connect)
         if not local_user: # This was added because local user does not store cookies for WAN IP connection.
