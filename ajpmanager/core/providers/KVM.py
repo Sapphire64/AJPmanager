@@ -72,16 +72,16 @@ class KVMProvider(object):
             os.makedirs(dst)
         else:
             if not force and os.path.\
-                exists(CONFIG_NAME) or os.path.\
-                exists(VMIMAGE_NAME) or os.path.\
-                exists(DESCRIPTION_NAME):
+                exists(self.CONFIG_NAME) or os.path.\
+                exists(self.VMIMAGE_NAME) or os.path.\
+                exists(self.DESCRIPTION_NAME):
                 return {'answer': False, 'message': 'Folder exists, use force to rewrite content'}
 
 
 
         # Prepare XML file
         additional_images = [] # File images (as additional partition files)
-        with open(safe_join(src, CONFIG_NAME)) as f:
+        with open(safe_join(src, self.CONFIG_NAME)) as f:
             # Now we are updating info in memory copy of preset's config file
             dom = minidom.parse(f)
 
@@ -106,7 +106,7 @@ class KVMProvider(object):
                         attributes.get('file').value = safe_join(dst, image_name)
 
             # Write to file
-            dom.writexml(open(safe_join(dst, CONFIG_NAME), 'w'), encoding='utf-8')
+            dom.writexml(open(safe_join(dst, self.CONFIG_NAME), 'w'), encoding='utf-8')
             # </TOTAL_MADNESS>
 
         # XML ready
@@ -191,6 +191,7 @@ class KVMProvider(object):
             @param no_cache - clear cache flag
         """
         # Read from Redis cache:
+
         from time import time
         t1 = time()
 
@@ -386,11 +387,12 @@ class KVMProvider(object):
                 if not os.path.isdir(directory_):
                     continue
                 try:
-                    with open(safe_join(directory_, CONFIG_NAME)) as f:
+                    with open(safe_join(directory_, self.CONFIG_NAME)) as f:
                         f = f.read()
                     self.connection.defineXML(f)
                     # vice versa -> undefine_XML
-                except Exception:
+                except Exception as e:
+                    print (e)
                     continue
 
     def run_machine(self, machine_name, preset=False):

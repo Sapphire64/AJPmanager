@@ -103,8 +103,9 @@ class VMConnector(object):
         if not username:
             return
         user_machines = User.get_user_machines_by_name(username)
-        if name not in user_machines:
-            return
+        if user_machines != [True]:
+            if name not in user_machines:
+                return
 
         return self.conn.stop_machine(name)
 
@@ -118,8 +119,9 @@ class VMConnector(object):
         if not username:
             return
         user_machines = User.get_user_machines_by_name(username)
-        if name not in user_machines:
-            return
+        if user_machines != [True]:
+            if name not in user_machines:
+                return
 
         return self.conn.pause_machine(name)
 
@@ -133,8 +135,9 @@ class VMConnector(object):
         if not username:
             return
         user_machines = User.get_user_machines_by_name(username)
-        if name not in user_machines:
-            return
+        if user_machines != [True]:
+            if name not in user_machines:
+                return
 
         return self.conn.destroy_machine(name)
 
