@@ -11,7 +11,8 @@ def authenticate(username, password):
         return False
     password_hash = dbcon.io.get('uid:' + uid + ':password')
     if not password_hash:
-        return (False, 'Your user account has expired. Please contact your supervisor.')
+        return False
+        #return (False, 'Your user account has expired. Please contact your supervisor.')
     return bcrypt.verify(password, password_hash)
 
 
