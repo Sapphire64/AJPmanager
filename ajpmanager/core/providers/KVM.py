@@ -619,7 +619,7 @@ class KVMProvider(object):
             self.vnc_proxies[machine_name] = (hash, p, listen_host, listen_port, is_super_user)
             self.vnc_proxies[machine_name][1].start()
 
-        data = {'cookie': hash, 'port': listen_port, 'secondary_connection': secondary_connection}
+        data = {'cookie': hash, 'host': listen_host, 'port': listen_port, 'secondary_connection': secondary_connection}
         return (True, data)
 
     def disable_vnc_connection(self, machine_name, session):

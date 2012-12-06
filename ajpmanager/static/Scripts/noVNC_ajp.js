@@ -77,7 +77,12 @@ function check_vnc_response(data){
 
         setCookie('ajpvnc_key', data.data.cookie);
 
-        //var host = data.data.host;
+        var host = data.data.host;
+
+        if (host == '127.0.0.1') {
+            host = WebUtil.getQueryVar('host', window.location.hostname);
+        }
+
         var port = data.data.port;
 
     //              var host, port, password, path, token;
@@ -87,7 +92,7 @@ function check_vnc_response(data){
 
         //document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
         // By default, use the host and port of server that served this file
-        var host = WebUtil.getQueryVar('host', window.location.hostname);
+        //host = WebUtil.getQueryVar('host', window.location.hostname);
         //port = WebUtil.getQueryVar('port', window.location.port);
 
         // If a token variable is passed in, set the parameter in a cookie.
