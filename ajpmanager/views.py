@@ -120,7 +120,11 @@ class JSONprocessor(object):
         if not self.__check_permissions(['admins', 'moderators']):
             return {'status': False, 'answer': 'You are not authorized to do that'}
         new_name = self.json['data']['new_name']
-        cookie = self.request.cookies['ajpvnc_key']
+        try:
+            cookie = self.request.cookies['ajpvnc_key']
+        except KeyError as e:
+            print (e)
+            cookie = ""
         preset = self.json['data']['preset']
         answer = VMC.install_from_preset(new_name=new_name, preset=preset, session=cookie)
         return {'status': answer[0], 'answer': answer[1]}

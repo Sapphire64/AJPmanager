@@ -405,9 +405,10 @@ class KVMProvider(object):
         """ Adding VM into Libvirt. Also refreshing changed config files.
         """
         # Clearing all defined domains:
-        online = self._get_online_machines()
+        #online = self._get_online_machines() # We cannot undefine running domain. So ignoring.
         offline = self._get_offline_machines()
-        map(lambda x: x.undefine(), map(self.connection.lookupByName, online + offline))
+        map(lambda x: x.undefine(), map(self.connection.lookupByName, offline))
+
 
         # Find preset's name & image name of the machine and add it into libvirt
         for category in [self.IMAGES, self.PRESETS]: # Scanning both images and presets
