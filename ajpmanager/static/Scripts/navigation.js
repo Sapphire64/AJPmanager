@@ -280,9 +280,27 @@ function show_users_list() {
     query_users_list();
 }
 
-
-
 function unshow_vnc_screen() {
     noVNC_release();
     //show_default_screen(false);
+}
+
+var $menus_state = true;
+
+function hide_menus() {
+    if ($menus_state) {
+        $('#left_menu').hide();
+        $('#right_menu').hide();
+        $('#center_menu').removeClass("span7");
+        $('#center_menu').addClass("span11");
+        $menus_state = false;
+    }
+    else {
+        $('#left_menu').show();
+        $('#right_menu').show();
+        $('#center_menu').removeClass("span11");
+        $('#center_menu').addClass("span7");
+        $menus_state = true;
+    }
+
 }
