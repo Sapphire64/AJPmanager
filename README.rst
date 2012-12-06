@@ -98,7 +98,7 @@ Requirements
   - Python 2.7 (not tested with earlier versions)
   - virtualenv
   - Redis DB
-  - Anything other will be installed into virtualenv automatically (except libvirt, see `Gettings Started<https://github.com/Sapphire64/AJPmanager/tree/users#getting-started>`_)
+  - Anything other will be installed into virtualenv automatically (except libvirt, see `Gettings Started <https://github.com/Sapphire64/AJPmanager/tree/users#getting-started>`_)
 
 Getting Started
 ---------------
@@ -109,6 +109,8 @@ To make this project run:
 - cp libs/site-packages/* $venv/local/lib/python{X}.{Y}/site-packages/
 
 - $venv/bin/python setup.py develop
+
+- $venv/bin/python ajpmanager/scripts/initialize_redis.py
 
 - $venv/bin/pserve development.ini
 
