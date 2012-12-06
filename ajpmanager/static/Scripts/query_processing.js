@@ -5,18 +5,6 @@ function generate_machines_list(page) {
     if (!$processed){
         $displayed_list = new Array();
 
-        var $machines = $offline;
-        for (var i=0; i<$machines.length; i++){
-            machine = $machines[i];
-            machine.status = 'Stopped';
-            machine.memory = machine.memory + 'M';
-            $displayed_list.push(machine);
-
-            if ($stopping_machines.indexOf(machine.name) != -1) { // Is in array?
-                $stopping_machines.pop(machine.name);
-            }
-        }
-
         // This must be rewritten :)
         var $machines = $online;
         for (var i=0; i<$machines.length; i++){
@@ -26,6 +14,18 @@ function generate_machines_list(page) {
             $displayed_list.push(machine);
             if ($stopping_machines.indexOf(machine.name) != -1) { // Is in array?
                 machine.status = 'Stopping';
+            }
+        }
+
+        var $machines = $offline;
+        for (var i=0; i<$machines.length; i++){
+            machine = $machines[i];
+            machine.status = 'Stopped';
+            machine.memory = machine.memory + 'M';
+            $displayed_list.push(machine);
+
+            if ($stopping_machines.indexOf(machine.name) != -1) { // Is in array?
+                $stopping_machines.pop(machine.name);
             }
         }
         $processed = true;
