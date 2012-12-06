@@ -907,8 +907,7 @@ class WSRequestHandler(SimpleHTTPRequestHandler):
         SimpleHTTPRequestHandler.__init__(self, req, addr, object())
 
     def do_GET(self):
-        print ('dogget')
-        key = re.search('ajpvnc_key=' + str(self.session) + r'[\s|$]', str(self.headers))
+        key = re.search('ajpvnc_key=' + str(self.session) + r';*[\s|$]', str(self.headers))
         if not key: # Wrong security cookie
             print ('No key!')
             self.last_code = 403
