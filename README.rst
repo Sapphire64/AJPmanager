@@ -1,6 +1,8 @@
 AJPmanager
 ==================
 
+.. image:: https://user-images.githubusercontent.com/1443567/46786148-4b4b0000-cd34-11e8-9742-ddd4c41fb7e9.png
+
 Goals of the project
 ---------------
 
